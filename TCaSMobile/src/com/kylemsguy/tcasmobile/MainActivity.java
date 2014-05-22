@@ -2,12 +2,9 @@ package com.kylemsguy.tcasmobile;
 
 import java.util.concurrent.ExecutionException;
 
-import com.kylemsguy.tcasparser.AnswerManager;
-import com.kylemsguy.tcasparser.QuestionManager;
 import com.kylemsguy.tcasparser.SessionManager;
 
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.os.Build;
 
 public class MainActivity extends ActionBarActivity {
 
