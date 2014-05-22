@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TCaS Mobile</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="lblUsername">Username</string>
+    <string name="lblPassword">Password</string>
+    <string name="lblLoggestIn">Loggest In</string>
+
+</resources>
