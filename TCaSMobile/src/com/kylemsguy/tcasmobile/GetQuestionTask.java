@@ -13,7 +13,8 @@ public class GetQuestionTask extends AsyncTask<SessionManager, Void, String> {
 		try {
 			return am.getQuestion().get("content");
 		} catch (Exception e) {
-			return "Failed to get question :(";
+			// original message:"Failed to get question :(" 
+			return null;
 		}
 	}
 

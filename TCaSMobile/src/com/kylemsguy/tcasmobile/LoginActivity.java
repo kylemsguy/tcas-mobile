@@ -6,6 +6,8 @@ import com.kylemsguy.tcasparser.SessionManager;
 
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -67,15 +69,35 @@ public class LoginActivity extends ActionBarActivity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
+		String result = null;
+		// Check if logged in
+		try {
+			result = new GetQuestionTask().execute(sm).get();
+		} catch (InterruptedException | ExecutionException e1) {
+			Toast.makeText(getApplicationContext(), "Login Failed",
+					Toast.LENGTH_SHORT).show();
+			// stop execution
+			return;
+		}
+
+		if (result == null) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("Login failed. Check your username or password.");
+			builder.setPositiveButton("OK", null);
+			builder.setCancelable(true);
+			AlertDialog dialog = builder.create();
+			dialog.show();
+			return;
+		}
+
 		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
-		
+
 		// DEBUG: get new question
 		AsyncTask<SessionManager, Void, String> getQuestionTask = new GetQuestionTask()
 				.execute(sm);
 
-		String result;
 		try {
 			result = getQuestionTask.get();
 		} catch (InterruptedException | ExecutionException e) {
@@ -85,6 +107,8 @@ public class LoginActivity extends ActionBarActivity {
 		// DEBUG: Display whatever the result is as a toast
 		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG)
 				.show();
+
+		finish();
 	}
 
 	/**
@@ -98,8 +122,8 @@ public class LoginActivity extends ActionBarActivity {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_login, container,
-					false);
+			View rootView = inflater.inflate(R.layout.fragment_login,
+					container, false);
 			return rootView;
 		}
 	}
