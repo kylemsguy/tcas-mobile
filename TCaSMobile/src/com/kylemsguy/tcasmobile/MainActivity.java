@@ -1,5 +1,9 @@
 package com.kylemsguy.tcasmobile;
 
+import com.kylemsguy.tcasparser.AnswerManager;
+import com.kylemsguy.tcasparser.QuestionManager;
+import com.kylemsguy.tcasparser.SessionManager;
+
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -9,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.os.Build;
 
 public class MainActivity extends ActionBarActivity {
@@ -45,7 +50,21 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	public void loggestIn(View view){
-		// do something
+		TCaSApp thisApp = ((TCaSApp) this.getApplicationContext());
+		SessionManager sm = thisApp.getSessionManager();
+		
+		EditText user = (EditText) findViewById(R.id.login_username);
+		EditText pass = (EditText) findViewById(R.id.login_password);
+		
+		String username = user.getText().toString();
+		String password = pass.getText().toString();
+		
+		try {
+			sm.login(username, password);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
