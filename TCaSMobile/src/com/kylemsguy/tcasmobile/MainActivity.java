@@ -1,5 +1,7 @@
 package com.kylemsguy.tcasmobile;
 
+import java.util.concurrent.ExecutionException;
+
 import com.kylemsguy.tcasparser.AnswerManager;
 import com.kylemsguy.tcasparser.QuestionManager;
 import com.kylemsguy.tcasparser.SessionManager;
@@ -61,11 +63,26 @@ public class MainActivity extends ActionBarActivity {
 		String username = user.getText().toString();
 		String password = pass.getText().toString();
 
-		AsyncTask<Object, Void, String> result = new LoginTask().execute(
-				username, password, sm);
+		// login
+		try {
+			new LoginTask().execute(username, password, sm).get();
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		Toast.makeText(getApplicationContext(), result.get(),
-				Toast.LENGTH_SHORT).show();
+		AsyncTask<SessionManager, Void, String> getQuestionTask = new GetQuestionTask()
+				.execute(sm);
+
+		String result;
+		try {
+			result = getQuestionTask.get();
+		} catch (InterruptedException | ExecutionException e) {
+			result = e.toString();
+		}
+
+		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG)
+				.show();
 	}
 
 	/**

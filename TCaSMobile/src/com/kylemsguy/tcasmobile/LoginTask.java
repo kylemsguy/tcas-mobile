@@ -16,7 +16,7 @@ public class LoginTask extends AsyncTask<Object, Void, String> {
 		// param 2 should be SessionManager object
 		if (!(params[0] instanceof String) || !(params[1] instanceof String)
 				|| !(params[2] instanceof SessionManager))
-			throw new WrongParameterException();
+			return "Login Failed";
 		
 		String username = (String) params[0];
 		String password = (String) params[1];
@@ -29,8 +29,6 @@ public class LoginTask extends AsyncTask<Object, Void, String> {
 		}
 			return "Login Success!";
 	}
-	
-	@Override
-	protected String 
+ 
 
 }
