@@ -7,5 +7,6 @@
     <string name="lblUsername">Username</string>
     <string name="lblPassword">Password</string>
     <string name="lblLoggestIn">Loggest In</string>
+    <string name="title_activity_main">MainActivity</string>
 
 </resources>

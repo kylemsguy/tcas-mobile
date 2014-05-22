@@ -1,22 +1,28 @@
 package com.kylemsguy.tcasmobile;
 
+import java.util.concurrent.ExecutionException;
+
+import com.kylemsguy.tcasparser.SessionManager;
+
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
+import android.widget.EditText;
+import android.widget.Toast;
 
-public class MainActivity extends ActionBarActivity {
+public class LoginActivity extends ActionBarActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_login);
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -44,6 +50,43 @@ public class MainActivity extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	public void loggestIn(View view) {
+		TCaSApp thisApp = ((TCaSApp) this.getApplicationContext());
+		SessionManager sm = thisApp.getSessionManager();
+
+		EditText user = (EditText) findViewById(R.id.login_username);
+		EditText pass = (EditText) findViewById(R.id.login_password);
+
+		String username = user.getText().toString();
+		String password = pass.getText().toString();
+
+		// login
+		try {
+			new LoginTask().execute(username, password, sm).get();
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Intent intent = new Intent(this, MainActivity.class);
+		startActivity(intent);
+		
+		// DEBUG: get new question
+		AsyncTask<SessionManager, Void, String> getQuestionTask = new GetQuestionTask()
+				.execute(sm);
+
+		String result;
+		try {
+			result = getQuestionTask.get();
+		} catch (InterruptedException | ExecutionException e) {
+			result = e.toString();
+		}
+
+		// DEBUG: Display whatever the result is as a toast
+		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG)
+				.show();
+	}
+
 	/**
 	 * A placeholder fragment containing a simple view.
 	 */
@@ -55,7 +98,7 @@ public class MainActivity extends ActionBarActivity {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_main, container,
+			View rootView = inflater.inflate(R.layout.fragment_login, container,
 					false);
 			return rootView;
 		}
