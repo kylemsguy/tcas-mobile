@@ -7,6 +7,7 @@ import com.kylemsguy.tcasparser.SessionManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.os.Build;
 
 public class MainActivity extends ActionBarActivity {
@@ -48,23 +50,22 @@ public class MainActivity extends ActionBarActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
-	public void loggestIn(View view){
+
+	public void loggestIn(View view) {
 		TCaSApp thisApp = ((TCaSApp) this.getApplicationContext());
 		SessionManager sm = thisApp.getSessionManager();
-		
+
 		EditText user = (EditText) findViewById(R.id.login_username);
 		EditText pass = (EditText) findViewById(R.id.login_password);
-		
+
 		String username = user.getText().toString();
 		String password = pass.getText().toString();
-		
-		try {
-			sm.login(username, password);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		AsyncTask<Object, Void, String> result = new LoginTask().execute(
+				username, password, sm);
+
+		Toast.makeText(getApplicationContext(), result.get(),
+				Toast.LENGTH_SHORT).show();
 	}
 
 	/**
