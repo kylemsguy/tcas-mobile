@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieSyncManager;
 import android.os.Build;
 
 public class MainActivity extends ActionBarActivity {
@@ -52,6 +53,20 @@ public class MainActivity extends ActionBarActivity {
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
+	}
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		CookieSyncManager.getInstance().startSync();
+	}
+	
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		CookieSyncManager.getInstance().stopSync();
 	}
 
 	/**

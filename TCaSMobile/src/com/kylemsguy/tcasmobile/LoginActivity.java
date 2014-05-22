@@ -16,10 +16,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieSyncManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
 public class LoginActivity extends ActionBarActivity {
+	private SessionManager sm;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +31,26 @@ public class LoginActivity extends ActionBarActivity {
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
+		}
+
+		sm = ((TCaSApp) getApplicationContext()).getSessionManager();
+
+		CookieSyncManager.createInstance(this);
+		CookieSyncManager.getInstance().sync();
+		;
+
+		boolean loggedIn = false;
+		try {
+			loggedIn = new GetLoggedInTask().execute(sm).get();
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (loggedIn) {
+			Intent intent = new Intent(this, MainActivity.class);
+			startActivity(intent);
+			finish();
 		}
 	}
 
@@ -53,9 +75,6 @@ public class LoginActivity extends ActionBarActivity {
 	}
 
 	public void loggestIn(View view) {
-		TCaSApp thisApp = ((TCaSApp) this.getApplicationContext());
-		SessionManager sm = thisApp.getSessionManager();
-
 		EditText user = (EditText) findViewById(R.id.login_username);
 		EditText pass = (EditText) findViewById(R.id.login_password);
 
@@ -70,18 +89,16 @@ public class LoginActivity extends ActionBarActivity {
 			e.printStackTrace();
 		}
 
-		String result = null;
-		// Check if logged in
+		// check if logged in
+		boolean loggedIn = false;
 		try {
-			result = new GetQuestionTask().execute(sm).get();
+			loggedIn = new GetLoggedInTask().execute(sm).get();
 		} catch (InterruptedException | ExecutionException e1) {
-			Toast.makeText(getApplicationContext(), "Login Failed",
-					Toast.LENGTH_SHORT).show();
-			// stop execution
-			return;
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 
-		if (result == null) {
+		if (!loggedIn) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage("Login failed. Check your username or password.");
 			builder.setPositiveButton("OK", null);
@@ -91,23 +108,25 @@ public class LoginActivity extends ActionBarActivity {
 			return;
 		}
 
+		// store cookies for future use
+		CookieSyncManager.getInstance().sync();
+		;
+
+		// start the new activity
 		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
-
-		// DEBUG: get new question
-		AsyncTask<SessionManager, Void, String> getQuestionTask = new GetQuestionTask()
-				.execute(sm);
-
-		try {
-			result = getQuestionTask.get();
-		} catch (InterruptedException | ExecutionException e) {
-			result = e.toString();
-		}
-
-		// DEBUG: Display whatever the result is as a toast
-		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG)
-				.show();
-
+		/*
+		 * // DEBUG: get new question AsyncTask<SessionManager, Void, String>
+		 * getQuestionTask = new GetQuestionTask() .execute(sm);
+		 * 
+		 * String result; try { result = getQuestionTask.get(); } catch
+		 * (InterruptedException | ExecutionException e) { result =
+		 * e.toString(); }
+		 * 
+		 * // DEBUG: Display whatever the result is as a toast
+		 * Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG)
+		 * .show();
+		 */
 		finish();
 	}
 
