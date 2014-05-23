@@ -35,9 +35,8 @@ public class LoginActivity extends ActionBarActivity {
 
 		sm = ((TCaSApp) getApplicationContext()).getSessionManager();
 
-		CookieSyncManager.createInstance(this);
+		/*CookieSyncManager.createInstance(this);
 		CookieSyncManager.getInstance().sync();
-		;
 
 		boolean loggedIn = false;
 		try {
@@ -51,7 +50,7 @@ public class LoginActivity extends ActionBarActivity {
 			Intent intent = new Intent(this, MainActivity.class);
 			startActivity(intent);
 			finish();
-		}
+		}*/
 	}
 
 	@Override
@@ -109,8 +108,7 @@ public class LoginActivity extends ActionBarActivity {
 		}
 
 		// store cookies for future use
-		CookieSyncManager.getInstance().sync();
-		;
+		//CookieSyncManager.getInstance().sync();
 
 		// start the new activity
 		Intent intent = new Intent(this, MainActivity.class);
