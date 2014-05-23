@@ -41,7 +41,7 @@
         android:layout_alignLeft="@+id/btnSkipTemp"
         android:layout_alignRight="@+id/btnSkipPerm"
         android:onClick="submitAnswer"
-        android:text="@string/answer" />
+        android:text="@string/start_answering" />
 
     <Button
         android:id="@+id/btnSkipPerm"
@@ -71,6 +71,6 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/btnSkipPerm"
         android:layout_alignLeft="@+id/textAreaScroller"
-        android:text="@string/loading" />
+        android:text="@string/temp_press_skip" />
 
 </RelativeLayout>

@@ -9,6 +9,7 @@ import com.kylemsguy.tcasparser.SessionManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieSyncManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.os.Build;
@@ -25,6 +27,7 @@ public class MainActivity extends ActionBarActivity {
 	private SessionManager sm;
 	private AnswerManager am;
 	private Map<String, String> currQuestion;
+	private boolean started = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -85,32 +88,46 @@ public class MainActivity extends ActionBarActivity {
 	public void skipTemp(View view) {
 		currQuestion = getNewQuestion();
 		writeCurrQuestion();
+
 	}
 
 	public void submitAnswer(View view) {
-		// get ID
-		String id = currQuestion.get("id");
-		
-		// get text
-		EditText answerField = (EditText) findViewById(R.id.answerField);
-		String answer = answerField.getText().toString();
-		
-		// Clear field
-		answerField.setText("");
+		if (!started) {
+			((Button) findViewById(R.id.btnSubmit)).setText("Submit");
+			skipTemp(view);
+			started = true;
+		} else {
+			// get ID
+			String id = currQuestion.get("id");
 
-		Map<String, String> tempQuestion;
-		
-		try {
-			tempQuestion = new SendAnswerTask().execute(
-					id, answer, am).get();
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
-		}
-		if(tempQuestion != null){
-			currQuestion = tempQuestion;
-			writeCurrQuestion();
+			// get text
+			EditText answerField = (EditText) findViewById(R.id.answerField);
+			String answer = answerField.getText().toString();
+
+			// Clear field
+			answerField.setText("");
+
+			Map<String, String> tempQuestion;
+
+			try {
+				tempQuestion = new SendAnswerTask().execute(id, answer, am)
+						.get();
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+				return;
+			}
+			if (tempQuestion != null) {
+				currQuestion = tempQuestion;
+				writeCurrQuestion();
+			} else {
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setMessage("Failed to send message. "
+						+ "Your message may be too short or unoriginal.");
+				builder.setPositiveButton("OK", null);
+				builder.setCancelable(true);
+				AlertDialog dialog = builder.create();
+				dialog.show();
+			}
 		}
 	}
 
