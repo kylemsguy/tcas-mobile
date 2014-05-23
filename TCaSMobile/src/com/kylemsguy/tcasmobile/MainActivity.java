@@ -1,5 +1,8 @@
 package com.kylemsguy.tcasmobile;
 
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import com.kylemsguy.tcasparser.AnswerManager;
 import com.kylemsguy.tcasparser.SessionManager;
 
@@ -14,11 +17,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieSyncManager;
+import android.widget.TextView;
 import android.os.Build;
 
 public class MainActivity extends ActionBarActivity {
 	private SessionManager sm;
 	private AnswerManager am;
+	private Map<String, String> currQuestion;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +36,25 @@ public class MainActivity extends ActionBarActivity {
 
 		sm = ((TCaSApp) getApplicationContext()).getSessionManager();
 		am = new AnswerManager(sm);
+
+	}
+
+	private Map<String, String> getNewQuestion() {
+		try {
+			return new GetQuestionTask().execute(sm).get();
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	private void writeCurrQuestion() {
+		TextView question = (TextView) findViewById(R.id.questionText);
+		TextView id = (TextView) findViewById(R.id.questionId);
+		
+		question.setText(currQuestion.get("content"));
+		id.setText(currQuestion.get("id"));
 	}
 
 	@Override
@@ -53,6 +77,19 @@ public class MainActivity extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	public void skipPerm(View view) {
+		// TODO implement permanent skip
+	}
+
+	public void skipTemp(View view) {
+		currQuestion = getNewQuestion();
+		writeCurrQuestion();
+	}
+
+	public void submitAnswer(View view) {
+		// TODO implement submit
+	}
+
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
@@ -62,7 +99,7 @@ public class MainActivity extends ActionBarActivity {
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		
+
 		// TODO cookiemanager code here
 		// CookieSyncManager.getInstance().startSync();
 	}
@@ -71,7 +108,7 @@ public class MainActivity extends ActionBarActivity {
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		
+
 		// TODO cookiemanager code here
 		// CookieSyncManager.getInstance().stopSync();
 	}

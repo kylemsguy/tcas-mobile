@@ -8,57 +8,69 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.kylemsguy.tcasmobile.MainActivity$PlaceholderFragment" >
 
-    <TextView
-        android:id="@+id/questionText"
+    <ScrollView
+        android:id="@+id/textAreaScroller"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/loading" />
+        android:scrollbars="vertical" >
 
-    <Button
-        android:id="@+id/btnSkipPerm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/btnSkipTemp"
-        android:layout_alignRight="@+id/questionText"
-        android:layout_alignTop="@+id/btnSkipTemp"
-        android:layout_marginLeft="22dp"
-        android:layout_toRightOf="@+id/btnSkipTemp"
-        android:text="@string/skip_perm"
-        android:textSize="15sp" />
-
-    <Button
-        android:id="@+id/btnSubmit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/btnSkipTemp"
-        android:layout_alignRight="@+id/btnSkipPerm"
-        android:layout_below="@+id/btnSkipTemp"
-        android:layout_marginTop="14dp"
-        android:text="@string/answer" />
-
-    <Button
-        android:id="@+id/btnSkipTemp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/questionText"
-        android:layout_below="@+id/questionText"
-        android:layout_marginTop="92dp"
-        android:text="@string/skip_temp"
-        android:textSize="15sp" />
+        <TextView
+            android:id="@+id/questionText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="15"
+            android:text="@string/loading" />
+    </ScrollView>
 
     <EditText
         android:id="@+id/answerField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/btnSubmit"
-        android:layout_alignRight="@+id/btnSubmit"
-        android:layout_below="@+id/btnSubmit"
-        android:layout_marginTop="22dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/btnSkipPerm"
         android:ems="10"
-        android:text="@string/response_prompt"
-        android:inputType="textMultiLine" >
+        android:hint="@string/response_prompt"
+        android:inputType="textMultiLine" />
 
-        <requestFocus />
-    </EditText>
+    <Button
+        android:id="@+id/btnSubmit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/answerField"
+        android:layout_alignLeft="@+id/btnSkipTemp"
+        android:layout_alignRight="@+id/btnSkipPerm"
+        android:onClick="submitAnswer"
+        android:text="@string/answer" />
+
+    <Button
+        android:id="@+id/btnSkipPerm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnSubmit"
+        android:layout_alignRight="@+id/textAreaScroller"
+        android:layout_marginBottom="18dp"
+        android:onClick="skipPerm"
+        android:text="@string/skip_perm"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/btnSkipTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/questionId"
+        android:layout_below="@+id/questionId"
+        android:layout_toLeftOf="@+id/btnSkipPerm"
+        android:onClick="skipTemp"
+        android:text="@string/skip_temp"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/questionId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnSkipPerm"
+        android:layout_alignLeft="@+id/textAreaScroller"
+        android:text="@string/loading" />
 
 </RelativeLayout>
