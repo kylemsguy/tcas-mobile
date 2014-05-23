@@ -81,20 +81,37 @@ public class MainActivity extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	private void skipQuestion(boolean forever) {
+		Map<String, String> tempQuestion = null;
+		try {
+			tempQuestion = new SkipQuestionTask().execute(sm,
+					currQuestion.get("id"), forever).get();
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return; // ABORT ABORT
+		}
+		if (tempQuestion == null) {
+			return; // ABORT ABORT
+		} else {
+			currQuestion = tempQuestion;
+			writeCurrQuestion();
+		}
+	}
+
 	public void skipPerm(View view) {
-		// TODO implement permanent skip of quesitons
+		skipQuestion(true);
 	}
 
 	public void skipTemp(View view) {
-		currQuestion = getNewQuestion();
-		writeCurrQuestion();
-
+		skipQuestion(false);
 	}
 
 	public void submitAnswer(View view) {
 		if (!started) {
 			((Button) findViewById(R.id.btnSubmit)).setText("Submit");
-			skipTemp(view);
+			currQuestion = getNewQuestion();
+			writeCurrQuestion();
 			started = true;
 		} else {
 			// get ID
