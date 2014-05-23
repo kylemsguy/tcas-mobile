@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.CookieSyncManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.os.Build;
 
@@ -52,7 +53,7 @@ public class MainActivity extends ActionBarActivity {
 	private void writeCurrQuestion() {
 		TextView question = (TextView) findViewById(R.id.questionText);
 		TextView id = (TextView) findViewById(R.id.questionId);
-		
+
 		question.setText(currQuestion.get("content"));
 		id.setText(currQuestion.get("id"));
 	}
@@ -78,7 +79,7 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	public void skipPerm(View view) {
-		// TODO implement permanent skip
+		// TODO implement permanent skip of quesitons
 	}
 
 	public void skipTemp(View view) {
@@ -87,7 +88,30 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	public void submitAnswer(View view) {
-		// TODO implement submit
+		// get ID
+		String id = currQuestion.get("id");
+		
+		// get text
+		EditText answerField = (EditText) findViewById(R.id.answerField);
+		String answer = answerField.getText().toString();
+		
+		// Clear field
+		answerField.setText("");
+
+		Map<String, String> tempQuestion;
+		
+		try {
+			tempQuestion = new SendAnswerTask().execute(
+					id, answer, am).get();
+		} catch (InterruptedException | ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+		if(tempQuestion != null){
+			currQuestion = tempQuestion;
+			writeCurrQuestion();
+		}
 	}
 
 	@Override
