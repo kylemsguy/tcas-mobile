@@ -34,7 +34,7 @@
         android:layout_alignRight="@+id/btnSkipPerm"
         android:layout_below="@+id/btnSkipTemp"
         android:layout_marginTop="14dp"
-        android:text="@string/submit" />
+        android:text="@string/answer" />
 
     <Button
         android:id="@+id/btnSkipTemp"
@@ -55,7 +55,8 @@
         android:layout_below="@+id/btnSubmit"
         android:layout_marginTop="22dp"
         android:ems="10"
-        android:inputType="text" >
+        android:text="@string/response_prompt"
+        android:inputType="textMultiLine" >
 
         <requestFocus />
     </EditText>

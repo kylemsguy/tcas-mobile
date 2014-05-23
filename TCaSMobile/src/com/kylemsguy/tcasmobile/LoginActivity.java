@@ -35,6 +35,7 @@ public class LoginActivity extends ActionBarActivity {
 
 		sm = ((TCaSApp) getApplicationContext()).getSessionManager();
 
+		// TODO cookiemanager code here
 		/*CookieSyncManager.createInstance(this);
 		CookieSyncManager.getInstance().sync();
 
@@ -107,6 +108,7 @@ public class LoginActivity extends ActionBarActivity {
 			return;
 		}
 
+		// TODO cookiemanager code here
 		// store cookies for future use
 		//CookieSyncManager.getInstance().sync();
 

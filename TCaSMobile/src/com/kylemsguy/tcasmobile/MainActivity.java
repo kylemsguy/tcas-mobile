@@ -1,5 +1,6 @@
 package com.kylemsguy.tcasmobile;
 
+import com.kylemsguy.tcasparser.AnswerManager;
 import com.kylemsguy.tcasparser.SessionManager;
 
 import android.support.v7.app.ActionBarActivity;
@@ -17,6 +18,7 @@ import android.os.Build;
 
 public class MainActivity extends ActionBarActivity {
 	private SessionManager sm;
+	private AnswerManager am;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,8 +28,9 @@ public class MainActivity extends ActionBarActivity {
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
-		
+
 		sm = ((TCaSApp) getApplicationContext()).getSessionManager();
+		am = new AnswerManager(sm);
 	}
 
 	@Override
@@ -54,19 +57,23 @@ public class MainActivity extends ActionBarActivity {
 	public void onBackPressed() {
 		super.onBackPressed();
 	}
-	
+
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		//CookieSyncManager.getInstance().startSync();
+		
+		// TODO cookiemanager code here
+		// CookieSyncManager.getInstance().startSync();
 	}
-	
+
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		//CookieSyncManager.getInstance().stopSync();
+		
+		// TODO cookiemanager code here
+		// CookieSyncManager.getInstance().stopSync();
 	}
 
 	/**

@@ -11,6 +11,6 @@
     <string name="loading">Loading&#8230;</string>
     <string name="skip_temp">Skip for Now</string>
     <string name="skip_perm">Skip Permanently</string>
-    <string name="submit">Submit</string>
-
+    <string name="answer">Answer</string>
+<string name="response_prompt">Your answer here&#8230;</string>
 </resources>
