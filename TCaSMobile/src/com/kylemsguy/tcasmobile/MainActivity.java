@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.webkit.CookieSyncManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.os.Build;
 
@@ -55,7 +56,8 @@ public class MainActivity extends ActionBarActivity {
 
 	private void writeCurrQuestion() {
 		TextView question = (TextView) findViewById(R.id.questionText);
-		TextView id = (TextView) findViewById(R.id.questionId);
+		LinearLayout idWrapper = (LinearLayout) findViewById(R.id.idLinearLayout);
+		TextView id = (TextView) idWrapper.findViewById(R.id.questionId);
 
 		question.setText(currQuestion.get("content"));
 		id.setText(currQuestion.get("id"));
@@ -100,10 +102,18 @@ public class MainActivity extends ActionBarActivity {
 	}
 
 	public void skipPerm(View view) {
+		if (!started) {
+			submitAnswer(view);
+			return;
+		}
 		skipQuestion(true);
 	}
 
 	public void skipTemp(View view) {
+		if (!started) {
+			submitAnswer(view);
+			return;
+		}
 		skipQuestion(false);
 	}
 

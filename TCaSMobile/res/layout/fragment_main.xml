@@ -12,15 +12,35 @@
         android:id="@+id/textAreaScroller"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/idLinearLayout"
+        android:layout_below="@id/top_action_bar"
+        android:fillViewport="true"
+        android:layout_alignParentTop="true"
         android:scrollbars="vertical" >
 
         <TextView
             android:id="@+id/questionText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:maxLines="15"
+            android:layout_gravity="bottom"
+            android:fillViewport="true"
             android:text="@string/loading" />
+
     </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/idLinearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnSkipPerm"
+        android:layout_alignLeft="@+id/textAreaScroller" >
+
+        <TextView
+            android:id="@+id/questionId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/temp_press_skip" />
+    </LinearLayout>
 
     <EditText
         android:id="@+id/answerField"
@@ -58,19 +78,11 @@
         android:id="@+id/btnSkipTemp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/questionId"
-        android:layout_below="@+id/questionId"
+        android:layout_alignLeft="@+id/idLinearLayout"
+        android:layout_below="@+id/idLinearLayout"
         android:layout_toLeftOf="@+id/btnSkipPerm"
         android:onClick="skipTemp"
         android:text="@string/skip_temp"
         android:textSize="15sp" />
-
-    <TextView
-        android:id="@+id/questionId"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/btnSkipPerm"
-        android:layout_alignLeft="@+id/textAreaScroller"
-        android:text="@string/temp_press_skip" />
 
 </RelativeLayout>

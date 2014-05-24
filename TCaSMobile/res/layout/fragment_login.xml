@@ -38,8 +38,8 @@
         android:layout_alignLeft="@+id/login_password"
         android:layout_below="@+id/login_password"
         android:layout_marginTop="10dp"
-        android:ems="10" 
+        android:ems="10"
         android:hint="@string/lblLoggestIn"
-        android:onClick="loggestIn"/>
+        android:onClick="loggestIn" />
 
 </RelativeLayout>
