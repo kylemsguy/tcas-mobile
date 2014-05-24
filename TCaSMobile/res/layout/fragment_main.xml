@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:fillViewport="true"
-            android:text="@string/loading" />
+            android:text="@string/start_answering_prompt" />
 
     </ScrollView>
 

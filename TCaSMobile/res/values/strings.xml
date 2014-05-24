@@ -13,6 +13,7 @@
     <string name="skip_perm">Skip Permanently</string>
     <string name="answer">Answer</string>
     <string name="start_answering">Tap here to get the first question.</string>
+    <string name="start_answering_prompt">Press any button to start.</string>
     <string name="response_prompt">Your answer here&#8230;</string>
     <string name="temp_press_skip">Press any button to get the first question.</string>
     <!-- This is debug only -->
