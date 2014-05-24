@@ -8,7 +8,8 @@ public class GetLoggedInTask extends AsyncTask<SessionManager, Void, Boolean> {
 
 	@Override
 	protected Boolean doInBackground(SessionManager... params) {
-		SessionManager sm = params[0];
+		SessionManager sm = new SessionManager();
+		sm.setCookies(params[0].getCookies());
 		return sm.checkLoggedIn();
 	}
 

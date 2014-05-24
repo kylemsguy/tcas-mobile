@@ -1,5 +1,11 @@
 package com.kylemsguy.tcasmobile;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.kylemsguy.tcasparser.SessionManager;
@@ -8,6 +14,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +28,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class LoginActivity extends ActionBarActivity {
+	private static final String COOKIE_FILENAME = "cookies.txt";
+
 	private SessionManager sm;
 
 	@Override
@@ -35,23 +44,39 @@ public class LoginActivity extends ActionBarActivity {
 
 		sm = ((TCaSApp) getApplicationContext()).getSessionManager();
 
-		// TODO cookiemanager code here
-		/*CookieSyncManager.createInstance(this);
-		CookieSyncManager.getInstance().sync();
-
-		boolean loggedIn = false;
+		// Load cookies from file
 		try {
-			loggedIn = new GetLoggedInTask().execute(sm).get();
+			loadCookiesFromFile();
+		} catch (IOException e) {
+			System.out
+					.println("cookies.txt not found. There are no cookies to load.");
+		}
+
+		// Check if logged in
+		try {
+			if (new GetLoggedInTask().execute(sm).get()) {
+				Intent startMain = new Intent(this, MainActivity.class);
+				startActivity(startMain);
+				finish();
+			}
 		} catch (InterruptedException | ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		if (loggedIn) {
-			Intent intent = new Intent(this, MainActivity.class);
-			startActivity(intent);
-			finish();
-		}*/
+		// TODO cookiemanager code here
+		/*
+		 * CookieSyncManager.createInstance(this);
+		 * CookieSyncManager.getInstance().sync();
+		 * 
+		 * boolean loggedIn = false; try { loggedIn = new
+		 * GetLoggedInTask().execute(sm).get(); } catch (InterruptedException |
+		 * ExecutionException e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(); }
+		 * 
+		 * if (loggedIn) { Intent intent = new Intent(this, MainActivity.class);
+		 * startActivity(intent); finish(); }
+		 */
 	}
 
 	@Override
@@ -74,6 +99,55 @@ public class LoginActivity extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	private boolean checkLoggedIn() {
+		try {
+			return new GetLoggedInTask().execute(sm).get();
+		} catch (InterruptedException | ExecutionException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return false;
+		}
+	}
+
+	private void loadCookiesFromFile() throws IOException {
+		FileInputStream fis;
+		StringBuilder sb = new StringBuilder();
+
+		fis = openFileInput(COOKIE_FILENAME);
+
+		int inputChar;
+		while ((inputChar = fis.read()) > -1) {
+			sb.append((char) inputChar);
+		}
+		
+		System.out.println(sb.toString());
+
+		List<String> inputData = Arrays.asList(sb.toString().split("\n"));
+
+		sm.setCookies(inputData);
+	}
+
+	private void writeCookiesToFile() throws IOException {
+		FileOutputStream fos = openFileOutput(COOKIE_FILENAME,
+				Context.MODE_PRIVATE);
+
+		for (String cookie : sm.getCookies()) {
+			fos.write(cookie.getBytes());
+			fos.write('\n');
+		}
+		fos.close();
+
+	}
+
+	private void showDialog(String message) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(message);
+		builder.setPositiveButton("OK", null);
+		builder.setCancelable(true);
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+
 	public void loggestIn(View view) {
 		EditText user = (EditText) findViewById(R.id.login_username);
 		EditText pass = (EditText) findViewById(R.id.login_password);
@@ -90,27 +164,20 @@ public class LoginActivity extends ActionBarActivity {
 		}
 
 		// check if logged in
-		boolean loggedIn = false;
-		try {
-			loggedIn = new GetLoggedInTask().execute(sm).get();
-		} catch (InterruptedException | ExecutionException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		boolean loggedIn = checkLoggedIn();
 
 		if (!loggedIn) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.setMessage("Login failed. Check your username or password.");
-			builder.setPositiveButton("OK", null);
-			builder.setCancelable(true);
-			AlertDialog dialog = builder.create();
-			dialog.show();
+			showDialog("Login failed. Check your username or password.");
 			return;
+		} else {
+			try {
+				System.out.println("Saving login credentials...");
+				writeCookiesToFile();
+			} catch (IOException e) {
+				showDialog("Could not save login credentials.");
+				e.printStackTrace();
+			}
 		}
-
-		// TODO cookiemanager code here
-		// store cookies for future use
-		//CookieSyncManager.getInstance().sync();
 
 		// start the new activity
 		Intent intent = new Intent(this, MainActivity.class);
