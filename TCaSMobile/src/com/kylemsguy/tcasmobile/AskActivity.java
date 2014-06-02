@@ -1,7 +1,9 @@
 package com.kylemsguy.tcasmobile;
 
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.kylemsguy.tcasparser.Question;
 import com.kylemsguy.tcasparser.QuestionManager;
 import com.kylemsguy.tcasparser.SessionManager;
 
@@ -22,6 +24,7 @@ public class AskActivity extends ActionBarActivity {
 
 	private SessionManager sm;
 	private QuestionManager qm;
+	private Map<Integer, Question> currQuestions;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +66,7 @@ public class AskActivity extends ActionBarActivity {
 
 		// Clear field
 		askQuestionField.setText("");
-		
+
 		String response = null;
 		// send question to be asked.
 		try {
@@ -73,19 +76,26 @@ public class AskActivity extends ActionBarActivity {
 			e.printStackTrace();
 			return;
 		}
-		
-		if(response != null){
+
+		if (response != null) {
 			showNotifDialog("You cannot send a blank message.");
 		} else {
 			refreshQuestionList();
 		}
 	}
-	
-	public void refreshQuestionList(){
-		// TODO implement question loading
+
+	public void refreshQuestionList() {
+		try {
+			currQuestions = qm.getQuestions();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// TODO implement dynamic list view
 	}
-	
-	public void showNotifDialog(String contents){
+
+	public void showNotifDialog(String contents) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(contents);
 		builder.setPositiveButton("OK", null);
