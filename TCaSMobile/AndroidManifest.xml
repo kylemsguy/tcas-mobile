@@ -27,8 +27,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.kylemsguy.tcasmobile.MainActivity"
+            android:name="com.kylemsguy.tcasmobile.AnswerActivity"
             android:label="@string/title_activity_main" >
+        </activity>
+        <activity
+            android:name="com.kylemsguy.tcasmobile.AskActivity"
+            android:label="@string/title_activity_ask" >
         </activity>
     </application>
 

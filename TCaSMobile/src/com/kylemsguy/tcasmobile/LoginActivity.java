@@ -57,7 +57,7 @@ public class LoginActivity extends ActionBarActivity {
 			// Check if logged in
 			try {
 				if (new GetLoggedInTask().execute(sm).get()) {
-					Intent startMain = new Intent(this, MainActivity.class);
+					Intent startMain = new Intent(this, AnswerActivity.class);
 					startActivity(startMain);
 					finish();
 				}
@@ -185,7 +185,7 @@ public class LoginActivity extends ActionBarActivity {
 		}
 
 		// start the new activity
-		Intent intent = new Intent(this, MainActivity.class);
+		Intent intent = new Intent(this, AnswerActivity.class);
 		startActivity(intent);
 		/*
 		 * // DEBUG: get new question AsyncTask<SessionManager, Void, String>
