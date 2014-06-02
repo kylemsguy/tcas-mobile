@@ -1,5 +1,6 @@
 package com.kylemsguy.tcasmobile;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -17,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.os.Build;
 
@@ -25,6 +27,9 @@ public class AskActivity extends ActionBarActivity {
 	private SessionManager sm;
 	private QuestionManager qm;
 	private Map<Integer, Question> currQuestions;
+	
+	private ArrayAdapter<String> adapter;
+	private List<String> listItems;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +40,7 @@ public class AskActivity extends ActionBarActivity {
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
+		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
 		sm = ((TCaSApp) getApplicationContext()).getSessionManager();
 		qm = new QuestionManager(sm);
 	}
