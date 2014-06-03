@@ -80,6 +80,13 @@ public class AnswerActivity extends ActionBarActivity {
 		if (id == R.id.action_settings) {
 			return true;
 		}
+		switch(id){
+		case R.id.action_settings:
+			return true;
+		case R.id.test_ask:
+			Intent intent = new Intent(this, AskActivity.class);
+			startActivity(intent);
+		}
 		return super.onOptionsItemSelected(item);
 	}
 

@@ -27,7 +27,7 @@
         android:onClick="askQuestion"
         android:text="@string/title_activity_ask" />
 
-    <ListView
+    <ExpandableListView
         android:id="@android:id/list"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

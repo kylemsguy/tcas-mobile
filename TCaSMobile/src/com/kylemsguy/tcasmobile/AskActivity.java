@@ -49,7 +49,7 @@ public class AskActivity extends ActionBarActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.ask, menu);
+		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
@@ -69,6 +69,11 @@ public class AskActivity extends ActionBarActivity {
 		// get text
 		EditText askQuestionField = (EditText) findViewById(R.id.askQuestionField);
 		String question = askQuestionField.getText().toString();
+		
+		if(question.equals("")){
+			showNotifDialog("You cannot send a blank message.");
+			return;
+		}
 
 		// Clear field
 		askQuestionField.setText("");
@@ -83,11 +88,7 @@ public class AskActivity extends ActionBarActivity {
 			return;
 		}
 
-		if (response != null) {
-			showNotifDialog("You cannot send a blank message.");
-		} else {
 			refreshQuestionList();
-		}
 	}
 
 	public void refreshQuestionList() {
