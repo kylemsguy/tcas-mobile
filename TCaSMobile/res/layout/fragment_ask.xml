@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="@string/ask_question_prompt"
-        android:inputType="textMultiLine|textCapWords" >
+        android:inputType="textMultiLine|textCapSentences" >
 
         <requestFocus />
     </EditText>
