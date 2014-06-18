@@ -99,6 +99,8 @@ public class LoginActivity extends ActionBarActivity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
+			Intent intent = new Intent(this, MainActivity.class);
+			startActivity(intent);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -187,7 +189,8 @@ public class LoginActivity extends ActionBarActivity {
 		}
 
 		// start the new activity
-		Intent intent = new Intent(this, AnswerActivity.class);
+		//Intent intent = new Intent(this, AnswerActivity.class);
+		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
 		/*
 		 * // DEBUG: get new question AsyncTask<SessionManager, Void, String>

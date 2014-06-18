@@ -3,7 +3,6 @@
 
     <!-- This is debug only -->
     <string name="lipsum"> Oh and insert lipsum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris eget diam quis magna tempor tempus. Integer ultricies erat purus, ac commodo dolor imperdiet ut. Integer quis bibendum erat. Vestibulum rutrum velit et massa porta, eu vestibulum nunc tincidunt. Etiam a consequat purus, at lobortis elit. Praesent porta, felis vel vestibulum malesuada, odio ante imperdiet nunc, vitae pharetra est diam sit amet leo. Donec non risus nec nunc lacinia molestie. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque malesuada odio nec dui interdum, in posuere turpis lacinia. Vestibulum vel aliquet risus. Ut eget nisl mollis, auctor velit vitae, rhoncus sapien. Nulla facilisi. Nam a nisl dictum, tincidunt mauris vel, mollis magna. Phasellus fermentum massa at est molestie consectetur. Sed pulvinar, turpis vel aliquam vestibulum, urna mauris rutrum mi, a lobortis ipsum velit sit amet augue. Nam ullamcorper urna in dui vestibulum eleifend.Morbi interdum tortor eget libero faucibus tristique. Etiam mollis, sem non vulputate lacinia, nulla odio feugiat est, vitae ornare ligula ipsum vitae turpis. Morbi a nibh at lorem convallis mattis a ac justo. Morbi a massa in sapien rutrum laoreet. Donec sollicitudin, dui eu egestas dictum, lorem orci tempor lectus, vitae adipiscing elit leo a tellus. In sit amet blandit neque, nec vehicula purus. Nullam egestas orci eget eros mattis egestas. Cras varius sem elit, vitae luctus odio ultricies vitae. Curabitur eros arcu, ornare vitae venenatis rhoncus, semper feugiat nibh. Etiam ac cursus metus. Fusce consequat risus ac metus placerat porttitor. Sed non suscipit tortor. Mauris faucibus rutrum porttitor. Pellentesque rutrum pulvinar diam, nec placerat dui semper eget. Nullam facilisis vitae dolor non pretium. Suspendisse vel varius ligula, sagittis imperdiet turpis.</string>
-    
     <string name="app_name">TCaS Mobile</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -21,5 +20,9 @@
     <string name="temp_press_skip">Press any button to get the first question.</string>
     <string name="title_activity_ask">Ask</string>
     <string name="ask_question_prompt">Ask a question&#8230;</string>
+    <string name="title_section1">Home</string>
+    <string name="title_section2">Ask</string>
+    <string name="title_section3">Answer</string>
+    <string name="title_section4">Messages</string>
 
 </resources>

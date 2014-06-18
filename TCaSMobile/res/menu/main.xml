@@ -4,11 +4,6 @@
     tools:context="com.kylemsguy.tcasmobile.LoginActivity" >
 
     <item
-        android:id="@+id/test_ask"
-        android:orderInCategory="100"
-        android:title="@string/title_activity_ask"
-        app:showAsAction="never"/>
-    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"

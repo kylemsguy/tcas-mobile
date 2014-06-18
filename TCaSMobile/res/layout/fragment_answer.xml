@@ -60,7 +60,7 @@
         android:layout_alignLeft="@+id/btnSkipTemp"
         android:layout_alignRight="@+id/btnSkipPerm"
         android:onClick="submitAnswer"
-        android:text="@string/start_answering" />
+        android:text="@string/answer" />
 
     <Button
         android:id="@+id/btnSkipPerm"
