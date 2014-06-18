@@ -18,6 +18,8 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -33,11 +35,13 @@ public class LoginActivity extends ActionBarActivity {
 	private static final String COOKIE_FILENAME = "cookies.txt";
 	private final boolean enableSaveCredentials = false;
 
+	private ConnectivityManager connMgr;
 	private SessionManager sm;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		setContentView(R.layout.activity_login);
 
 		if (savedInstanceState == null) {
@@ -146,6 +150,16 @@ public class LoginActivity extends ActionBarActivity {
 
 	}
 
+	private boolean currNetworkConnected() {
+		NetworkInfo mobileNwInfo = connMgr
+				.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+		NetworkInfo wifiNwInfo = connMgr
+				.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+		return ((mobileNwInfo == null ? false : mobileNwInfo.isConnected()) || 
+				(wifiNwInfo == null ? false	: wifiNwInfo.isConnected()));
+	}
+
 	private void showDialog(String message) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(message);
@@ -174,7 +188,10 @@ public class LoginActivity extends ActionBarActivity {
 		boolean loggedIn = checkLoggedIn();
 
 		if (!loggedIn) {
-			showDialog("Login failed. Check your username or password.");
+			if (currNetworkConnected())
+				showDialog("Login failed. Check your username or password.");
+			else
+				showDialog("Login failed. Check your internet connection.");
 			return;
 		} else {
 			if (enableSaveCredentials) {
@@ -189,7 +206,7 @@ public class LoginActivity extends ActionBarActivity {
 		}
 
 		// start the new activity
-		//Intent intent = new Intent(this, AnswerActivity.class);
+		// Intent intent = new Intent(this, AnswerActivity.class);
 		Intent intent = new Intent(this, MainActivity.class);
 		startActivity(intent);
 		/*

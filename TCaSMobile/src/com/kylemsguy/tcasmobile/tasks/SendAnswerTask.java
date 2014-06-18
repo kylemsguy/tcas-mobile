@@ -18,7 +18,7 @@ public class SendAnswerTask extends AsyncTask<Object, Void, Map<String, String>>
 		String contents = (String) params[1];
 		AnswerManager am = (AnswerManager) params[2];
 		
-		if(id.length() > 15){
+		if(id.length() > 25){
 			return null; // There's a big problem here...
 		}
 
