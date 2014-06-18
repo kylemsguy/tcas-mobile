@@ -3,6 +3,9 @@ package com.kylemsguy.tcasmobile;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.kylemsguy.tcasmobile.tasks.GetQuestionTask;
+import com.kylemsguy.tcasmobile.tasks.SendAnswerTask;
+import com.kylemsguy.tcasmobile.tasks.SkipQuestionTask;
 import com.kylemsguy.tcasparser.AnswerManager;
 import com.kylemsguy.tcasparser.SessionManager;
 

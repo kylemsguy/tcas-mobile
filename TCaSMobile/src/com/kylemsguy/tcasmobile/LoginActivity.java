@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
+import com.kylemsguy.tcasmobile.tasks.LoginTask;
 import com.kylemsguy.tcasparser.SessionManager;
 
 import android.support.v7.app.ActionBarActivity;
