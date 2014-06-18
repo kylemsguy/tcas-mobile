@@ -18,6 +18,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.app.AlertDialog;
@@ -247,7 +248,7 @@ public class MainActivity extends ActionBarActivity {
 	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
 	 * one of the sections/tabs/pages.
 	 */
-	public class SectionsPagerAdapter extends FragmentPagerAdapter {
+	public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
 		public SectionsPagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -265,6 +266,7 @@ public class MainActivity extends ActionBarActivity {
 			case 1:
 				return new AskFragment();
 			case 2:
+				currQuestion = getNewQuestion();
 				AnswerFragment fragment = new AnswerFragment();
 				Bundle args = new Bundle();
 				args.putString("question_id", currQuestion.get("id"));
