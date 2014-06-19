@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
  */
-package com.kylemsguy.tcasparser;
+package com.kylemsguy.tcasmobile.backend;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -31,27 +31,23 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import com.loopj.android.http.*;
 
 public class SessionManager {
 	// let's define some constants
-	private final String USER_AGENT = "Mozilla/5.0";
 	public static final String BASE_URL = "http://twocansandstring.com/";
 	private final String LOGIN = BASE_URL + "login/";
 
-	private List<String> cookies;
-	private HttpURLConnection connection;
+	private static AsyncHttpClient client = new AsyncHttpClient();;
 
-	public SessionManager() {
-		// TODO Auto-generated constructor stub
-	}
-
-	public boolean checkLoggedIn() {
+	public static boolean checkLoggedIn() {
 		try {
-			String page = getPageContent(AnswerManager.QUESTION_URL);
+			getPageContent(AnswerManager.QUESTION_URL, null,
+					new AsyncHttpResponseHandler() {
+						public void onSuccess(String response) {
+							// Do something with the file
+						}
+					});
 			if (page.startsWith("<!DOCTYPE html PUBLIC")) {
 				return false;
 			} else {
@@ -73,10 +69,6 @@ public class SessionManager {
 		// make sure cookies are on
 		CookieManager cm = new CookieManager();
 		CookieHandler.setDefault(cm);
-
-		// GET form's data
-		String page = getPageContent(LOGIN);
-		String postParams = getFormParams(page, username, password);
 
 		// Send data to login
 		String response = sendPost(LOGIN, postParams);
@@ -109,7 +101,7 @@ public class SessionManager {
 		// now time to act like a browser
 		connection.setInstanceFollowRedirects(false);
 		connection.setUseCaches(false);
-		//connection.setRequestMethod("POST");
+		// connection.setRequestMethod("POST");
 		connection.setRequestProperty("Host", "twocansandstring.com");
 		connection
 				.setRequestProperty("Accept",
@@ -118,8 +110,8 @@ public class SessionManager {
 		connection.setRequestProperty("Accept-Language", "en-US,en;q=0.8");
 
 		connection.setRequestProperty("Connection", "keep-alive");
-		//connection.setRequestProperty("Connection", "close");
-		
+		// connection.setRequestProperty("Connection", "close");
+
 		connection.setFixedLengthStreamingMode(postParams.getBytes().length);
 		connection.setRequestProperty("Content-Type",
 				"application/x-www-form-urlencoded");
@@ -137,7 +129,7 @@ public class SessionManager {
 
 		connection.setDoOutput(true);
 		connection.setDoInput(true);
-		
+
 		connection.connect();
 
 		// Send post request
@@ -204,93 +196,10 @@ public class SessionManager {
 	 * @return
 	 * @throws Exception
 	 */
-	public String getPageContent(String url) throws Exception {
+	public static void getPageContent(String url, RequestParams params,
+			AsyncHttpResponseHandler responseHandler) {
 		// start the connection
-		URL obj = new URL(url);
-		connection = (HttpURLConnection) obj.openConnection();
-
-		// default is GET
-		connection.setRequestMethod("GET");
-
-		connection.setUseCaches(false);
-
-		// act like a browser
-		// connection.setRequestProperty("User-Agent", USER_AGENT);
-		connection.setRequestProperty("User-Agent", "");
-		connection
-				.setRequestProperty("Accept",
-						"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-		connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-		if (cookies != null) {
-			for (String cookie : this.cookies) {
-				connection
-						.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
-			}
-		}
-		int responseCode = connection.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode);
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				connection.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		// Get the response cookies
-		this.setCookies(connection.getHeaderFields().get("Set-Cookie"));
-
-		return response.toString();
-	}
-
-	/**
-	 * Gets the parameters of a form on a page.
-	 * 
-	 * @param html
-	 *            the HTMl of the page
-	 * @param username
-	 *            The username that should be used
-	 * @param password
-	 *            The password that should be used
-	 * @return
-	 * @throws UnsupportedEncodingException
-	 */
-	public String getFormParams(String html, String username, String password)
-			throws UnsupportedEncodingException {
-
-		System.out.println("Extracting form's data...");
-
-		Document doc = Jsoup.parse(html);
-
-		// form id
-		Element loginform = doc.getElementsByTag("form").get(0);
-		Elements inputElements = loginform.getElementsByTag("input");
-		List<String> paramList = new ArrayList<String>();
-		for (Element inputElement : inputElements) {
-			String key = inputElement.attr("name");
-			String value = inputElement.attr("value");
-
-			if (key.equals("login_username"))
-				value = username;
-			else if (key.equals("login_password"))
-				value = password;
-			paramList.add(key + "=" + URLEncoder.encode(value, "UTF-8"));
-		}
-
-		// build parameters list
-		StringBuilder result = new StringBuilder();
-		for (String param : paramList) {
-			if (result.length() == 0) {
-				result.append(param);
-			} else {
-				result.append("&" + param);
-			}
-		}
-		return result.toString();
+		client.get(url, params, responseHandler);
 	}
 
 	public List<String> getCookies() {
@@ -299,10 +208,6 @@ public class SessionManager {
 
 	public void setCookies(List<String> cookies) {
 		this.cookies = cookies;
-	}
-
-	public HttpURLConnection getConnection() {
-		return connection;
 	}
 
 }

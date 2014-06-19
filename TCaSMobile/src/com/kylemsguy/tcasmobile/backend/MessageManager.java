@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
  */
-package com.kylemsguy.tcasparser;
+package com.kylemsguy.tcasmobile.backend;
 
 public class MessageManager {
 	private final String MESSAGES_URL = SessionManager.BASE_URL + "";
