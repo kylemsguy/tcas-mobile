@@ -12,13 +12,13 @@
         android:targetSdkVersion="19" />
 
     <application
-        android:name="com.kylemsguy.tcasmobile.TCaSApp"
+        android:name=".TCaSApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.kylemsguy.tcasmobile.LoginActivity"
+            android:name=".LoginActivity2"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,17 +27,26 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.kylemsguy.tcasmobile.AnswerActivity"
+            android:name=".AnswerActivity"
             android:label="@string/title_activity_main" >
         </activity>
         <activity
-            android:name="com.kylemsguy.tcasmobile.AskActivity"
+            android:name=".AskActivity"
             android:label="@string/title_activity_ask" >
         </activity>
         <activity
-            android:name="com.kylemsguy.tcasmobile.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/title_activity_main" >
         </activity>
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/title_activity_login"
+            android:windowSoftInputMode="adjustResize|stateVisible"></activity>
     </application>
+
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
 </manifest>

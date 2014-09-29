@@ -1,0 +1,2 @@
+configurations.create("default")
+artifacts.add("default", file('jsoup-1.7.3.jar'))
