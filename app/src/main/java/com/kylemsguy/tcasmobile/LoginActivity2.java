@@ -69,7 +69,7 @@ public class LoginActivity2 extends ActionBarActivity {
 
             // TODO cookiemanager code here
             /*
-			 * CookieSyncManager.createInstance(this);
+             * CookieSyncManager.createInstance(this);
 			 * CookieSyncManager.getInstance().sync();
 			 * 
 			 * boolean loggedIn = false; try { loggedIn = new
