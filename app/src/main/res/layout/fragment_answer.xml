@@ -12,13 +12,13 @@
         android:id="@+id/textAreaScroller"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/idLinearLayout"
+        android:layout_above="@+id/questionId"
         android:layout_alignParentTop="true"
         android:layout_below="@id/top_action_bar"
         android:fillViewport="true"
         android:scrollbars="vertical">
 
-    <TextView
+        <TextView
             android:id="@+id/questionText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -31,27 +31,20 @@
         android:id="@+id/questionId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/temp_press_skip"
         android:layout_above="@+id/idLinearLayout"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:text="@string/temp_press_skip" />
 
     <LinearLayout
         android:id="@+id/idLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/answerField"
+        android:layout_above="@+id/idAnswerFieldLL"
         android:layout_alignLeft="@+id/textAreaScroller"
         android:layout_alignStart="@+id/textAreaScroller"
-        android:weightSum="1">
 
-        <Button
-            android:id="@+id/btnSubmit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="submitAnswer"
-            android:text="@string/answer"
-            android:layout_weight="1.06" />
+        android:weightSum="1">
 
         <Button
             android:id="@+id/btnSkipTemp"
@@ -59,7 +52,8 @@
             android:layout_height="wrap_content"
             android:onClick="skipTemp"
             android:text="@string/skip_temp"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:layout_weight="1.00" />
 
         <Button
             android:id="@+id/btnSkipPerm"
@@ -67,22 +61,37 @@
             android:layout_height="wrap_content"
             android:onClick="skipPerm"
             android:text="@string/skip_perm"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:layout_weight="0.5" />
 
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/answerField"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/idAnswerFieldLL"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:ems="10"
-        android:hint="@string/response_prompt"
-        android:inputType="textMultiLine|textCapSentences"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentStart="true"
+        android:weightSum="1">
 
+        <EditText
+            android:id="@+id/answerField"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/response_prompt"
+            android:inputType="textMultiLine|textCapSentences"
+            android:layout_weight="1.00" />
 
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="submitAnswer"
+            android:text="@string/answer" />
+
+    </LinearLayout>
 </RelativeLayout>
