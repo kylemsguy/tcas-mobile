@@ -4,8 +4,12 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,8 +25,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.kylemsguy.tcasmobile.backend.SessionManager;
+import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
+import com.kylemsguy.tcasmobile.tasks.LoginTask;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -41,10 +51,14 @@ public class LoginActivity extends Activity {
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private AsyncTask mAuthTask = null;
+
+    // TCaS connection stuff
+    private ConnectivityManager connMgr;
+    private SessionManager sm;
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private AutoCompleteTextView mUsernameView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -55,7 +69,7 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        //mEmailView = (AutoCompleteTextView) findViewById(R.id.username);
+        mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
         //populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -80,6 +94,9 @@ public class LoginActivity extends Activity {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        // set up the TCaS session manager
+        sm = ((TCaSApp) getApplicationContext()).getSessionManager();
     }
 /*
     private void populateAutoComplete() {
@@ -104,11 +121,11 @@ public class LoginActivity extends Activity {
         }
 
         // Reset errors.
-        mEmailView.setError(null);
+        mUsernameView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String username = mEmailView.getText().toString();
+        String username = mUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -124,12 +141,12 @@ public class LoginActivity extends Activity {
 
         // Check for a valid username.
         if (TextUtils.isEmpty(username)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+            mUsernameView.setError(getString(R.string.error_field_required));
+            focusView = mUsernameView;
             cancel = true;
         } else if (!isUsernameValid(username)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+            mUsernameView.setError(getString(R.string.error_invalid_email));
+            focusView = mUsernameView;
             cancel = true;
         }
 
@@ -140,15 +157,65 @@ public class LoginActivity extends Activity {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
+            // login
             showProgress(true);
-            mAuthTask = new UserLoginTask(username, password);
-            mAuthTask.execute((Void) null);
+            try {
+                mAuthTask = new LoginTask().execute(username, password, sm);
+                mAuthTask.get();
+            } catch (InterruptedException | ExecutionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            // check if logged in
+            boolean loggedIn = checkLoggedIn();
+
+            if (!loggedIn) {
+                if (currNetworkConnected())
+                    showDialog("Login failed. Check your username or password.");
+                else
+                    showDialog("Login failed. Check your internet connection.");
+                return;
+            }
+
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
         }
+    }
+
+    private boolean checkLoggedIn() {
+        try {
+            return new GetLoggedInTask().execute(sm).get();
+        } catch (InterruptedException | ExecutionException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean currNetworkConnected() {
+        NetworkInfo mobileNwInfo = connMgr
+                .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        NetworkInfo wifiNwInfo = connMgr
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        return ((mobileNwInfo == null ? false : mobileNwInfo.isConnected()) ||
+                (wifiNwInfo == null ? false : wifiNwInfo.isConnected()));
+    }
+
+    private void showDialog(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message);
+        builder.setPositiveButton("OK", null);
+        builder.setCancelable(true);
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private boolean isUsernameValid(String username) {
         //TODO: Replace this with your own logic
-        return username.contains("[a-zA-Z]") && username.length() <= 25;
+        return username.matches("[a-zA-Z0-9]+") && username.length() <= 25;
     }
 
     private boolean isPasswordValid(String password) {
@@ -238,65 +305,9 @@ public class LoginActivity extends Activity {
                 new ArrayAdapter<String>(LoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
-        mEmailView.setAdapter(adapter);
+        mUsernameView.setAdapter(adapter);
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
-    }
 }
 
 
