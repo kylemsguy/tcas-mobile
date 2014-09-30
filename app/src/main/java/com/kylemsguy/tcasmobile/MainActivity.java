@@ -133,8 +133,8 @@ public class MainActivity extends ActionBarActivity {
 	// BEGIN AnswerActivity
 	private void writeCurrQuestion() {
 		TextView question = (TextView) findViewById(R.id.questionText);
-		LinearLayout idWrapper = (LinearLayout) findViewById(R.id.idLinearLayout);
-		TextView id = (TextView) idWrapper.findViewById(R.id.questionId);
+        //LinearLayout idWrapper = (LinearLayout) findViewById(R.id.idLinearLayout);
+        TextView id = (TextView) findViewById(R.id.questionId);
 
 		question.setText(currQuestion.get("content"));
 		id.setText(currQuestion.get("id"));

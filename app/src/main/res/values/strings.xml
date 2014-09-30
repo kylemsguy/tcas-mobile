@@ -10,19 +10,20 @@
     <string name="lblPassword">Password</string>
     <string name="lblLoggestIn">Loggest In</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="loading">Loading&#8230;</string>
+    <string name="loading">Loading…</string>
     <string name="skip_temp">Skip for Now</string>
     <string name="skip_perm">Skip Permanently</string>
     <string name="answer">Answer</string>
     <string name="start_answering">Tap here to get the first question.</string>
     <string name="start_answering_prompt">Press any button to start.</string>
-    <string name="response_prompt">Your answer here&#8230;</string>
+    <string name="response_prompt">Your answer here…</string>
     <string name="temp_press_skip">Press any button to get the first question.</string>
     <string name="title_activity_ask">Ask</string>
-    <string name="ask_question_prompt">Ask a question&#8230;</string>
+    <string name="ask_question_prompt">Ask a question…</string>
     <string name="title_section1">Home</string>
     <string name="title_section2">Ask</string>
     <string name="title_section3">Answer</string>
     <string name="title_section4">Messages</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

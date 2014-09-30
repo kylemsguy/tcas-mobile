@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -14,8 +15,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -39,15 +42,8 @@ import java.util.concurrent.ExecutionException;
  * A login screen that offers login via email/password.
 
  */
-public class LoginActivity extends Activity {
+public class LoginActivity extends ActionBarActivity {
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -97,6 +93,7 @@ public class LoginActivity extends Activity {
 
         // set up the TCaS session manager
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
+        connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 /*
     private void populateAutoComplete() {
@@ -110,6 +107,15 @@ public class LoginActivity extends Activity {
     }
 
 */
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
     /**
      * Attempts to sign in the account specified by the login form.
      * If there are form errors (invalid username, missing fields, etc.), the
@@ -178,8 +184,11 @@ public class LoginActivity extends Activity {
                 return;
             }
 
+            // start the new activity
+            // Intent intent = new Intent(this, AnswerActivity.class);
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
+
             finish();
         }
     }
