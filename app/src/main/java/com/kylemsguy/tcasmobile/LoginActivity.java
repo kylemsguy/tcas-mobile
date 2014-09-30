@@ -181,6 +181,7 @@ public class LoginActivity extends ActionBarActivity {
                     showDialog("Login failed. Check your username or password.");
                 else
                     showDialog("Login failed. Check your internet connection.");
+                showProgress(false);
                 return;
             }
 

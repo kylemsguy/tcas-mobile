@@ -7,10 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AnswerManager {
-	private final String BASE_URL = SessionManager.BASE_URL;
-	private final String QUESTION_URL = BASE_URL + "apiw/qa/getquestion/";
-	private final String ANSWER_URL = BASE_URL + "apiw/qa/answer/";
-	private final String SKIP_URL = BASE_URL + "apiw/qa/skip/";
+    private static final String BASE_URL = SessionManager.BASE_URL;
+    public static final String QUESTION_URL = BASE_URL + "apiw/qa/getquestion/";
+    public static final String ANSWER_URL = BASE_URL + "apiw/qa/answer/";
+    public static final String SKIP_URL = BASE_URL + "apiw/qa/skip/";
 
 	private SessionManager session;
 
