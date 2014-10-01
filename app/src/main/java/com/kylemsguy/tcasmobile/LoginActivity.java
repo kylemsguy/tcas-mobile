@@ -182,15 +182,15 @@ public class LoginActivity extends ActionBarActivity {
                 else
                     showDialog("Login failed. Check your internet connection.");
                 showProgress(false);
-                return;
+                mAuthTask = null;
+            } else {
+                // start the new activity
+                // Intent intent = new Intent(this, AnswerActivity.class);
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+
+                finish();
             }
-
-            // start the new activity
-            // Intent intent = new Intent(this, AnswerActivity.class);
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-
-            finish();
         }
     }
 
