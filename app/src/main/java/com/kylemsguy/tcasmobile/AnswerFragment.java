@@ -3,11 +3,14 @@ package com.kylemsguy.tcasmobile;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class AnswerFragment extends Fragment {
@@ -25,7 +28,25 @@ public class AnswerFragment extends Fragment {
 		
 		questionText.setText(getArguments().getString(ARG_QUESTION_CONTENT));
 		questionId.setText(getArguments().getString(ARG_QUESTION_ID));
-		return view;
+
+
+        // TODO Make ActionBar only hide when keyboard activated
+        final ActionBar actionBar = ((ActionBarActivity) view.getContext()).getSupportActionBar();
+
+        EditText answerField = (EditText) view.findViewById(R.id.answerField);
+
+        answerField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (hasFocus) {
+                    // Let's hide that action bar
+                    actionBar.hide();
+                } else {
+                    actionBar.show();
+                }
+            }
+        });
+        return view;
 	}
 
 }
