@@ -39,11 +39,8 @@ public class MainActivity extends ActionBarActivity {
     private AnswerManager am;
 
     private Map<String, String> mCurrQuestion;
-    private List<Question> mCurrQuestions;
 
-    // stuff for Asked questions
-    private ExpandableListAdapter mListAdapter;
-    private ExpandableListView mExpListView;
+    private List<Question> mCurrQuestions;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -79,15 +76,8 @@ public class MainActivity extends ActionBarActivity {
 
         mCurrQuestion = getNewQuestion();
 
-        // Set up the ListAdapter for AskActivity
-        mExpListView = (ExpandableListView) findViewById(R.id.questionList);
-
         refreshQuestionList();
 
-        mListAdapter = new ExpandableListAdapter(this, mCurrQuestions);
-
-        // set list adapter
-        mExpListView.setAdapter(mListAdapter);
     }
 
     // BEGIN AskActivity
@@ -343,4 +333,11 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    /**
+     * Getters and Setters
+     */
+
+    public List<Question> getmCurrQuestions() {
+        return mCurrQuestions;
+    }
 }

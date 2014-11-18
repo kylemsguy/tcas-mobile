@@ -23,108 +23,108 @@ import android.widget.EditText;
 
 public class AskActivity extends ActionBarActivity {
 
-	private SessionManager sm;
-	private QuestionManager qm;
-	private Map<Integer, Question> currQuestions;
-	
-	private ArrayAdapter<String> adapter;
-	private List<String> listItems;
+    private SessionManager sm;
+    private QuestionManager qm;
+    private List<Question> currQuestions;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_ask);
+    private ArrayAdapter<String> adapter;
+    private List<String> listItems;
 
-		if (savedInstanceState == null) {
-			getSupportFragmentManager().beginTransaction()
-					.add(R.id.container, new PlaceholderFragment()).commit();
-		}
-		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
-		sm = ((TCaSApp) getApplicationContext()).getSessionManager();
-		qm = new QuestionManager(sm);
-	}
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_ask);
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new PlaceholderFragment()).commit();
+        }
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
+        sm = ((TCaSApp) getApplicationContext()).getSessionManager();
+        qm = new QuestionManager(sm);
+    }
 
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
-	public void askQuestion(View view) {
-		// get text
-		EditText askQuestionField = (EditText) findViewById(R.id.askQuestionField);
-		String question = askQuestionField.getText().toString();
-		
-		if(question.equals("")){
-			showNotifDialog("You cannot send a blank message.");
-			return;
-		}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-		// Clear field
-		askQuestionField.setText("");
+    public void askQuestion(View view) {
+        // get text
+        EditText askQuestionField = (EditText) findViewById(R.id.askQuestionField);
+        String question = askQuestionField.getText().toString();
 
-		String response = null;
-		// send question to be asked.
-		try {
-			response = new AskQuestionTask().execute(qm, question).get();
-		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
-		}
+        if (question.equals("")) {
+            showNotifDialog("You cannot send a blank message.");
+            return;
+        }
 
-			refreshQuestionList();
-	}
+        // Clear field
+        askQuestionField.setText("");
 
-	public void refreshQuestionList() {
-		try {
-			currQuestions = qm.getQuestions();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        String response = null;
+        // send question to be asked.
+        try {
+            response = new AskQuestionTask().execute(qm, question).get();
+        } catch (InterruptedException | ExecutionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        }
 
-		// TODO implement dynamic list view
-	}
+        refreshQuestionList();
+    }
 
-	public void showNotifDialog(String contents) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(contents);
-		builder.setPositiveButton("OK", null);
-		builder.setCancelable(true);
-		AlertDialog dialog = builder.create();
-		dialog.show();
-	}
+    public void refreshQuestionList() {
+        try {
+            currQuestions = qm.getQuestions();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-	/**
-	 * A placeholder fragment containing a simple view.
-	 */
-	public static class PlaceholderFragment extends Fragment {
+        // TODO implement dynamic list view
+    }
 
-		public PlaceholderFragment() {
-		}
+    public void showNotifDialog(String contents) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(contents);
+        builder.setPositiveButton("OK", null);
+        builder.setCancelable(true);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_ask, container,
-					false);
-			return rootView;
-		}
-	}
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+
+        public PlaceholderFragment() {
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_ask, container,
+                    false);
+            return rootView;
+        }
+    }
 
 }
