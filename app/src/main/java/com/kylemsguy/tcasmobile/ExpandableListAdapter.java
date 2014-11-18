@@ -9,25 +9,25 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
-import java.util.List; // header titles
-import java.util.Map; // child data
+import com.kylemsguy.tcasmobile.backend.QAObject;
+import com.kylemsguy.tcasmobile.backend.Question;
+
+import java.util.List;
 
 
 public class ExpandableListAdapter extends BaseExpandableListAdapter {
     private Context mContext;
-    private List<String> mListDataHeader;
-    private Map<String, List<String>> mListDataChild;
 
-    public ExpandableListAdapter(Context context, List<String> listDataHeader,
-                                 Map<String, List<String>> listDataChild) {
+    private List<Question> mQuestions;
+
+    public ExpandableListAdapter(Context context, List<Question> questions) {
         mContext = context;
-        mListDataHeader = listDataHeader;
-        mListDataChild = listDataChild;
+        mQuestions = questions;
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return mListDataChild.get(mListDataHeader.get(groupPosition)).get(childPosition);
+        return mQuestions.get(groupPosition).getAnswers();
     }
 
     @Override
@@ -52,17 +52,17 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return mListDataChild.get(mListDataHeader.get(groupPosition)).size();
+        return mQuestions.get(groupPosition).getAnswers().size();
     }
 
     @Override
     public Object getGroup(int groupPosition) {
-        return mListDataHeader.get(groupPosition);
+        return mQuestions.get(groupPosition).getContent();
     }
 
     @Override
     public int getGroupCount() {
-        return mListDataHeader.size();
+        return mQuestions.size();
     }
 
     @Override

@@ -1,31 +1,42 @@
 package com.kylemsguy.tcasmobile.backend;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
 public class Question extends QAObject {
-    private Map<Integer, Answer> answers = new TreeMap<Integer, Answer>();
+    private List<Answer> answers = new ArrayList<Answer>();
 
     public Question(int id, String content) {
         super(id, content);
     }
 
-    public Set<Integer> getAnswerIDs() {
-        return answers.keySet();
+    public List<Integer> getAnswerIDs() {
+        List<Integer> ids = new ArrayList<Integer>();
+        for (Answer a : answers) {
+            ids.add(a.getId());
+        }
+        return ids;
     }
 
-    public Collection<Answer> getAnswers() {
-        return answers.values();
+    public List<Answer> getAnswers() {
+        return answers;
     }
 
     public Answer getAnswerByID(int id) {
-        return answers.get(id);
+        for (Answer a : answers) {
+            if (a.getId() == id) {
+                return a;
+            }
+        }
+        return null;
     }
 
     public void addAnswer(Answer answer) {
-        answers.put(answer.getId(), answer);
+        answers.add(answer);
     }
 
     public String toString() {

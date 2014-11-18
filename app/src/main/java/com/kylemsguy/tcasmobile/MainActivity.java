@@ -14,7 +14,6 @@ import com.kylemsguy.tcasmobile.backend.Question;
 import com.kylemsguy.tcasmobile.backend.QuestionManager;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
 
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,11 +27,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
@@ -41,14 +38,12 @@ public class MainActivity extends ActionBarActivity {
     private QuestionManager qm;
     private AnswerManager am;
 
-    private Map<String, String> currQuestion;
-    private List<Question> currQuestions;
+    private Map<String, String> mCurrQuestion;
+    private List<Question> mCurrQuestions;
 
     // stuff for Asked questions
-    private ExpandableListAdapter listAdapter;
-    private ExpandableListView expListView;
-    private List<String> listDataHeader;
-    Map<String, List<String>> listDataChild;
+    private ExpandableListAdapter mListAdapter;
+    private ExpandableListView mExpListView;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -82,11 +77,17 @@ public class MainActivity extends ActionBarActivity {
         qm = ((TCaSApp) getApplicationContext()).getQuestionManager();
         am = ((TCaSApp) getApplicationContext()).getAnswerManager();
 
-        currQuestion = getNewQuestion();
+        mCurrQuestion = getNewQuestion();
 
         // Set up the ListAdapter for AskActivity
+        mExpListView = (ExpandableListView) findViewById(R.id.questionList);
 
+        refreshQuestionList();
 
+        mListAdapter = new ExpandableListAdapter(this, mCurrQuestions);
+
+        // set list adapter
+        mExpListView.setAdapter(mListAdapter);
     }
 
     // BEGIN AskActivity
@@ -118,12 +119,11 @@ public class MainActivity extends ActionBarActivity {
 
     public void refreshQuestionList() {
         try {
-            currQuestions = qm.getQuestions();
+            mCurrQuestions = qm.getQuestions();
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
     }
 
     public void showNotifDialog(String contents) {
@@ -143,16 +143,16 @@ public class MainActivity extends ActionBarActivity {
         //LinearLayout idWrapper = (LinearLayout) findViewById(R.id.idLinearLayout);
         TextView id = (TextView) findViewById(R.id.questionId);
 
-        question.setText(currQuestion.get("content"));
-        id.setText(currQuestion.get("id"));
+        question.setText(mCurrQuestion.get("content"));
+        id.setText(mCurrQuestion.get("id"));
     }
 
     private void skipQuestion(boolean forever) {
-        if (currQuestion != null) {
+        if (mCurrQuestion != null) {
             Map<String, String> tempQuestion = null;
             try {
                 tempQuestion = new SkipQuestionTask().execute(sm,
-                        currQuestion.get("id"), forever).get();
+                        mCurrQuestion.get("id"), forever).get();
             } catch (InterruptedException | ExecutionException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -161,7 +161,7 @@ public class MainActivity extends ActionBarActivity {
             if (tempQuestion == null) {
                 return; // ABORT ABORT
             } else {
-                currQuestion = tempQuestion;
+                mCurrQuestion = tempQuestion;
                 writeCurrQuestion();
             }
         } else {
@@ -181,7 +181,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void getFirstQuestion() {
         ((Button) findViewById(R.id.btnSubmit)).setText("Submit");
-        currQuestion = getNewQuestion();
+        mCurrQuestion = getNewQuestion();
         writeCurrQuestion();
     }
 
@@ -195,7 +195,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void submitAnswer(View view) {
         // get ID
-        String id = currQuestion.get("id");
+        String id = mCurrQuestion.get("id");
 
         // get text
         EditText answerField = (EditText) findViewById(R.id.answerField);
@@ -213,7 +213,7 @@ public class MainActivity extends ActionBarActivity {
             return;
         }
         if (tempQuestion != null) {
-            currQuestion = tempQuestion;
+            mCurrQuestion = tempQuestion;
             writeCurrQuestion();
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -270,11 +270,11 @@ public class MainActivity extends ActionBarActivity {
                 case 1:
                     return new AskFragment();
                 case 2:
-                    currQuestion = getNewQuestion();
+                    mCurrQuestion = getNewQuestion();
                     AnswerFragment fragment = new AnswerFragment();
                     Bundle args = new Bundle();
-                    args.putString("question_id", currQuestion.get("id"));
-                    args.putString("question_content", currQuestion.get("content"));
+                    args.putString("question_id", mCurrQuestion.get("id"));
+                    args.putString("question_content", mCurrQuestion.get("content"));
                     fragment.setArguments(args);
                     return fragment;
                 case 3:
