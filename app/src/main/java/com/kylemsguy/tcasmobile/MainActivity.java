@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.kylemsguy.tcasmobile.tasks.AskQuestionTask;
+import com.kylemsguy.tcasmobile.tasks.GetAskedQTask;
 import com.kylemsguy.tcasmobile.tasks.GetQuestionTask;
 import com.kylemsguy.tcasmobile.tasks.SendAnswerTask;
 import com.kylemsguy.tcasmobile.tasks.SkipQuestionTask;
@@ -109,11 +110,15 @@ public class MainActivity extends ActionBarActivity {
 
     public void refreshQuestionList() {
         try {
-            mCurrQuestions = qm.getQuestions();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
+            mCurrQuestions = new GetAskedQTask().execute(qm).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
+        ExpandableListView view = (ExpandableListView) findViewById(R.id.questionList);
+        if (view != null)
+            ((ExpandableListAdapter) view.getAdapter()).reloadItems(mCurrQuestions);
     }
 
     public void showNotifDialog(String contents) {

@@ -27,7 +27,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return mQuestions.get(groupPosition).getAnswers();
+        return mQuestions.get(groupPosition).getAnswers().get(childPosition).getContent();
     }
 
     @Override
@@ -95,5 +95,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
+    }
+
+    public void reloadItems(List<Question> questions) {
+        mQuestions = questions;
     }
 }
