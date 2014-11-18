@@ -39,4 +39,9 @@ public class AskFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mListAdapter.notifyDataSetChanged();
+    }
 }

@@ -31,6 +31,7 @@ import android.widget.TextView;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
 import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
 import com.kylemsguy.tcasmobile.tasks.LoginTask;
+import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +41,6 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * A login screen that offers login via email/password.
-
  */
 public class LoginActivity extends ActionBarActivity {
 

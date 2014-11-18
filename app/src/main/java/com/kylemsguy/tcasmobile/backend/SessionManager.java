@@ -64,6 +64,14 @@ public class SessionManager {
 
     }
 
+    public void logout() {
+        try {
+            getPageContent(BASE_URL + "logout/");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Sends a POST request to the url with a String as the parameters. The
      * parameters must have been pre-formatted beforehand.

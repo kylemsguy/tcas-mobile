@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import com.kylemsguy.tcasmobile.tasks.AskQuestionTask;
 import com.kylemsguy.tcasmobile.tasks.GetAskedQTask;
 import com.kylemsguy.tcasmobile.tasks.GetQuestionTask;
+import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 import com.kylemsguy.tcasmobile.tasks.SendAnswerTask;
 import com.kylemsguy.tcasmobile.tasks.SkipQuestionTask;
 import com.kylemsguy.tcasmobile.backend.AnswerManager;
@@ -303,6 +304,20 @@ public class MainActivity extends ActionBarActivity {
             }
             return null;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // TODO refresh all data
+        // TODO kick back to login page if not logged in
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // logout here
+        new LogoutTask().execute(sm);
     }
 
     /**
