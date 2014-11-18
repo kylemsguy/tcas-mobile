@@ -117,8 +117,12 @@ public class MainActivity extends ActionBarActivity {
             e.printStackTrace();
         }
         ExpandableListView view = (ExpandableListView) findViewById(R.id.questionList);
-        if (view != null)
+        if (view != null) {
+            // TODO store adapter as class element
             ((ExpandableListAdapter) view.getAdapter()).reloadItems(mCurrQuestions);
+            ((ExpandableListAdapter) view.getAdapter()).notifyDataSetChanged();
+            System.out.println("Successfully reloaded list items");
+        }
     }
 
     public void showNotifDialog(String contents) {

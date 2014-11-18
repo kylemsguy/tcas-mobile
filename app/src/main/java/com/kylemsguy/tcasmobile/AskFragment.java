@@ -31,8 +31,10 @@ public class AskFragment extends Fragment {
         ((MainActivity) getActivity()).refreshQuestionList();
         mListAdapter = new ExpandableListAdapter(getActivity(),
                 ((MainActivity) getActivity()).getmCurrQuestions());
+        mListAdapter.notifyDataSetChanged();
         // set list adapter
         mExpListView.setAdapter(mListAdapter);
+
 
         return rootView;
     }

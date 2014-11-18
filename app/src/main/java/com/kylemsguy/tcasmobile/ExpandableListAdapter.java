@@ -98,6 +98,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     }
 
     public void reloadItems(List<Question> questions) {
-        mQuestions = questions;
+        mQuestions.clear();
+        mQuestions.addAll(questions);
     }
 }
