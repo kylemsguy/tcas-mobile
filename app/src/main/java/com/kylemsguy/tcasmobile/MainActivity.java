@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -41,11 +42,13 @@ public class MainActivity extends ActionBarActivity {
     private AnswerManager am;
 
     private Map<String, String> currQuestion;
-    private Map<Integer, Question> currQuestions;
+    private List<Question> currQuestions;
 
     // stuff for Asked questions
-    private ArrayAdapter<String> adapter;
-    private List<String> listItems;
+    private ExpandableListAdapter listAdapter;
+    private ExpandableListView expListView;
+    private List<String> listDataHeader;
+    Map<String, List<String>> listDataChild;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -80,6 +83,9 @@ public class MainActivity extends ActionBarActivity {
         am = ((TCaSApp) getApplicationContext()).getAnswerManager();
 
         currQuestion = getNewQuestion();
+
+        // Set up the ListAdapter for AskActivity
+
 
     }
 
@@ -118,7 +124,6 @@ public class MainActivity extends ActionBarActivity {
             e.printStackTrace();
         }
 
-        // TODO implement dynamic list view
     }
 
     public void showNotifDialog(String contents) {

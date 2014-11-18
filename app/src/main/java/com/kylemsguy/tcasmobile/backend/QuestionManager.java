@@ -10,7 +10,7 @@ public class QuestionManager {
 			+ "apiw/qa/notifications/";
 
 	private SessionManager session;
-	private Map<Integer, Question> questionAns;
+    private List<Question> questionAns;
 
 	public QuestionManager(SessionManager session) {
 		this.session = session;
@@ -21,12 +21,12 @@ public class QuestionManager {
 		session.sendPost(ASK_URL, postQuestion);
 	}
 
-	public Map<Integer, Question> getQuestions() throws Exception {
-		String rawData = session.getPageContent(QUESTION_URL);
-		System.out.println(rawData);
-		questionAns = QAObject.parseData(rawData);
-		
-		return questionAns;
+    public List<Question> getQuestions() throws Exception {
+        String rawData = session.getPageContent(QUESTION_URL);
+        System.out.println(rawData);
+        questionAns = QAObject.parseData(rawData);
+
+        return questionAns;
 	}
 
 }

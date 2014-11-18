@@ -1,6 +1,9 @@
 package com.kylemsguy.tcasmobile.backend;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,9 +25,13 @@ public abstract class QAObject {
 		return content;
 	}
 
-	public static Map<Integer, Question> parseData(String data)
-			throws NoSuchQuestionException {
-		Map<Integer, Question> questions = new TreeMap<Integer, Question>();
+    public String toString() {
+        return "QAObject <" + id + "> " + content;
+    }
+
+    public static List<Question> parseData(String data)
+            throws NoSuchQuestionException {
+        List<Question> questions = new ArrayList<Question>();
 
 		// regex objects
 		Pattern qPattern = Pattern
@@ -42,8 +49,8 @@ public abstract class QAObject {
 			Question q = new Question(id, strQ);
 			
 			// insert into map
-			questions.put(id, q);
-		}
+            questions.add(q);
+        }
 
 		while (aMatcher.find()) {
 			// get data from regex
@@ -76,4 +83,23 @@ public abstract class QAObject {
 
 		return questions;
 	}
+
+    public static Map<String, List<String>> questionToListData(List<Question> questions) {
+        Map<String, List<String>> listData = new TreeMap<String, List<String>>();
+
+        for (Question q : questions) {
+            String questionTitle = q.getContent();
+            List<String> answerTitles = new ArrayList<String>();
+
+            for (Answer a : q.getAnswers()) {
+                answerTitles.add(a.getContent());
+            }
+
+            listData.put(questionTitle, answerTitles);
+
+        }
+        return listData;
+
+    }
+
 }
