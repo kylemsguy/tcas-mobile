@@ -27,10 +27,23 @@
         android:onClick="askQuestion"
         android:text="@string/title_activity_ask" />
 
-    <ExpandableListView
-        android:id="@+id/questionList"
+    <FrameLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:drawSelectorOnTop="false" />
+        android:layout_height="fill_parent">
+
+        <ExpandableListView
+            android:id="@+id/questionList"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:drawSelectorOnTop="false" />
+
+        <ImageButton
+            android:id="@+id/asked_refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:src="@drawable/ic_menu_refresh" />
+    </FrameLayout>
+
 
 </LinearLayout>
