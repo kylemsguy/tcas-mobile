@@ -21,6 +21,7 @@ public class SessionManager {
     // let's define some constants
     private final String USER_AGENT = "Mozilla/5.0";
     public static final String BASE_URL = "http://twocansandstring.com/";
+    public static final boolean BACKEND_DEBUG = true;
     private final String LOGIN = BASE_URL + "login/";
 
     private List<String> cookies;
@@ -117,10 +118,11 @@ public class SessionManager {
                 redirect = true;
         }
 
-        System.out.println("\nSending 'POST' request to URL : " + url);
-        System.out.println("Post parameters : " + postParams);
-        System.out.println("Response Code ... " + status);
-
+        if (BACKEND_DEBUG) {
+            System.out.println("\nSending 'POST' request to URL : " + url);
+            System.out.println("Post parameters : " + postParams);
+            System.out.println("Response Code ... " + status);
+        }
         if (redirect) {
 
             // get redirect url from "location" header field
@@ -136,7 +138,8 @@ public class SessionManager {
             connection.addRequestProperty("User-Agent", "Mozilla");
             connection.addRequestProperty("Referer", "google.com");
 
-            System.out.println("Redirect to URL : " + newUrl);
+            if (BACKEND_DEBUG)
+                System.out.println("Redirect to URL : " + newUrl);
 
         }
 
@@ -183,8 +186,10 @@ public class SessionManager {
             }
         }
         int responseCode = connection.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
+        if (BACKEND_DEBUG) {
+            System.out.println("\nSending 'GET' request to URL : " + url);
+            System.out.println("Response Code : " + responseCode);
+        }
 
         BufferedReader in = new BufferedReader(new InputStreamReader(
                 connection.getInputStream()));
@@ -214,7 +219,8 @@ public class SessionManager {
     public String getFormParams(String html, String username, String password)
             throws UnsupportedEncodingException {
 
-        System.out.println("Extracting form's data...");
+        if (BACKEND_DEBUG)
+            System.out.println("Extracting form's data...");
 
         Document doc = Jsoup.parse(html);
 
