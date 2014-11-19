@@ -6,13 +6,16 @@
 
     <TextView
         android:id="@+id/list_item_name"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="5"
+        android:text="@string/debug_asked_question_resp" />
 
     <ImageButton
         android:id="@+id/delete_item"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:src="@drawable/btn_close" />
+        android:src="@drawable/btn_close"
+        android:layout_weight="1" />
 
 </LinearLayout>

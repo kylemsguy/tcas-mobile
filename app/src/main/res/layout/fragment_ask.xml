@@ -20,12 +20,27 @@
         <requestFocus />
     </EditText>
 
-    <Button
-        android:id="@+id/btnAskQuestion"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="askQuestion"
-        android:text="@string/title_activity_ask" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnAskQuestion"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:onClick="askQuestion"
+            android:text="@string/title_activity_ask"
+            android:layout_weight="5" />
+
+        <ImageButton
+            android:id="@+id/asked_refresh"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:src="@drawable/ic_menu_refresh"
+            android:layout_weight="1" />
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="fill_parent"
@@ -36,13 +51,6 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:drawSelectorOnTop="false" />
-
-        <ImageButton
-            android:id="@+id/asked_refresh"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:src="@drawable/ic_menu_refresh" />
     </FrameLayout>
 
 

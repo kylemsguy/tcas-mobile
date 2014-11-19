@@ -182,6 +182,8 @@ public class LoginActivity extends ActionBarActivity {
                 else
                     showDialog("Login failed. Check your internet connection.");
                 showProgress(false);
+                // log out just in case
+                new LogoutTask().execute(sm);
                 mAuthTask = null;
             } else {
                 // start the new activity
