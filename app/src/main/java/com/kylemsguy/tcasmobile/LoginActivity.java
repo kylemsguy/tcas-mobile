@@ -200,8 +200,13 @@ public class LoginActivity extends ActionBarActivity {
                     showDialog("Login failed. Check your internet connection.");
                 showProgress(false);
                 // log out just in case
-                new LogoutTask().execute(sm);
-                mAuthTask = null;
+                try {
+                    // execute .get() because we want this to block execution
+                    new LogoutTask().execute(sm).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             } else {
                 // start the new activity
                 // Intent intent = new Intent(this, AnswerActivity.class);
