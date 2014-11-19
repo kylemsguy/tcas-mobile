@@ -189,6 +189,7 @@ public class LoginActivity extends ActionBarActivity {
                 // start the new activity
                 // Intent intent = new Intent(this, AnswerActivity.class);
                 Intent intent = new Intent(this, MainActivity.class);
+                intent.putExtra("username", username);
                 startActivity(intent);
 
                 finish();

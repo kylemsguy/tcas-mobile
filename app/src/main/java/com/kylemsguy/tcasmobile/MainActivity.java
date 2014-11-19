@@ -1,5 +1,6 @@
 package com.kylemsguy.tcasmobile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -16,6 +17,7 @@ import com.kylemsguy.tcasmobile.backend.Question;
 import com.kylemsguy.tcasmobile.backend.QuestionManager;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -112,16 +114,17 @@ public class MainActivity extends ActionBarActivity {
     public void refreshQuestionList() {
         try {
             mCurrQuestions = new GetAskedQTask().execute(qm).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+
+        // reverse to get from newest to oldest
+        Collections.reverse(mCurrQuestions);
         ExpandableListView view = (ExpandableListView) findViewById(R.id.questionList);
         if (view != null) {
             // TODO store adapter as class element
-            ((ExpandableListAdapter) view.getAdapter()).reloadItems(mCurrQuestions);
-            ((ExpandableListAdapter) view.getAdapter()).notifyDataSetChanged();
+            ((ExpandableListAdapter) view.getExpandableListAdapter()).reloadItems(mCurrQuestions);
+            ((ExpandableListAdapter) view.getExpandableListAdapter()).notifyDataSetChanged();
             System.out.println("Successfully reloaded list items");
         }
     }
@@ -133,6 +136,11 @@ public class MainActivity extends ActionBarActivity {
         builder.setCancelable(true);
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    public void refreshButtonClick(View v) {
+        //Button refreshButton = (Button) v;
+        refreshQuestionList();
     }
 
     // END AskActivity
@@ -266,7 +274,14 @@ public class MainActivity extends ActionBarActivity {
             // return PlaceholderFragment.newInstance(position + 1);
             switch (position) {
                 case 0:
-                    return PlaceholderFragment.newInstance(position + 1);
+                    HomeFragment homeFragment = new HomeFragment();
+                    Intent prevIntent = getIntent();
+                    String username = prevIntent.getStringExtra("username");
+                    Bundle homeArgs = new Bundle();
+                    homeArgs.putString("username", username);
+                    homeFragment.setArguments(homeArgs);
+                    return homeFragment;
+                // return PlaceholderFragment.newInstance(position + 1);
                 case 1:
                     return new AskFragment();
                 case 2:
