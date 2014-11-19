@@ -301,7 +301,8 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public int getCount() {
             // Show 4 total pages.
-            return 4;
+            // EDIT: changed to 3 to remove the Messages pane for now
+            return 3;
         }
 
         @Override

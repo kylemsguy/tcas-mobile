@@ -25,6 +25,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -80,6 +81,18 @@ public class LoginActivity extends ActionBarActivity {
             }
         });
 
+        // restore saved credentials if box checked
+        CheckBox saveData = (CheckBox) findViewById(R.id.save_pass_box);
+        String username = PrefUtils.getFromPrefs(this, PrefUtils.PREF_LOGIN_USERNAME_KEY, null);
+        String password = PrefUtils.getFromPrefs(this, PrefUtils.PREF_LOGIN_PASSWORD_KEY, null);
+
+        if (username != null && password != null) {
+            mUsernameView.setText(username);
+            mPasswordView.setText(password);
+            saveData.setChecked(true);
+        }
+
+        // set up click listener
         Button mUsernameSignInButton = (Button) findViewById(R.id.username_sign_in_button);
         mUsernameSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -165,6 +178,9 @@ public class LoginActivity extends ActionBarActivity {
             // perform the user login attempt.
             // login
             showProgress(true);
+            CheckBox saveData = (CheckBox) findViewById(R.id.save_pass_box);
+            if (!saveData.isChecked())
+                saveUserData(null, null); // clear credential store
             try {
                 mAuthTask = new LoginTask().execute(username, password, sm);
                 mAuthTask.get();
@@ -188,12 +204,36 @@ public class LoginActivity extends ActionBarActivity {
             } else {
                 // start the new activity
                 // Intent intent = new Intent(this, AnswerActivity.class);
+                if (saveData.isChecked())
+                    saveUserData(username, password);
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.putExtra("username", username);
                 startActivity(intent);
 
                 finish();
             }
+        }
+    }
+
+    /**
+     * Stores the user-entered data in PLAIN TEXT. If either parameter is null, then
+     * the stored data is cleared.
+     * <p/>
+     * Justification for storing in plain text: data is sent over internet in clear.
+     * It is very easy to intercept. Encryption wouldn't be much better either.
+     * May implement encryption later if requested/feel like it
+     *
+     * @param username
+     * @param password
+     */
+    private void saveUserData(String username, String password) {
+        if (username == null || password == null) {
+            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGIN_USERNAME_KEY, null);
+            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGIN_PASSWORD_KEY, null);
+        } else {
+            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGIN_USERNAME_KEY, username);
+            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGIN_PASSWORD_KEY, password);
+
         }
     }
 

@@ -9,7 +9,7 @@
     <string name="lblUsername">Username</string>
     <string name="lblPassword">Password</string>
     <string name="lblLoggestIn">Loggest In</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Two Cans and String</string>
     <string name="loading">Loading…</string>
     <string name="skip_temp">Skip for Now</string>
     <string name="skip_perm">Skip Permanently</string>
