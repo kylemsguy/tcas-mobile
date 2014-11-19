@@ -27,5 +27,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="debug_asked_question_resp">Hello there yes there is stuff here but I\'m just testing</string>
     <string name="save_box">Save</string>
+    <string name="action_logout">Log Out</string>
 
 </resources>

@@ -125,8 +125,9 @@ public class LoginActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
 
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+        // disabled because no options yet
+        //getMenuInflater().inflate(R.menu.login, menu);
+        return false;
     }
 
     /**
@@ -324,7 +325,7 @@ public class LoginActivity extends ActionBarActivity {
 
     /**
      * Use an AsyncTask to fetch the user's email addresses on a background thread, and update
-     * the email text field with results on the main UI thread.
+     * the email text field with results on the login UI thread.
      */
     class SetupEmailAutoCompleteTask extends AsyncTask<Void, Void, List<String>> {
 
