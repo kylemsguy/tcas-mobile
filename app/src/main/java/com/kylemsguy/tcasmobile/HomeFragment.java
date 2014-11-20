@@ -30,6 +30,8 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
+        // TODO get O'Harean Date
+        //String date = OhareanCalendar.
         // TODO: get version history from GitHub
         String versionHistory = "v1.0a:\nFirst release of app onto Google Play.";
 

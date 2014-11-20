@@ -37,32 +37,49 @@
                 android:src="@drawable/ic_launcher"
                 android:contentDescription="Application Icon" />
 
-            <AutoCompleteTextView
-                android:id="@+id/username"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/prompt_email"
-                android:inputType="textAutoComplete"
-                android:maxLines="1"
-                android:singleLine="true" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/prompt_email"
+                    android:layout_marginRight="3dp" />
+
+                <AutoCompleteTextView
+                    android:id="@+id/username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textAutoComplete"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:imeOptions="actionNext" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/prompt_password"
+                    android:layout_marginRight="3dp" />
+
                 <EditText
                     android:id="@+id/password"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="9"
-                    android:padding="12dp"
-                    android:hint="@string/prompt_password"
+                    android:layout_weight="1"
                     android:imeActionId="@+id/login"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
                     android:maxLines="1"
+                    android:layout_marginLeft="3dp"
                     android:singleLine="true" />
 
                 <CheckBox

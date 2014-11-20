@@ -11,6 +11,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -257,6 +259,18 @@ public class SessionManager {
             }
         }
         return result.toString();
+    }
+
+    public String getDate(String html) {
+        if (BACKEND_DEBUG)
+            System.out.println("Getting date...");
+
+        Document doc = Jsoup.parse(html);
+        Elements spans = doc.getElementsByTag("span");
+
+        Pattern datePattern = Pattern.compile("");
+        // TODO implement date conversion/get from page
+        return null;
     }
 
     public List<String> getCookies() {
