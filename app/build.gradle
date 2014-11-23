@@ -23,7 +23,7 @@ android {
 }
 
 dependencies {
-    compile project(':jsoup-1.7.3')
+    compile fileTree(dir: 'libs/')
     compile 'com.android.support:appcompat-v7:21.0.0'
     compile 'com.android.support:support-v4:21.0.0'
 }
