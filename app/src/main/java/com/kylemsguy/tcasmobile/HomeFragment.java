@@ -33,7 +33,10 @@ public class HomeFragment extends Fragment {
         // TODO get O'Harean Date
         //String date = OhareanCalendar.
         // TODO: get version history from GitHub
-        String versionHistory = "v1.0a:\nFirst release of app onto Google Play.";
+        String versionHistory = "v1.0a:\nFirst release of app onto Google Play.\n";
+        String greeting = "\nWelcome to TCaS Mobile. I am planning to put more information here in " +
+                "the future.\n" +
+                "";
 
         TextView userData = (TextView) rootView.findViewById(R.id.user_data);
         TextView miscData = (TextView) rootView.findViewById(R.id.misc_data);
@@ -41,7 +44,7 @@ public class HomeFragment extends Fragment {
         // TODO get more info for userdata
         userData.setText("Username: " + getArguments().getString(ARG_USERNAME));
         userData.setTypeface(null, Typeface.BOLD);
-        miscData.setText(versionHistory);
+        miscData.setText(versionHistory + greeting);
 
         return rootView;
     }
