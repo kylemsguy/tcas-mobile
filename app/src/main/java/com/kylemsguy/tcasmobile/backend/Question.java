@@ -2,6 +2,7 @@ package com.kylemsguy.tcasmobile.backend;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +25,10 @@ public class Question extends QAObject {
 
     public List<Answer> getAnswers() {
         return answers;
+    }
+
+    public void reverseAnswers(){
+        Collections.reverse(answers);
     }
 
     public Answer getAnswerByID(int id) {

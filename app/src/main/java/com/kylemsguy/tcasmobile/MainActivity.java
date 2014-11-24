@@ -122,6 +122,9 @@ public class MainActivity extends ActionBarActivity {
 
         // reverse to get from newest to oldest
         Collections.reverse(mCurrQuestions);
+        for(Question q: mCurrQuestions){
+            q.reverseAnswers();
+        }
         ExpandableListView view = (ExpandableListView) findViewById(R.id.questionList);
         if (view != null) {
             // TODO store adapter as class element
