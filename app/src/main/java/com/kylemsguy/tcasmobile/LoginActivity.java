@@ -94,7 +94,7 @@ public class LoginActivity extends ActionBarActivity {
 
         // set up click listener
         Button mUsernameSignInButton = (Button) findViewById(R.id.username_sign_in_button);
-        mUsernameSignInButton.setOnClickListener(new OnClickListener() {
+        mUsernameSignInButton.seontOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
