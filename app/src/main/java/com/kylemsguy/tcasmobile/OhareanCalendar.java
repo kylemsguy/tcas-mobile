@@ -65,7 +65,7 @@ public class OhareanCalendar extends GregorianCalendar {
     public String toString() {
         //return super.toString();
         int[] oDate = getOhareanDate();
-        return "";
+        return super.toString();
     }
 
     public static OhareanCalendar dateGregToOharean(int time_t, int offset) {

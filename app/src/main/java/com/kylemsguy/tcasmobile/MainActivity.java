@@ -17,6 +17,7 @@ import com.kylemsguy.tcasmobile.backend.Question;
 import com.kylemsguy.tcasmobile.backend.QuestionManager;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
@@ -31,6 +32,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -120,6 +122,9 @@ public class MainActivity extends ActionBarActivity {
 
         // reverse to get from newest to oldest
         Collections.reverse(mCurrQuestions);
+        for(Question q: mCurrQuestions){
+            q.reverseAnswers();
+        }
         ExpandableListView view = (ExpandableListView) findViewById(R.id.questionList);
         if (view != null) {
             // TODO store adapter as class element
@@ -256,7 +261,7 @@ public class MainActivity extends ActionBarActivity {
             // logout
             new LogoutTask().execute(sm);
             Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
+            //startActivity(intent); // isn't working very well atm
             finish();
         }
         return super.onOptionsItemSelected(item);
