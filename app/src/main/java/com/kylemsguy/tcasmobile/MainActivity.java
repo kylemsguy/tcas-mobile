@@ -19,6 +19,7 @@ import com.kylemsguy.tcasmobile.backend.SessionManager;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -259,9 +260,15 @@ public class MainActivity extends ActionBarActivity {
             return true;
         } else if (id == R.id.action_logout) {
             // logout
-            new LogoutTask().execute(sm);
+            AsyncTask<SessionManager, Integer, Void> logout = new LogoutTask().execute(sm);
             Intent intent = new Intent(this, LoginActivity.class);
-            //startActivity(intent); // isn't working very well atm
+            // do stuff
+            try { // temporary; change to a wheel spinning and dialog saying "logging out..."
+                logout.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+            startActivity(intent); // isn't working very well atm
             finish();
         }
         return super.onOptionsItemSelected(item);
