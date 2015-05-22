@@ -43,7 +43,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends ActionBarActivity {
+public class LoginActivity extends ActionBarActivity implements AsyncTaskCallback<Object> {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -182,8 +182,8 @@ public class LoginActivity extends ActionBarActivity {
             CheckBox saveData = (CheckBox) findViewById(R.id.save_pass_box);
             if (!saveData.isChecked())
                 saveUserData(null, null); // clear credential store
+            mAuthTask = new LoginTask().execute(this, username, password, sm);
             try {
-                mAuthTask = new LoginTask().execute(username, password, sm);
                 mAuthTask.get();
             } catch (InterruptedException | ExecutionException e) {
                 // TODO Auto-generated catch block
@@ -200,9 +200,9 @@ public class LoginActivity extends ActionBarActivity {
                     showDialog("Login failed. Check your internet connection.");
                 showProgress(false);
                 // log out just in case
+                AsyncTask logoutTask = new LogoutTask().execute(sm);
                 try {
-                    // execute .get() because we want this to block execution
-                    new LogoutTask().execute(sm).get();
+                    logoutTask.get();
                 } catch (InterruptedException | ExecutionException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -219,6 +219,12 @@ public class LoginActivity extends ActionBarActivity {
                 finish();
             }
         }
+    }
+
+    public void taskComplete(Object... results) {
+        // TODO implement what to do depending on code given
+        int id = (int) results[0];
+        // results[1] is whatever is returned
     }
 
     /**
