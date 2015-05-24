@@ -3,7 +3,6 @@ package com.kylemsguy.tcasmobile;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -30,11 +29,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.kylemsguy.tcasmobile.backend.SessionManager;
-import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
-import com.kylemsguy.tcasmobile.tasks.LoginTask;
+import com.kylemsguy.tcasmobile.tasks.GetLoggedInTaskExternal;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -43,7 +40,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends ActionBarActivity implements AsyncTaskCallback<Object> {
+public class LoginActivity extends ActionBarActivity {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -136,9 +133,9 @@ public class LoginActivity extends ActionBarActivity implements AsyncTaskCallbac
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
-        if (mAuthTask != null) {
+        /*if (mAuthTask != null) {
             return;
-        }
+        }*/
 
         // Reset errors.
         mUsernameView.setError(null);
@@ -182,49 +179,41 @@ public class LoginActivity extends ActionBarActivity implements AsyncTaskCallbac
             CheckBox saveData = (CheckBox) findViewById(R.id.save_pass_box);
             if (!saveData.isChecked())
                 saveUserData(null, null); // clear credential store
-            mAuthTask = new LoginTask().execute(this, username, password, sm);
-            try {
-                mAuthTask.get();
-            } catch (InterruptedException | ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            // check if logged in
-            boolean loggedIn = checkLoggedIn();
-
-            if (!loggedIn) {
-                if (currNetworkConnected())
-                    showDialog("Login failed. Check your username or password.");
-                else
-                    showDialog("Login failed. Check your internet connection.");
-                showProgress(false);
-                // log out just in case
-                AsyncTask logoutTask = new LogoutTask().execute(sm);
-                try {
-                    logoutTask.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            } else {
-                // start the new activity
-                // Intent intent = new Intent(this, AnswerActivity.class);
-                if (saveData.isChecked())
-                    saveUserData(username, password);
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.putExtra("username", username);
-                startActivity(intent);
-
-                finish();
-            }
+            mAuthTask = new LoginTask().execute(username, password, sm);
         }
     }
 
-    public void taskComplete(Object... results) {
-        // TODO implement what to do depending on code given
-        int id = (int) results[0];
-        // results[1] is whatever is returned
+
+    private void attemptLoginComplete(){
+        new GetLoggedInTask().execute(sm);
+    }
+
+    private void checkLoggedInComplete(boolean loggedIn){
+        // Store values at the time of the login attempt.
+        // This still works because sign in box should be hidden
+        String username = mUsernameView.getText().toString();
+        String password = mPasswordView.getText().toString();
+        CheckBox saveData = (CheckBox) findViewById(R.id.save_pass_box);
+
+        if (!loggedIn) {
+            if (currNetworkConnected())
+                showDialog("Login failed. Check your username or password.");
+            else
+                showDialog("Login failed. Check your internet connection.");
+            showProgress(false);
+            // log out just in case
+            new LogoutTask().execute(sm);
+        } else {
+            // start the new activity
+            // Intent intent = new Intent(this, AnswerActivity.class);
+            if (saveData.isChecked())
+                saveUserData(username, password);
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("username", username);
+            startActivity(intent);
+
+            finish();
+        }
     }
 
     /**
@@ -246,16 +235,6 @@ public class LoginActivity extends ActionBarActivity implements AsyncTaskCallbac
             PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGIN_USERNAME_KEY, username);
             PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGIN_PASSWORD_KEY, password);
 
-        }
-    }
-
-    private boolean checkLoggedIn() {
-        try {
-            return new GetLoggedInTask().execute(sm).get();
-        } catch (InterruptedException | ExecutionException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-            return false;
         }
     }
 
@@ -363,6 +342,54 @@ public class LoginActivity extends ActionBarActivity implements AsyncTaskCallbac
             addEmailsToAutoComplete(emailAddressCollection);
         }
     }
+
+    /**
+     * Use an AsyncTask to attempt a login with the server
+     */
+    class LoginTask extends AsyncTask<Object, Void, String> {
+        @Override
+        protected String doInBackground(Object... params) {
+            // param 1 should be username
+            // param 2 should be password
+            // param 3 should be SessionManager object
+            if (!(params[0] instanceof String)
+                    || !(params[1] instanceof String)
+                    || !(params[2] instanceof SessionManager))
+                return "Invalid Parameters";
+
+            String username = (String) params[0];
+            String password = (String) params[1];
+            SessionManager sm = (SessionManager) params[2];
+
+            try {
+                sm.login(username, password);
+            } catch (Exception e) {
+                return e.toString();
+            }
+            return "Login Success!";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            attemptLoginComplete();
+        }
+
+    }
+
+    class GetLoggedInTask extends AsyncTask<SessionManager, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(SessionManager... params) {
+            SessionManager sm = params[0];
+            return sm.checkLoggedIn();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            checkLoggedInComplete(result);
+        }
+    }
+
 
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.

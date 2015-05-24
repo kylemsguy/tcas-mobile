@@ -6,7 +6,7 @@ import com.kylemsguy.tcasmobile.backend.SessionManager;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 
-public class LoginTask extends AsyncTask<Object, Void, String> {
+public class LoginTaskExternal extends AsyncTask<Object, Void, String> {
     private AsyncTaskCallback<Object> caller = null;
 
 	@Override

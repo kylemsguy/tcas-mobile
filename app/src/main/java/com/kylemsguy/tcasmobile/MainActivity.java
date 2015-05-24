@@ -263,11 +263,11 @@ public class MainActivity extends ActionBarActivity {
             AsyncTask<SessionManager, Integer, Void> logout = new LogoutTask().execute(sm);
             Intent intent = new Intent(this, LoginActivity.class);
             // do stuff
-            try { // temporary; change to a wheel spinning and dialog saying "logging out..."
+            /*try { // temporary; change to a wheel spinning and dialog saying "logging out..."
                 logout.get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
-            }
+            }*/
             startActivity(intent); // isn't working very well atm
             finish();
         }

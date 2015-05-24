@@ -7,8 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
-import com.kylemsguy.tcasmobile.tasks.LoginTask;
+import com.kylemsguy.tcasmobile.tasks.GetLoggedInTaskExternal;
+import com.kylemsguy.tcasmobile.tasks.LoginTaskExternal;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
 
 import android.support.v7.app.ActionBarActivity;
@@ -57,7 +57,7 @@ public class LoginActivity2 extends ActionBarActivity {
 
             // Check if logged in
             try {
-                if (new GetLoggedInTask().execute(sm).get()) {
+                if (new GetLoggedInTaskExternal().execute(sm).get()) {
                     Intent startMain = new Intent(this, AnswerActivity.class);
                     startActivity(startMain);
                     finish();
@@ -73,7 +73,7 @@ public class LoginActivity2 extends ActionBarActivity {
 			 * CookieSyncManager.getInstance().sync();
 			 * 
 			 * boolean loggedIn = false; try { loggedIn = new
-			 * GetLoggedInTask().execute(sm).get(); } catch
+			 * GetLoggedInTaskExternal().execute(sm).get(); } catch
 			 * (InterruptedException | ExecutionException e) { // TODO
 			 * Auto-generated catch block e.printStackTrace(); }
 			 * 
@@ -107,7 +107,7 @@ public class LoginActivity2 extends ActionBarActivity {
 
     private boolean checkLoggedIn() {
         try {
-            return new GetLoggedInTask().execute(sm).get();
+            return new GetLoggedInTaskExternal().execute(sm).get();
         } catch (InterruptedException | ExecutionException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -173,7 +173,7 @@ public class LoginActivity2 extends ActionBarActivity {
 
         // login
         try {
-            new LoginTask().execute(username, password, sm).get();
+            new LoginTaskExternal().execute(username, password, sm).get();
         } catch (InterruptedException | ExecutionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
