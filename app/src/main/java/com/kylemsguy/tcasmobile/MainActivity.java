@@ -6,8 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.kylemsguy.tcasmobile.tasks.AskQuestionTask;
-import com.kylemsguy.tcasmobile.tasks.GetAskedQTask;
+import com.kylemsguy.tcasmobile.tasks.AskQuestionTaskExternal;
 import com.kylemsguy.tcasmobile.tasks.GetQuestionTask;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 import com.kylemsguy.tcasmobile.tasks.SendAnswerTask;
@@ -17,7 +16,6 @@ import com.kylemsguy.tcasmobile.backend.Question;
 import com.kylemsguy.tcasmobile.backend.QuestionManager;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -33,13 +31,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
+
+    private AsyncTask mLogoutTask;
+    private AsyncTask mGotQuestionsTask;
 
     private SessionManager sm;
     private QuestionManager qm;
@@ -48,6 +48,8 @@ public class MainActivity extends ActionBarActivity {
     private Map<String, String> mCurrQuestion;
 
     private List<Question> mCurrQuestions;
+
+    private boolean mRefreshedQList = false;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -83,7 +85,8 @@ public class MainActivity extends ActionBarActivity {
 
         mCurrQuestion = getNewQuestion();
 
-        refreshQuestionList();
+        //refreshQuestionList();
+        loadQuestionList();
 
     }
 
@@ -101,25 +104,31 @@ public class MainActivity extends ActionBarActivity {
         // Clear field
         askQuestionField.setText("");
 
-        String response = null;
         // send question to be asked.
-        try {
-            response = new AskQuestionTask().execute(qm, question).get();
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return;
-        }
+        new AskQuestionTask().execute(qm, question);
+    }
 
-        refreshQuestionList();
+    public void loadQuestionList(){
+        if(mGotQuestionsTask != null){
+            if(mGotQuestionsTask.getStatus() == AsyncTask.Status.PENDING ||
+                    mGotQuestionsTask.getStatus() == AsyncTask.Status.RUNNING)
+                return;
+
+        }
+        mGotQuestionsTask = new GetAskedQTask().execute(qm);
     }
 
     public void refreshQuestionList() {
-        try {
-            mCurrQuestions = new GetAskedQTask().execute(qm).get();
+        // we haven't reloaded the question list what are you doing
+        if(!mRefreshedQList) {
+            loadQuestionList();
+            return;
+        }
+       /* try {
+            mCurrQuestions = new GetAskedQTaskExternal().execute(qm).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
-        }
+        }*/
 
         // reverse to get from newest to oldest
         Collections.reverse(mCurrQuestions);
@@ -146,7 +155,8 @@ public class MainActivity extends ActionBarActivity {
 
     public void refreshButtonClick(View v) {
         //Button refreshButton = (Button) v;
-        refreshQuestionList();
+        //refreshQuestionList();
+        loadQuestionList();
     }
 
     // END AskActivity
@@ -259,8 +269,8 @@ public class MainActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             return true;
         } else if (id == R.id.action_logout) {
-            // logout
-            AsyncTask<SessionManager, Integer, Void> logout = new LogoutTask().execute(sm);
+            // save logout task in case we need to cancel
+            mLogoutTask = new LogoutTask().execute(sm);
             Intent intent = new Intent(this, LoginActivity.class);
             // do stuff
             /*try { // temporary; change to a wheel spinning and dialog saying "logging out..."
@@ -352,6 +362,52 @@ public class MainActivity extends ActionBarActivity {
         super.onBackPressed();
         // logout here
         new LogoutTask().execute(sm);
+    }
+
+    class AskQuestionTask extends AsyncTask<Object, Void, String> {
+
+        @Override
+        protected String doInBackground(Object... params) {
+            // param 0 is QuestionManager
+            // param 1 is string to send
+
+            QuestionManager qm = (QuestionManager) params[0];
+            String question = (String) params[1];
+
+            try {
+                qm.askQuestion(question);
+            } catch (Exception e) {
+                return e.toString();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            //refreshQuestionList();
+            loadQuestionList();
+        }
+    }
+
+    class GetAskedQTask extends AsyncTask<QuestionManager, Void, List<Question>> {
+        @Override
+        protected List<Question> doInBackground(QuestionManager... params) {
+            try {
+                return params[0].getQuestions();
+            } catch (Exception e) {
+                // Something went terribly wrong here
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(List<Question> questions) {
+            mRefreshedQList = true;
+            mCurrQuestions = questions;
+            refreshQuestionList();
+        }
     }
 
     /**

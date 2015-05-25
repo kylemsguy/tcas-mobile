@@ -1,10 +1,9 @@
 package com.kylemsguy.tcasmobile;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.kylemsguy.tcasmobile.tasks.AskQuestionTask;
+import com.kylemsguy.tcasmobile.tasks.AskQuestionTaskExternal;
 import com.kylemsguy.tcasmobile.backend.Question;
 import com.kylemsguy.tcasmobile.backend.QuestionManager;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
@@ -80,7 +79,7 @@ public class AskActivity extends ActionBarActivity {
         String response = null;
         // send question to be asked.
         try {
-            response = new AskQuestionTask().execute(qm, question).get();
+            response = new AskQuestionTaskExternal().execute(qm, question).get();
         } catch (InterruptedException | ExecutionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

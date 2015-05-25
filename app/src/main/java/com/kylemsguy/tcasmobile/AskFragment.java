@@ -28,9 +28,13 @@ public class AskFragment extends Fragment {
 
         // Set up the ListAdapter for AskActivity
         mExpListView = (ExpandableListView) rootView.findViewById(R.id.questionList);
-        ((MainActivity) getActivity()).refreshQuestionList();
-        mListAdapter = new ExpandableListAdapter(getActivity(),
-                ((MainActivity) getActivity()).getmCurrQuestions());
+        ((MainActivity) getActivity()).loadQuestionList();
+        List<Question> currQuestions = null;
+        // TODO preload question list in LoginActivity and pass list to AskFragment
+        while(currQuestions == null){
+            currQuestions = ((MainActivity) getActivity()).getmCurrQuestions();
+        }
+        mListAdapter = new ExpandableListAdapter(getActivity(), currQuestions);
         mListAdapter.notifyDataSetChanged();
         // set list adapter
         mExpListView.setAdapter(mListAdapter);
