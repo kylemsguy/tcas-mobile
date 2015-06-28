@@ -19,6 +19,14 @@ public class HomeFragment extends Fragment {
 
     private static final String ARG_USERNAME = "username";
 
+    public static HomeFragment newInstance(String username) {
+        HomeFragment homeFragment = new HomeFragment();
+        Bundle homeArgs = new Bundle();
+        homeArgs.putString("username", username);
+        homeFragment.setArguments(homeArgs);
+        return homeFragment;
+    }
+
     public HomeFragment() {
         // Required empty public constructor
     }

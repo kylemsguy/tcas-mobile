@@ -6,7 +6,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.kylemsguy.tcasmobile.tasks.AskQuestionTaskExternal;
 import com.kylemsguy.tcasmobile.tasks.GetQuestionTask;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 import com.kylemsguy.tcasmobile.tasks.SendAnswerTask;
@@ -17,8 +16,8 @@ import com.kylemsguy.tcasmobile.backend.QuestionManager;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -26,6 +25,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,7 +36,7 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     private AsyncTask mLogoutTask;
     private AsyncTask mGotQuestionsTask;
@@ -180,10 +180,10 @@ public class MainActivity extends ActionBarActivity {
             } catch (InterruptedException | ExecutionException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-                return; // ABORT ABORT
+                // ABORT ABORT
             }
             if (tempQuestion == null) {
-                return; // ABORT ABORT
+                // ABORT ABORT
             } else {
                 mCurrQuestion = tempQuestion;
                 writeCurrQuestion();
@@ -252,6 +252,11 @@ public class MainActivity extends ActionBarActivity {
 
     // end AnswerActivity
 
+    // start MessageActivity
+
+
+    // end MessageActivity
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -302,26 +307,16 @@ public class MainActivity extends ActionBarActivity {
             // return PlaceholderFragment.newInstance(position + 1);
             switch (position) {
                 case 0:
-                    HomeFragment homeFragment = new HomeFragment();
                     Intent prevIntent = getIntent();
                     String username = prevIntent.getStringExtra("username");
-                    Bundle homeArgs = new Bundle();
-                    homeArgs.putString("username", username);
-                    homeFragment.setArguments(homeArgs);
-                    return homeFragment;
+                    return HomeFragment.newInstance(username);
                 // return PlaceholderFragment.newInstance(position + 1);
                 case 1:
                     return new AskFragment();
                 case 2:
-                    mCurrQuestion = getNewQuestion();
-                    AnswerFragment fragment = new AnswerFragment();
-                    Bundle args = new Bundle();
-                    args.putString("question_id", mCurrQuestion.get("id"));
-                    args.putString("question_content", mCurrQuestion.get("content"));
-                    fragment.setArguments(args);
-                    return fragment;
+                    return AnswerFragment.newInstance(mCurrQuestion.get("id"), mCurrQuestion.get("content"));
                 case 3:
-                    return PlaceholderFragment.newInstance(position + 1);
+                    return MessageFragment.newInstance();
             }
             return null;
         }
@@ -329,8 +324,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public int getCount() {
             // Show 4 total pages.
-            // EDIT: changed to 3 to remove the Messages pane for now
-            return 3;
+            return 4;
         }
 
         @Override

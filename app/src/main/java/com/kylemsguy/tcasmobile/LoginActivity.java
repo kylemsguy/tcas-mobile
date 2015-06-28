@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -40,7 +41,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends ActionBarActivity {
+public class LoginActivity extends AppCompatActivity {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -89,7 +90,7 @@ public class LoginActivity extends ActionBarActivity {
             saveData.setChecked(true);
         }
 
-        // set up click listener
+        // set up click listener for login
         Button mUsernameSignInButton = (Button) findViewById(R.id.username_sign_in_button);
         mUsernameSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -224,8 +225,8 @@ public class LoginActivity extends ActionBarActivity {
      * It is very easy to intercept. Encryption wouldn't be much better either.
      * May implement encryption later if requested/feel like it
      *
-     * @param username
-     * @param password
+     * @param username Username of user
+     * @param password Password of user
      */
     private void saveUserData(String username, String password) {
         if (username == null || password == null) {
@@ -244,8 +245,8 @@ public class LoginActivity extends ActionBarActivity {
         NetworkInfo wifiNwInfo = connMgr
                 .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-        return ((mobileNwInfo == null ? false : mobileNwInfo.isConnected()) ||
-                (wifiNwInfo == null ? false : wifiNwInfo.isConnected()));
+        return ((mobileNwInfo != null && mobileNwInfo.isConnected()) ||
+                (wifiNwInfo != null && wifiNwInfo.isConnected()));
     }
 
     private void showDialog(String message) {
@@ -258,7 +259,7 @@ public class LoginActivity extends ActionBarActivity {
     }
 
     private boolean isUsernameValid(String username) {
-        //TODO: Replace this with your own logic
+        // regex checks if at least one char
         return username.matches("[a-zA-Z0-9]+") && username.length() <= 25;
     }
 
@@ -321,7 +322,7 @@ public class LoginActivity extends ActionBarActivity {
 
         @Override
         protected List<String> doInBackground(Void... voids) {
-            ArrayList<String> emailAddressCollection = new ArrayList<String>();
+            ArrayList<String> emailAddressCollection = new ArrayList<>();
 
             // Get all emails from the user's contacts and copy them to a list.
             ContentResolver cr = getContentResolver();
@@ -394,7 +395,7 @@ public class LoginActivity extends ActionBarActivity {
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(LoginActivity.this,
+                new ArrayAdapter<>(LoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mUsernameView.setAdapter(adapter);
