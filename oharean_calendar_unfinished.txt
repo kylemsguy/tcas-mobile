@@ -1,0 +1,11 @@
+UNIX timestamp to Oharean
+1. Find last Spring Equinox before current date
+2. Set year = date.year - 2000
+3. Subtract timestamp of equinox from current date
+4. Find month/season (date / (15 * 20 * 50 * 100))
+5. Find week (date / (20 * 50 * 100))
+6. Find hour (date / (50 * 100))
+7. Find minute (date / 100)
+8. Remainder is seconds 
+
+public static final String[] months = {"Ineo", "Cresco", "Vigeo", "Cado", "Abeo"};
