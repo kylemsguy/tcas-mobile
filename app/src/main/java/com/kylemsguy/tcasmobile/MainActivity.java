@@ -84,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
         am = ((TCaSApp) getApplicationContext()).getAnswerManager();
 
         mCurrQuestion = getNewQuestion();
-
         //refreshQuestionList();
         loadQuestionList();
 
@@ -123,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
         if(!mRefreshedQList) {
             loadQuestionList();
             return;
+        } else {
+            mRefreshedQList = false;
         }
        /* try {
             mCurrQuestions = new GetAskedQTaskExternal().execute(qm).get();
@@ -307,15 +308,20 @@ public class MainActivity extends AppCompatActivity {
             // return PlaceholderFragment.newInstance(position + 1);
             switch (position) {
                 case 0:
+                    System.out.println("0");
                     Intent prevIntent = getIntent();
                     String username = prevIntent.getStringExtra("username");
                     return HomeFragment.newInstance(username);
                 // return PlaceholderFragment.newInstance(position + 1);
                 case 1:
-                    return new AskFragment();
+                    System.out.println("1");
+                    //return new AskFragment();
+                    return PlaceholderFragment.newInstance(1);
                 case 2:
+                    System.out.println("2");
                     return AnswerFragment.newInstance(mCurrQuestion.get("id"), mCurrQuestion.get("content"));
                 case 3:
+                    System.out.println("3");
                     return MessageFragment.newInstance();
             }
             return null;
