@@ -2,7 +2,7 @@ TCaS Mobile
 ===========
 This app allows people to access http://twocansandstring.com/ from their Android phone
 
-The *master* branch will contain the latest stable version of the app once it's finished. The IDE used is Eclipse with the Android ADT.
+The *master* branch will contain the latest stable version of the app once it's finished. 
 
 The *devel* branch contains the latest development of the app. The IDE used is Android Studio.
 
