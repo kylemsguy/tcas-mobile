@@ -77,6 +77,9 @@ public class MainActivity extends ActionBarActivity {
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        // prevent destruction of fragments by scrolling offscreen
+        mViewPager.setOffscreenPageLimit(mSectionsPagerAdapter.getCount());
+
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
         qm = ((TCaSApp) getApplicationContext()).getQuestionManager();
         am = ((TCaSApp) getApplicationContext()).getAnswerManager();
