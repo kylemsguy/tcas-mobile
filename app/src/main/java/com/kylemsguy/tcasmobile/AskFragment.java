@@ -11,6 +11,7 @@ import android.widget.ExpandableListView;
 
 import com.kylemsguy.tcasmobile.backend.Question;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AskFragment extends Fragment {
@@ -29,11 +30,7 @@ public class AskFragment extends Fragment {
         // Set up the ListAdapter for AskActivity
         mExpListView = (ExpandableListView) rootView.findViewById(R.id.questionList);
         ((MainActivity) getActivity()).loadQuestionList();
-        List<Question> currQuestions = null;
-        // TODO preload question list in LoginActivity and pass list to AskFragment
-        while(currQuestions == null){
-            currQuestions = ((MainActivity) getActivity()).getmCurrQuestions();
-        }
+        List<Question> currQuestions = new ArrayList<>();
         mListAdapter = new ExpandableListAdapter(getActivity(), currQuestions);
         mListAdapter.notifyDataSetChanged();
         // set list adapter

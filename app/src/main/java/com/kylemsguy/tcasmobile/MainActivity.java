@@ -38,19 +38,6 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AsyncTask mLogoutTask;
-    private AsyncTask mGotQuestionsTask;
-
-    private SessionManager sm;
-    private QuestionManager qm;
-    private AnswerManager am;
-
-    private Map<String, String> mCurrQuestion;
-
-    private List<Question> mCurrQuestions;
-
-    private boolean mRefreshedQList = false;
-
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a {@link FragmentPagerAdapter}
@@ -59,11 +46,18 @@ public class MainActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     SectionsPagerAdapter mSectionsPagerAdapter;
-
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;
+    private AsyncTask mLogoutTask;
+    private AsyncTask mGotQuestionsTask;
+    private SessionManager sm;
+    private QuestionManager qm;
+    private AnswerManager am;
+    private Map<String, String> mCurrQuestion;
+    private List<Question> mCurrQuestions;
+    private boolean mRefreshedQList = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -275,6 +269,65 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // TODO refresh all data
+        // TODO kick back to login page if not logged in
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // logout here
+        new LogoutTask().execute(sm);
+    }
+
+    /**
+     * Getters and Setters
+     */
+
+    public List<Question> getmCurrQuestions() {
+        return mCurrQuestions;
+    }
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        public PlaceholderFragment() {
+        }
+
+        /**
+         * Returns a new instance of this fragment for the given section number.
+         */
+        public static PlaceholderFragment newInstance(int sectionNumber) {
+            PlaceholderFragment fragment = new PlaceholderFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_main, container,
+                    false);
+            TextView textView = (TextView) rootView
+                    .findViewById(R.id.section_label);
+            textView.setText(Integer.toString(getArguments().getInt(
+                    ARG_SECTION_NUMBER)));
+            return rootView;
+        }
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -301,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     System.out.println("1");
                     return new AskFragment();
-                    //return PlaceholderFragment.newInstance(1);
+                //return PlaceholderFragment.newInstance(1);
                 case 2:
                     System.out.println("2");
                     return AnswerFragment.newInstance(mCurrQuestion.get("id"), mCurrQuestion.get("content"));
@@ -333,20 +386,6 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // TODO refresh all data
-        // TODO kick back to login page if not logged in
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        // logout here
-        new LogoutTask().execute(sm);
     }
 
     class AskQuestionTask extends AsyncTask<Object, Void, String> {
@@ -393,50 +432,5 @@ public class MainActivity extends AppCompatActivity {
             mCurrQuestions = questions;
             refreshQuestionList();
         }
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container,
-                    false);
-            TextView textView = (TextView) rootView
-                    .findViewById(R.id.section_label);
-            textView.setText(Integer.toString(getArguments().getInt(
-                    ARG_SECTION_NUMBER)));
-            return rootView;
-        }
-    }
-
-    /**
-     * Getters and Setters
-     */
-
-    public List<Question> getmCurrQuestions() {
-        return mCurrQuestions;
     }
 }
