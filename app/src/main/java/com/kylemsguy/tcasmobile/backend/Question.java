@@ -24,11 +24,24 @@ public class Question extends QAObject {
     }
 
     public List<Answer> getAnswers() {
+        // make deep copy of answers before returning
+        List<Answer> answers = new ArrayList<>();
+        for(Answer answer: this.answers){
+            answers.add(answer);
+        }
         return answers;
     }
 
-    public void reverseAnswers(){
-        Collections.reverse(answers);
+    public Question getReversed(){
+        Question q = new Question(getId(), getContent());
+        q.answers = getAnswersReverse();
+        return q;
+    }
+
+    public List<Answer> getAnswersReverse() {
+        List<Answer> revAnswers = getAnswers();
+        Collections.reverse(revAnswers);
+        return revAnswers;
     }
 
     public Answer getAnswerByID(int id) {

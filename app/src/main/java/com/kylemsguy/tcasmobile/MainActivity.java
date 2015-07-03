@@ -111,34 +111,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadQuestionList(){
-        if(mGotQuestionsTask != null){
+        /*if(mGotQuestionsTask != null){
             if(mGotQuestionsTask.getStatus() == AsyncTask.Status.PENDING ||
                     mGotQuestionsTask.getStatus() == AsyncTask.Status.RUNNING)
                 return;
 
-        }
+        }*/
         mGotQuestionsTask = new GetAskedQTask().execute(qm);
     }
 
     public void refreshQuestionList() {
-        // we haven't reloaded the question list what are you doing
-        if(!mRefreshedQList) {
-            loadQuestionList();
-            return;
-        } else {
-            mRefreshedQList = false;
-        }
-       /* try {
-            mCurrQuestions = new GetAskedQTaskExternal().execute(qm).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }*/
-
-        // reverse to get from newest to oldest
-        Collections.reverse(mCurrQuestions);
-        for(Question q: mCurrQuestions){
-            q.reverseAnswers();
-        }
         ExpandableListView view = (ExpandableListView) findViewById(R.id.questionList);
         if (view != null) {
             // TODO store adapter as class element
@@ -318,8 +300,8 @@ public class MainActivity extends AppCompatActivity {
                 // return PlaceholderFragment.newInstance(position + 1);
                 case 1:
                     System.out.println("1");
-                    //return new AskFragment();
-                    return PlaceholderFragment.newInstance(1);
+                    return new AskFragment();
+                    //return PlaceholderFragment.newInstance(1);
                 case 2:
                     System.out.println("2");
                     return AnswerFragment.newInstance(mCurrQuestion.get("id"), mCurrQuestion.get("content"));

@@ -39,7 +39,6 @@ public class AskFragment extends Fragment {
         // set list adapter
         mExpListView.setAdapter(mListAdapter);
 
-
         return rootView;
     }
 
