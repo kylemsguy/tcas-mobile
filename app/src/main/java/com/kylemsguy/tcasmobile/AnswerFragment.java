@@ -51,19 +51,21 @@ public class AnswerFragment extends Fragment {
         // TODO Make ActionBar only hide when keyboard activated
         final ActionBar actionBar = ((AppCompatActivity) view.getContext()).getSupportActionBar();
 
-        EditText answerField = (EditText) view.findViewById(R.id.answerField);
+        final EditText answerField = (EditText) view.findViewById(R.id.answerField);
 
-        /*answerField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        answerField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
                 if (hasFocus) {
                     // Let's hide that action bar
-                    actionBar.hide();
+                    if (actionBar != null)
+                        actionBar.hide();
                 } else {
-                    actionBar.show();
+                    if (actionBar != null)
+                        actionBar.show();
                 }
             }
-        });*/
+        });
         return view;
 	}
 
