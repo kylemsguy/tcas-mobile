@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private Map<String, String> mCurrQuestion;
     private List<Question> mCurrQuestions;
     private boolean mRefreshedQList = false;
+    private ExpandableListView mListView;
+    private ExpandableListAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         am = ((TCaSApp) getApplicationContext()).getAnswerManager();
 
         mCurrQuestion = getNewQuestion();
-        //refreshQuestionList();
+
         loadQuestionList();
 
     }
@@ -115,12 +117,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void refreshQuestionList() {
-        ExpandableListView view = (ExpandableListView) findViewById(R.id.questionList);
-        if (view != null) {
-            // TODO store adapter as class element
-            ((ExpandableListAdapter) view.getExpandableListAdapter()).reloadItems(mCurrQuestions);
-            ((ExpandableListAdapter) view.getExpandableListAdapter()).notifyDataSetChanged();
+        if (mListView == null) {
+            mListView = (ExpandableListView) findViewById(R.id.questionList);
+        }
+        if (mAdapter == null) {
+            mAdapter = ((ExpandableListAdapter) mListView.getExpandableListAdapter());
+        }
+        try {
+            mAdapter.reloadItems(mCurrQuestions);
+            mAdapter.notifyDataSetChanged();
             System.out.println("Successfully reloaded list items");
+        } catch (NullPointerException e) {
+            System.out.println("Failed to reload list items");
         }
     }
 
