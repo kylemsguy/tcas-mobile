@@ -15,9 +15,13 @@ import com.kylemsguy.tcasmobile.backend.Question;
 import com.kylemsguy.tcasmobile.backend.QuestionManager;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -107,12 +111,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadQuestionList(){
-        /*if(mGotQuestionsTask != null){
-            if(mGotQuestionsTask.getStatus() == AsyncTask.Status.PENDING ||
-                    mGotQuestionsTask.getStatus() == AsyncTask.Status.RUNNING)
-                return;
-
-        }*/
+        mListView.setVisibility(View.GONE);
         mGotQuestionsTask = new GetAskedQTask().execute(qm);
     }
 
@@ -129,6 +128,47 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("Successfully reloaded list items");
         } catch (NullPointerException e) {
             System.out.println("Failed to reload list items");
+        }
+    }
+
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public void showListRefreshProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mListView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            // TODO temporary. Make instance variable perhaps?
+            final View progressView = findViewById(R.id.refresh_progress);
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // TODO temporary. Make instance variable perhaps?
+            final View progressView = findViewById(R.id.refresh_progress);
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -170,9 +210,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
                 // ABORT ABORT
             }
-            if (tempQuestion == null) {
-                // ABORT ABORT
-            } else {
+            if (tempQuestion != null) {
                 mCurrQuestion = tempQuestion;
                 writeCurrQuestion();
             }
@@ -358,11 +396,9 @@ public class MainActivity extends AppCompatActivity {
                     Intent prevIntent = getIntent();
                     String username = prevIntent.getStringExtra("username");
                     return HomeFragment.newInstance(username);
-                // return PlaceholderFragment.newInstance(position + 1);
                 case 1:
                     System.out.println("1");
                     return new AskFragment();
-                //return PlaceholderFragment.newInstance(1);
                 case 2:
                     System.out.println("2");
                     return AnswerFragment.newInstance(mCurrQuestion.get("id"), mCurrQuestion.get("content"));
