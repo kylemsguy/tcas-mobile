@@ -18,6 +18,7 @@ import com.kylemsguy.tcasmobile.backend.SessionManager;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -35,6 +36,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -54,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;
-    private AsyncTask mLogoutTask;
-    private AsyncTask mGotQuestionsTask;
     private SessionManager sm;
     private QuestionManager qm;
     private AnswerManager am;
@@ -64,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean mRefreshedQList = false;
     private ExpandableListView mListView;
     private ExpandableListAdapter mAdapter;
+
+    private AsyncTask mGotQuestionsTask;
+    private AsyncTask mLogoutTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +85,36 @@ public class MainActivity extends AppCompatActivity {
         // prevent destruction of fragments by scrolling offscreen
         mViewPager.setOffscreenPageLimit(mSectionsPagerAdapter.getCount());
 
+        // Disable keyboard when unnecessary
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                    case 0: // Home
+                        // let's hide that keyboard
+                        View currentFocus = getCurrentFocus();
+                        if (currentFocus != null) {
+                            InputMethodManager imm = (InputMethodManager) getSystemService(
+                                    Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+                        }
+                        break;
+                    case 1: // AskActivity
+                        break;
+                    case 2: // AnswerActivity
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrolled(int position, float offset, int offsetPixels) {
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        });
+
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
         qm = ((TCaSApp) getApplicationContext()).getQuestionManager();
         am = ((TCaSApp) getApplicationContext()).getAnswerManager();
@@ -94,6 +127,13 @@ public class MainActivity extends AppCompatActivity {
 
     // BEGIN AskActivity
     public void askQuestion(View view) {
+        // hide keyboard
+        View currentFocus = this.getCurrentFocus();
+        if (currentFocus != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+        }
         // get text
         EditText askQuestionField = (EditText) findViewById(R.id.askQuestionField);
         String question = askQuestionField.getText().toString();
@@ -182,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void refreshButtonClick(View v) {
+        // TODO hide listview and show spinner
         //Button refreshButton = (Button) v;
         //refreshQuestionList();
         loadQuestionList();

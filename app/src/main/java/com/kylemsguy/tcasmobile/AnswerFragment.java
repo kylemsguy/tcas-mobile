@@ -53,7 +53,7 @@ public class AnswerFragment extends Fragment {
 
         EditText answerField = (EditText) view.findViewById(R.id.answerField);
 
-        answerField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        /*answerField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
                 if (hasFocus) {
@@ -63,7 +63,7 @@ public class AnswerFragment extends Fragment {
                     actionBar.show();
                 }
             }
-        });
+        });*/
         return view;
 	}
 
