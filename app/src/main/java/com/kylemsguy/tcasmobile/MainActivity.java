@@ -450,7 +450,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             // Show 4 total pages.
-            return 4;
+            // Returning 3 to disable MessageFragment
+            return 3;
         }
 
         @Override
