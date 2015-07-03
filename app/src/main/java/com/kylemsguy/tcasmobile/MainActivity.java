@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadQuestionList(){
-        mListView.setVisibility(View.GONE);
+        //mListView.setVisibility(View.GONE);
         mGotQuestionsTask = new GetAskedQTask().execute(qm);
     }
 
@@ -333,9 +333,6 @@ public class MainActivity extends AppCompatActivity {
      * Getters and Setters
      */
 
-    public List<Question> getmCurrQuestions() {
-        return mCurrQuestions;
-    }
 
     /**
      * A placeholder fragment containing a simple view.

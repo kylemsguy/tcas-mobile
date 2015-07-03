@@ -206,7 +206,6 @@ public class LoginActivity extends AppCompatActivity {
             new LogoutTask().execute(sm);
         } else {
             // start the new activity
-            // Intent intent = new Intent(this, AnswerActivity.class);
             if (saveData.isChecked())
                 saveUserData(username, password);
             Intent intent = new Intent(this, MainActivity.class);
@@ -304,6 +303,15 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
+        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(LoginActivity.this,
+                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
+
+        mUsernameView.setAdapter(adapter);
+    }
+
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -389,16 +397,6 @@ public class LoginActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean result) {
             checkLoggedInComplete(result);
         }
-    }
-
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mUsernameView.setAdapter(adapter);
     }
 
 }

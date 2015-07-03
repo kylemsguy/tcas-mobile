@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.kylemsguy.tcasmobile.AskActivity$PlaceholderFragment" >
+    tools:context="com.kylemsguy.tcasmobile.AskFragment">
 
     <EditText
         android:id="@+id/askQuestionField"

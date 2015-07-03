@@ -28,21 +28,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AnswerActivity"
-            android:label="@string/title_activity_main" >
-        </activity>
-        <activity
-            android:name=".AskActivity"
-            android:label="@string/title_activity_ask" >
-        </activity>
-        <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main" >
         </activity>
-        <activity
-            android:name=".LoginActivity2"
-            android:label="@string/title_activity_login"
-            android:windowSoftInputMode="adjustResize|stateVisible"></activity>
     </application>
 
 </manifest>
