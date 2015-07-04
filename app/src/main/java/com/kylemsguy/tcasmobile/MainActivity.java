@@ -233,6 +233,55 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         loadQuestionList();
     }
 
+
+    class GetAskedQTask extends AsyncTask<QuestionManager, Void, List<Question>> {
+        @Override
+        protected List<Question> doInBackground(QuestionManager... params) {
+            try {
+                return params[0].getQuestions();
+            } catch (Exception e) {
+                // Something went terribly wrong here
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(List<Question> questions) {
+            mRefreshedQList = true;
+            mCurrQuestions = questions;
+            refreshQuestionList();
+        }
+    }
+
+
+    class AskQuestionTask extends AsyncTask<Object, Void, String> {
+
+        @Override
+        protected String doInBackground(Object... params) {
+            // param 0 is QuestionManager
+            // param 1 is string to send
+
+            QuestionManager qm = (QuestionManager) params[0];
+            String question = (String) params[1];
+
+            try {
+                qm.askQuestion(question);
+            } catch (Exception e) {
+                return e.toString();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            loadQuestionList();
+        }
+    }
+
+
+
     // END AskActivity
 
     // BEGIN AnswerActivity
@@ -272,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
     public void getFirstQuestion() {
         ((Button) findViewById(R.id.btnSubmit)).setText("Submit");
-        getNewQuestion();
+        //getNewQuestion();
         writeCurrQuestion();
     }
 
@@ -325,13 +374,67 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
     }
 
+
+    class GetQuestionTask extends AsyncTask<SessionManager, Void, Map<String, String>> {
+
+        @Override
+        protected Map<String, String> doInBackground(SessionManager... params) {
+            AnswerManager am = new AnswerManager((SessionManager) params[0]);
+            try {
+                return am.getQuestion();
+            } catch (Exception e) {
+                // original message:"Failed to get question :("
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Map<String, String> result) {
+            updateQuestion(result);
+        }
+
+    }
+
+    class SendAnswerTask extends AsyncTask<Object, Void, Map<String, String>> {
+
+        @Override
+        protected Map<String, String> doInBackground(Object... params) {
+            // First parameter is id.
+            // Second param is contents of message
+            // 3rd param is AnswerManager
+
+            String id = (String) params[0];
+            String contents = (String) params[1];
+            AnswerManager am = (AnswerManager) params[2];
+
+            if (id.length() > 25) {
+                return null; // There's a big problem here...
+            }
+
+            try {
+                return am.sendAnswer(id, contents);
+            } catch (Exception e) {
+                // Big problemo
+                e.printStackTrace();
+                return null;
+            }
+
+        }
+    }
+
+    // end AnswerActivity
+
+    // start MessageActivity
+
+
+    // end MessageActivity
+
     /**
      * Misc. methods for MainActivity
      */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
@@ -360,12 +463,6 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         }
         return super.onOptionsItemSelected(item);
     }
-    // end AnswerActivity
-
-    // start MessageActivity
-
-
-    // end MessageActivity
 
     @Override
     protected void onResume() {
@@ -402,115 +499,6 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             // refresh data
             loadQuestionList();
 
-        }
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container,
-                    false);
-            TextView textView = (TextView) rootView
-                    .findViewById(R.id.section_label);
-            textView.setText(Integer.toString(getArguments().getInt(
-                    ARG_SECTION_NUMBER)));
-            return rootView;
-        }
-    }
-
-    class GetQuestionTask extends AsyncTask<SessionManager, Void, Map<String, String>> {
-
-        @Override
-        protected Map<String, String> doInBackground(SessionManager... params) {
-            AnswerManager am = new AnswerManager((SessionManager) params[0]);
-            try {
-                return am.getQuestion();
-            } catch (Exception e) {
-                // original message:"Failed to get question :("
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Map<String, String> result) {
-            updateQuestion(result);
-        }
-
-    }
-
-    class SendAnswerTask extends AsyncTask<Object, Void, Map<String, String>> {
-
-        @Override
-        protected Map<String, String> doInBackground(Object... params) {
-            // First parameter is id.
-            // Second param is contents of message
-            // 3rd param is ANswerManager
-
-            String id = (String) params[0];
-            String contents = (String) params[1];
-            AnswerManager am = (AnswerManager) params[2];
-
-            if (id.length() > 25) {
-                return null; // There's a big problem here...
-            }
-
-            try {
-                return am.sendAnswer(id, contents);
-            } catch (Exception e) {
-                // Big problemo
-                e.printStackTrace();
-                return null;
-            }
-
-        }
-    }
-
-    class AskQuestionTask extends AsyncTask<Object, Void, String> {
-
-        @Override
-        protected String doInBackground(Object... params) {
-            // param 0 is QuestionManager
-            // param 1 is string to send
-
-            QuestionManager qm = (QuestionManager) params[0];
-            String question = (String) params[1];
-
-            try {
-                qm.askQuestion(question);
-            } catch (Exception e) {
-                return e.toString();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            loadQuestionList();
         }
     }
 
@@ -586,25 +574,41 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
      * Placeholder Items
      */
 
-    class GetAskedQTask extends AsyncTask<QuestionManager, Void, List<Question>> {
-        @Override
-        protected List<Question> doInBackground(QuestionManager... params) {
-            try {
-                return params[0].getQuestions();
-            } catch (Exception e) {
-                // Something went terribly wrong here
-                e.printStackTrace();
-                return null;
-            }
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        public PlaceholderFragment() {
+        }
+
+        /**
+         * Returns a new instance of this fragment for the given section number.
+         */
+        public static PlaceholderFragment newInstance(int sectionNumber) {
+            PlaceholderFragment fragment = new PlaceholderFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
         }
 
         @Override
-        protected void onPostExecute(List<Question> questions) {
-            mRefreshedQList = true;
-            mCurrQuestions = questions;
-            refreshQuestionList();
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_main, container,
+                    false);
+            TextView textView = (TextView) rootView
+                    .findViewById(R.id.section_label);
+            textView.setText(Integer.toString(getArguments().getInt(
+                    ARG_SECTION_NUMBER)));
+            return rootView;
         }
     }
-
 
 }
