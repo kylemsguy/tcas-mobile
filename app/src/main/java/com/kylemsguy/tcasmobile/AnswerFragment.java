@@ -15,38 +15,22 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class AnswerFragment extends Fragment {
-	
-	private static final String ARG_QUESTION_ID = "question_id";
-	private static final String ARG_QUESTION_CONTENT = "question_content";
 
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param id      ID of the first question.
-     * @param content Content of the first question.
      * @return A new instance of fragment AnswerFragment.
      */
-    public static AnswerFragment newInstance(String id, String content) {
-        AnswerFragment fragment = new AnswerFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_QUESTION_ID, id);
-        args.putString(ARG_QUESTION_CONTENT, content);
-        fragment.setArguments(args);
-        return fragment;
+    public static AnswerFragment newInstance() {
+        return new AnswerFragment();
     }
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
-		View view = inflater.inflate(R.layout.fragment_answer, container, false);
-		TextView questionText = (TextView) view.findViewById(R.id.questionText);
-		TextView questionId = (TextView) view.findViewById(R.id.questionId);
-
-        //questionText.setText(getArguments().getString(ARG_QUESTION_CONTENT));
-        //questionId.setText(getArguments().getString(ARG_QUESTION_ID));
-
+        View view = inflater.inflate(R.layout.fragment_answer, container, false);
 
         // TODO Make ActionBar only hide when keyboard activated
         final ActionBar actionBar = ((AppCompatActivity) view.getContext()).getSupportActionBar();

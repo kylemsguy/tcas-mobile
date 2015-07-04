@@ -362,7 +362,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
         @Override
         protected Map<String, String> doInBackground(SessionManager... params) {
-            AnswerManager am = new AnswerManager((SessionManager) params[0]);
+            // TODO figure out why we're creating a new AM instead of using an existing one
+            AnswerManager am = new AnswerManager(params[0]);
             try {
                 return am.getQuestion();
             } catch (Exception e) {
@@ -552,8 +553,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
                     return new AskFragment();
                 case 2:
                     System.out.println("2");
-                    // TODO fire off asynctask or something to update fragment with initial state
-                    AnswerFragment fragment = AnswerFragment.newInstance(null, null); // pass in nothing for now mCurrQuestion.get("id"), mCurrQuestion.get("content")
+                    AnswerFragment fragment = AnswerFragment.newInstance();
+                    // NOTE: There is a race condition if internet connection is not fast enough
                     new GetFirstQuestionTask().execute(sm);
                     return fragment;
                 case 3:
