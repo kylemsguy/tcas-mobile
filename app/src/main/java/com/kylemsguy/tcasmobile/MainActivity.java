@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
 import com.kylemsguy.tcasmobile.tasks.GetQuestionTask;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 import com.kylemsguy.tcasmobile.tasks.SendAnswerTask;
@@ -42,7 +43,7 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements GetLoggedInTask.OnPostLoginCheckListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
     private AsyncTask mGotQuestionsTask;
     private AsyncTask mLogoutTask;
+    private AsyncTask mGetLoggedOutTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +126,10 @@ public class MainActivity extends AppCompatActivity {
         loadQuestionList();
 
     }
+
+    /**
+     * Methods for each Fragment
+     */
 
     // BEGIN AskActivity
     public void askQuestion(View view) {
@@ -228,8 +234,6 @@ public class MainActivity extends AppCompatActivity {
         loadQuestionList();
     }
 
-    // END AskActivity
-
     // BEGIN AnswerActivity
     private void writeCurrQuestion() {
         TextView question = (TextView) findViewById(R.id.questionText);
@@ -239,6 +243,9 @@ public class MainActivity extends AppCompatActivity {
         question.setText(mCurrQuestion.get("content"));
         id.setText(mCurrQuestion.get("id"));
     }
+
+
+    // END AskActivity
 
     private void skipQuestion(boolean forever) {
         if (mCurrQuestion != null) {
@@ -317,12 +324,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // end AnswerActivity
-
-    // start MessageActivity
-
-
-    // end MessageActivity
+    /**
+     * Misc. methods for MainActivity
+     */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -356,6 +360,14 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    // end AnswerActivity
+
+    // start MessageActivity
+
+
+    // end MessageActivity
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -376,10 +388,12 @@ public class MainActivity extends AppCompatActivity {
         new LogoutTask().execute(sm);
     }
 
-    /**
-     * Getters and Setters
-     */
-
+    @Override
+    public void onPostLoginCheck(boolean loggedIn) {
+        if (!loggedIn) {
+            // kick back to LoginActivity
+        }
+    }
 
     /**
      * A placeholder fragment containing a simple view.
@@ -417,6 +431,61 @@ public class MainActivity extends AppCompatActivity {
             return rootView;
         }
     }
+
+    class GetAskedQTask extends AsyncTask<QuestionManager, Void, List<Question>> {
+        @Override
+        protected List<Question> doInBackground(QuestionManager... params) {
+            try {
+                return params[0].getQuestions();
+            } catch (Exception e) {
+                // Something went terribly wrong here
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(List<Question> questions) {
+            mRefreshedQList = true;
+            mCurrQuestions = questions;
+            refreshQuestionList();
+        }
+    }
+
+    /**
+     * Getters and Setters
+     */
+
+    // None here.
+
+    class AskQuestionTask extends AsyncTask<Object, Void, String> {
+
+        @Override
+        protected String doInBackground(Object... params) {
+            // param 0 is QuestionManager
+            // param 1 is string to send
+
+            QuestionManager qm = (QuestionManager) params[0];
+            String question = (String) params[1];
+
+            try {
+                qm.askQuestion(question);
+            } catch (Exception e) {
+                return e.toString();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            loadQuestionList();
+        }
+    }
+
+    /**
+     * Placeholder Items
+     */
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -477,49 +546,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class AskQuestionTask extends AsyncTask<Object, Void, String> {
-
-        @Override
-        protected String doInBackground(Object... params) {
-            // param 0 is QuestionManager
-            // param 1 is string to send
-
-            QuestionManager qm = (QuestionManager) params[0];
-            String question = (String) params[1];
-
-            try {
-                qm.askQuestion(question);
-            } catch (Exception e) {
-                return e.toString();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            //refreshQuestionList();
-            loadQuestionList();
-        }
-    }
-
-    class GetAskedQTask extends AsyncTask<QuestionManager, Void, List<Question>> {
-        @Override
-        protected List<Question> doInBackground(QuestionManager... params) {
-            try {
-                return params[0].getQuestions();
-            } catch (Exception e) {
-                // Something went terribly wrong here
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(List<Question> questions) {
-            mRefreshedQList = true;
-            mCurrQuestions = questions;
-            refreshQuestionList();
-        }
-    }
 }
