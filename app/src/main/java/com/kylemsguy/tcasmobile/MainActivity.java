@@ -3,11 +3,9 @@ package com.kylemsguy.tcasmobile;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
-import com.kylemsguy.tcasmobile.tasks.SkipQuestionTask;
 import com.kylemsguy.tcasmobile.backend.AnswerManager;
 import com.kylemsguy.tcasmobile.backend.Question;
 import com.kylemsguy.tcasmobile.backend.QuestionManager;
@@ -281,7 +279,6 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
     }
 
 
-
     // END AskActivity
 
     // BEGIN AnswerActivity
@@ -296,21 +293,20 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
     private void skipQuestion(boolean forever) {
         if (mCurrQuestion != null) {
-            Map<String, String> tempQuestion = null;
-            try {
-                tempQuestion = new SkipQuestionTask().execute(sm,
-                        mCurrQuestion.get("id"), forever).get();
-            } catch (InterruptedException | ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                // ABORT ABORT
-            }
-            if (tempQuestion != null) {
-                mCurrQuestion = tempQuestion;
-                writeCurrQuestion();
-            }
+            new SkipQuestionTask().execute(sm,
+                    mCurrQuestion.get("id"), forever);
         } else {
+            // should never happen...
             getFirstQuestion();
+        }
+    }
+
+    private void onSkipQuestionComplete(Map<String, String> tempQuestion) {
+        if (tempQuestion != null) {
+            mCurrQuestion = tempQuestion;
+            writeCurrQuestion();
+        } else {
+            System.out.println("Failed to get new question! Should never happen!");
         }
     }
 
@@ -345,35 +341,22 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         EditText answerField = (EditText) findViewById(R.id.answerField);
         String answer = answerField.getText().toString();
 
-        // Clear field
-        answerField.setText("");
+        new SendAnswerTask().execute(id, answer, am);
+    }
 
-        Map<String, String> tempQuestion;
-
-        try {
-            tempQuestion = new SendAnswerTask().execute(id, answer, am).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return;
-        }
-        if (tempQuestion != null) {
-            mCurrQuestion = tempQuestion;
+    private void onSubmitAnswerComplete(Map<String, String> nextQuestion) {
+        if (nextQuestion != null) {
+            mCurrQuestion = nextQuestion;
             writeCurrQuestion();
+
+            // clear answer field
+            EditText answerField = (EditText) findViewById(R.id.answerField);
+            answerField.setText("");
         } else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Failed to send message. "
-                    + "Your message may be too short or unoriginal.");
-            builder.setPositiveButton("OK", null);
-            builder.setCancelable(true);
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            // Answer send failed...
+            showNotifDialog(getResources().getString(R.string.answer_send_failed));
         }
     }
-
-    private void onSubmitAnswerComplete(Map<String, String> tempQuestion) {
-
-    }
-
 
     class GetQuestionTask extends AsyncTask<SessionManager, Void, Map<String, String>> {
 
@@ -391,6 +374,41 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         @Override
         protected void onPostExecute(Map<String, String> result) {
             updateQuestion(result);
+        }
+
+    }
+
+    public class GetFirstQuestionTask extends GetQuestionTask {
+        @Override
+        protected void onPostExecute(Map<String, String> result) {
+            updateQuestion(result);
+            writeCurrQuestion();
+        }
+    }
+
+    class SkipQuestionTask extends AsyncTask<Object, Void, Map<String, String>> {
+
+        @Override
+        protected Map<String, String> doInBackground(Object... params) {
+            // param 0 is SessionManager
+            // param 1 is id
+            // param 2 is forever? (boolean)
+
+            AnswerManager am = new AnswerManager((SessionManager) params[0]);
+            String id = (String) params[1];
+            boolean forever = (boolean) params[2];
+
+            try {
+                return am.skipQuestion(id, forever);
+            } catch (Exception e) {
+                // original message:"Failed to get question :("
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Map<String, String> result) {
+            onSkipQuestionComplete(result);
         }
 
     }
@@ -414,11 +432,16 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             try {
                 return am.sendAnswer(id, contents);
             } catch (Exception e) {
-                // Big problemo
+                System.out.println("Big problemo");
                 e.printStackTrace();
                 return null;
             }
 
+        }
+
+        @Override
+        protected void onPostExecute(Map<String, String> result) {
+            onSubmitAnswerComplete(result);
         }
     }
 
@@ -531,7 +554,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
                     System.out.println("2");
                     // TODO fire off asynctask or something to update fragment with initial state
                     AnswerFragment fragment = AnswerFragment.newInstance(null, null); // pass in nothing for now mCurrQuestion.get("id"), mCurrQuestion.get("content")
-                    // TODO add asynctask to get new fragment and then wait until fragment is stable
+                    new GetFirstQuestionTask().execute(sm);
                     return fragment;
                 case 3:
                     System.out.println("3");
