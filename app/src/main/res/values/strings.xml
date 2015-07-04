@@ -18,6 +18,8 @@
     <string name="start_answering_prompt">Press any button to start.</string>
     <string name="response_prompt">Your answer here…</string>
     <string name="temp_press_skip">Press any button to get the first question.</string>
+    <string name="please_wait">Please wait&#8230;</string>
+    <string name="loading_first_question">Loading first question&#8230;</string>
     <string name="title_activity_ask">Ask</string>
     <string name="ask_question_prompt">Ask a question…</string>
     <string name="title_section1">Home</string>

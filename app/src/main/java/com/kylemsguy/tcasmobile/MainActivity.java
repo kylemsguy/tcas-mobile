@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         loadQuestionList();
 
         // Load the first question for Answer!
-        getNewQuestion();
+        //getNewQuestion();
 
     }
 
@@ -515,9 +515,11 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
 
+            // let user know session expired
             Toast toast = Toast.makeText(getApplicationContext(), R.string.session_expired, Toast.LENGTH_SHORT);
             toast.show();
 
+            // prevent user from returning to MainActivity
             finish();
         } else {
             // refresh data

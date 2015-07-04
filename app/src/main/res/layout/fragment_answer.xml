@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:fillViewport="true"
             android:autoLink="all"
-            android:text="@string/start_answering_prompt" />
+            android:text="@string/loading_first_question" />
 
     </ScrollView>
 
@@ -35,7 +35,7 @@
         android:layout_above="@+id/idLinearLayout"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:text="@string/temp_press_skip" />
+        android:text="@string/please_wait" />
 
     <LinearLayout
         android:id="@+id/idLinearLayout"
