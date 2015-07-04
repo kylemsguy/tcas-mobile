@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.kylemsguy.tcasmobile.AskActivity$PlaceholderFragment" >
+    tools:context="com.kylemsguy.tcasmobile.AskFragment">
 
     <EditText
         android:id="@+id/askQuestionField"
@@ -29,23 +29,31 @@
             android:id="@+id/btnAskQuestion"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="5"
             android:onClick="askQuestion"
-            android:text="@string/title_activity_ask"
-            android:layout_weight="5" />
+            android:text="@string/title_activity_ask" />
 
         <ImageButton
             android:id="@+id/asked_refresh"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
-            android:src="@drawable/ic_menu_refresh"
             android:layout_weight="1"
-            android:onClick="refreshButtonClick" />
+            android:onClick="refreshButtonClick"
+            android:src="@drawable/ic_menu_refresh" />
     </LinearLayout>
 
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
+        <!-- Login progress -->
+        <ProgressBar
+            android:id="@+id/refresh_progress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone" />
 
         <ExpandableListView
             android:id="@+id/questionList"

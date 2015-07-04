@@ -15,12 +15,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -40,7 +42,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends ActionBarActivity {
+public class LoginActivity extends AppCompatActivity {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -89,7 +91,7 @@ public class LoginActivity extends ActionBarActivity {
             saveData.setChecked(true);
         }
 
-        // set up click listener
+        // set up click listener for login
         Button mUsernameSignInButton = (Button) findViewById(R.id.username_sign_in_button);
         mUsernameSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -133,9 +135,13 @@ public class LoginActivity extends ActionBarActivity {
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
-        /*if (mAuthTask != null) {
-            return;
-        }*/
+        // hide keyboard
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
 
         // Reset errors.
         mUsernameView.setError(null);
@@ -205,7 +211,6 @@ public class LoginActivity extends ActionBarActivity {
             new LogoutTask().execute(sm);
         } else {
             // start the new activity
-            // Intent intent = new Intent(this, AnswerActivity.class);
             if (saveData.isChecked())
                 saveUserData(username, password);
             Intent intent = new Intent(this, MainActivity.class);
@@ -224,8 +229,8 @@ public class LoginActivity extends ActionBarActivity {
      * It is very easy to intercept. Encryption wouldn't be much better either.
      * May implement encryption later if requested/feel like it
      *
-     * @param username
-     * @param password
+     * @param username Username of user
+     * @param password Password of user
      */
     private void saveUserData(String username, String password) {
         if (username == null || password == null) {
@@ -244,8 +249,8 @@ public class LoginActivity extends ActionBarActivity {
         NetworkInfo wifiNwInfo = connMgr
                 .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-        return ((mobileNwInfo == null ? false : mobileNwInfo.isConnected()) ||
-                (wifiNwInfo == null ? false : wifiNwInfo.isConnected()));
+        return ((mobileNwInfo != null && mobileNwInfo.isConnected()) ||
+                (wifiNwInfo != null && wifiNwInfo.isConnected()));
     }
 
     private void showDialog(String message) {
@@ -258,7 +263,7 @@ public class LoginActivity extends ActionBarActivity {
     }
 
     private boolean isUsernameValid(String username) {
-        //TODO: Replace this with your own logic
+        // regex checks if at least one char
         return username.matches("[a-zA-Z0-9]+") && username.length() <= 25;
     }
 
@@ -303,6 +308,15 @@ public class LoginActivity extends ActionBarActivity {
         }
     }
 
+    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
+        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(LoginActivity.this,
+                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
+
+        mUsernameView.setAdapter(adapter);
+    }
+
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -321,7 +335,7 @@ public class LoginActivity extends ActionBarActivity {
 
         @Override
         protected List<String> doInBackground(Void... voids) {
-            ArrayList<String> emailAddressCollection = new ArrayList<String>();
+            ArrayList<String> emailAddressCollection = new ArrayList<>();
 
             // Get all emails from the user's contacts and copy them to a list.
             ContentResolver cr = getContentResolver();
@@ -388,16 +402,6 @@ public class LoginActivity extends ActionBarActivity {
         protected void onPostExecute(Boolean result) {
             checkLoggedInComplete(result);
         }
-    }
-
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mUsernameView.setAdapter(adapter);
     }
 
 }

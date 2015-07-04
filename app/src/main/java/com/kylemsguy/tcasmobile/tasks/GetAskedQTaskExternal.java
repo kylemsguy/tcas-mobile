@@ -7,7 +7,7 @@ import com.kylemsguy.tcasmobile.backend.QuestionManager;
 
 import java.util.List;
 
-public class GetAskedQTask extends AsyncTask<QuestionManager, Void, List<Question>> {
+public class GetAskedQTaskExternal extends AsyncTask<QuestionManager, Void, List<Question>> {
     @Override
     protected List<Question> doInBackground(QuestionManager... params) {
         try {

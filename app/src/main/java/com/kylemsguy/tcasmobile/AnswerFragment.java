@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,23 @@ public class AnswerFragment extends Fragment {
 	
 	private static final String ARG_QUESTION_ID = "question_id";
 	private static final String ARG_QUESTION_CONTENT = "question_content";
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param id      ID of the first question.
+     * @param content Content of the first question.
+     * @return A new instance of fragment AnswerFragment.
+     */
+    public static AnswerFragment newInstance(String id, String content) {
+        AnswerFragment fragment = new AnswerFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_QUESTION_ID, id);
+        args.putString(ARG_QUESTION_CONTENT, content);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -31,18 +49,20 @@ public class AnswerFragment extends Fragment {
 
 
         // TODO Make ActionBar only hide when keyboard activated
-        final ActionBar actionBar = ((ActionBarActivity) view.getContext()).getSupportActionBar();
+        final ActionBar actionBar = ((AppCompatActivity) view.getContext()).getSupportActionBar();
 
-        EditText answerField = (EditText) view.findViewById(R.id.answerField);
+        final EditText answerField = (EditText) view.findViewById(R.id.answerField);
 
         answerField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
                 if (hasFocus) {
                     // Let's hide that action bar
-                    actionBar.hide();
+                    if (actionBar != null)
+                        actionBar.hide();
                 } else {
-                    actionBar.show();
+                    if (actionBar != null)
+                        actionBar.show();
                 }
             }
         });

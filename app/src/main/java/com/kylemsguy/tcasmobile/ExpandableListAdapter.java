@@ -12,10 +12,13 @@ import android.widget.TextView;
 import com.kylemsguy.tcasmobile.backend.QAObject;
 import com.kylemsguy.tcasmobile.backend.Question;
 
+import java.util.Collections;
 import java.util.List;
 
 
 public class ExpandableListAdapter extends BaseExpandableListAdapter {
+    private static final boolean REVERSE_ENTRIES = true;
+
     private Context mContext;
 
     private List<Question> mQuestions;
@@ -99,6 +102,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     public void reloadItems(List<Question> questions) {
         mQuestions.clear();
-        mQuestions.addAll(questions);
+        if(REVERSE_ENTRIES) {
+            for(int i = questions.size(); i > 0; i--){
+                mQuestions.add(questions.get(i-1).getReversed());
+            }
+        }
+        else{
+            mQuestions.addAll(questions);
+        }
     }
 }

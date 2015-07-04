@@ -6,8 +6,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.kylemsguy.tcasmobile.tasks.AskQuestionTask;
-import com.kylemsguy.tcasmobile.tasks.GetAskedQTask;
 import com.kylemsguy.tcasmobile.tasks.GetQuestionTask;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 import com.kylemsguy.tcasmobile.tasks.SendAnswerTask;
@@ -17,10 +15,14 @@ import com.kylemsguy.tcasmobile.backend.Question;
 import com.kylemsguy.tcasmobile.backend.QuestionManager;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
 
-import android.app.Activity;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -28,6 +30,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,15 +42,7 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
-public class MainActivity extends ActionBarActivity {
-
-    private SessionManager sm;
-    private QuestionManager qm;
-    private AnswerManager am;
-
-    private Map<String, String> mCurrQuestion;
-
-    private List<Question> mCurrQuestions;
+public class MainActivity extends AppCompatActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -57,11 +52,21 @@ public class MainActivity extends ActionBarActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     SectionsPagerAdapter mSectionsPagerAdapter;
-
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;
+    private SessionManager sm;
+    private QuestionManager qm;
+    private AnswerManager am;
+    private Map<String, String> mCurrQuestion;
+    private List<Question> mCurrQuestions;
+    private boolean mRefreshedQList = false;
+    private ExpandableListView mListView;
+    private ExpandableListAdapter mAdapter;
+
+    private AsyncTask mGotQuestionsTask;
+    private AsyncTask mLogoutTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,18 +82,58 @@ public class MainActivity extends ActionBarActivity {
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        // prevent destruction of fragments by scrolling offscreen
+        mViewPager.setOffscreenPageLimit(mSectionsPagerAdapter.getCount());
+
+        // Disable keyboard when unnecessary
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                    case 0: // Home
+                        // let's hide that keyboard
+                        View currentFocus = getCurrentFocus();
+                        if (currentFocus != null) {
+                            InputMethodManager imm = (InputMethodManager) getSystemService(
+                                    Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+                        }
+                        break;
+                    case 1: // AskActivity
+                        break;
+                    case 2: // AnswerActivity
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrolled(int position, float offset, int offsetPixels) {
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        });
+
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
         qm = ((TCaSApp) getApplicationContext()).getQuestionManager();
         am = ((TCaSApp) getApplicationContext()).getAnswerManager();
 
         mCurrQuestion = getNewQuestion();
 
-        refreshQuestionList();
+        loadQuestionList();
 
     }
 
     // BEGIN AskActivity
     public void askQuestion(View view) {
+        // hide keyboard
+        View currentFocus = this.getCurrentFocus();
+        if (currentFocus != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+        }
         // get text
         EditText askQuestionField = (EditText) findViewById(R.id.askQuestionField);
         String question = askQuestionField.getText().toString();
@@ -101,37 +146,69 @@ public class MainActivity extends ActionBarActivity {
         // Clear field
         askQuestionField.setText("");
 
-        String response = null;
         // send question to be asked.
-        try {
-            response = new AskQuestionTask().execute(qm, question).get();
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return;
-        }
+        new AskQuestionTask().execute(qm, question);
+    }
 
-        refreshQuestionList();
+    public void loadQuestionList(){
+        //mListView.setVisibility(View.GONE);
+        mGotQuestionsTask = new GetAskedQTask().execute(qm);
     }
 
     public void refreshQuestionList() {
+        if (mListView == null) {
+            mListView = (ExpandableListView) findViewById(R.id.questionList);
+        }
+        if (mAdapter == null) {
+            mAdapter = ((ExpandableListAdapter) mListView.getExpandableListAdapter());
+        }
         try {
-            mCurrQuestions = new GetAskedQTask().execute(qm).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        // reverse to get from newest to oldest
-        Collections.reverse(mCurrQuestions);
-        for(Question q: mCurrQuestions){
-            q.reverseAnswers();
-        }
-        ExpandableListView view = (ExpandableListView) findViewById(R.id.questionList);
-        if (view != null) {
-            // TODO store adapter as class element
-            ((ExpandableListAdapter) view.getExpandableListAdapter()).reloadItems(mCurrQuestions);
-            ((ExpandableListAdapter) view.getExpandableListAdapter()).notifyDataSetChanged();
+            mAdapter.reloadItems(mCurrQuestions);
+            mAdapter.notifyDataSetChanged();
             System.out.println("Successfully reloaded list items");
+        } catch (NullPointerException e) {
+            System.out.println("Failed to reload list items");
+        }
+    }
+
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public void showListRefreshProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mListView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            // TODO temporary. Make instance variable perhaps?
+            final View progressView = findViewById(R.id.refresh_progress);
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // TODO temporary. Make instance variable perhaps?
+            final View progressView = findViewById(R.id.refresh_progress);
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -145,8 +222,10 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void refreshButtonClick(View v) {
+        // TODO hide listview and show spinner
         //Button refreshButton = (Button) v;
-        refreshQuestionList();
+        //refreshQuestionList();
+        loadQuestionList();
     }
 
     // END AskActivity
@@ -170,11 +249,9 @@ public class MainActivity extends ActionBarActivity {
             } catch (InterruptedException | ExecutionException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-                return; // ABORT ABORT
+                // ABORT ABORT
             }
-            if (tempQuestion == null) {
-                return; // ABORT ABORT
-            } else {
+            if (tempQuestion != null) {
                 mCurrQuestion = tempQuestion;
                 writeCurrQuestion();
             }
@@ -242,6 +319,11 @@ public class MainActivity extends ActionBarActivity {
 
     // end AnswerActivity
 
+    // start MessageActivity
+
+
+    // end MessageActivity
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -259,8 +341,8 @@ public class MainActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             return true;
         } else if (id == R.id.action_logout) {
-            // logout
-            AsyncTask<SessionManager, Integer, Void> logout = new LogoutTask().execute(sm);
+            // save logout task in case we need to cancel
+            mLogoutTask = new LogoutTask().execute(sm);
             Intent intent = new Intent(this, LoginActivity.class);
             // do stuff
             /*try { // temporary; change to a wheel spinning and dialog saying "logging out..."
@@ -272,6 +354,62 @@ public class MainActivity extends ActionBarActivity {
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // TODO refresh all data
+        // TODO kick back to login page if not logged in
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // logout here
+        new LogoutTask().execute(sm);
+    }
+
+    /**
+     * Getters and Setters
+     */
+
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        public PlaceholderFragment() {
+        }
+
+        /**
+         * Returns a new instance of this fragment for the given section number.
+         */
+        public static PlaceholderFragment newInstance(int sectionNumber) {
+            PlaceholderFragment fragment = new PlaceholderFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_main, container,
+                    false);
+            TextView textView = (TextView) rootView
+                    .findViewById(R.id.section_label);
+            textView.setText(Integer.toString(getArguments().getInt(
+                    ARG_SECTION_NUMBER)));
+            return rootView;
+        }
     }
 
     /**
@@ -292,26 +430,19 @@ public class MainActivity extends ActionBarActivity {
             // return PlaceholderFragment.newInstance(position + 1);
             switch (position) {
                 case 0:
-                    HomeFragment homeFragment = new HomeFragment();
+                    System.out.println("0");
                     Intent prevIntent = getIntent();
                     String username = prevIntent.getStringExtra("username");
-                    Bundle homeArgs = new Bundle();
-                    homeArgs.putString("username", username);
-                    homeFragment.setArguments(homeArgs);
-                    return homeFragment;
-                // return PlaceholderFragment.newInstance(position + 1);
+                    return HomeFragment.newInstance(username);
                 case 1:
+                    System.out.println("1");
                     return new AskFragment();
                 case 2:
-                    mCurrQuestion = getNewQuestion();
-                    AnswerFragment fragment = new AnswerFragment();
-                    Bundle args = new Bundle();
-                    args.putString("question_id", mCurrQuestion.get("id"));
-                    args.putString("question_content", mCurrQuestion.get("content"));
-                    fragment.setArguments(args);
-                    return fragment;
+                    System.out.println("2");
+                    return AnswerFragment.newInstance(mCurrQuestion.get("id"), mCurrQuestion.get("content"));
                 case 3:
-                    return PlaceholderFragment.newInstance(position + 1);
+                    System.out.println("3");
+                    return MessageFragment.newInstance();
             }
             return null;
         }
@@ -319,7 +450,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public int getCount() {
             // Show 4 total pages.
-            // EDIT: changed to 3 to remove the Messages pane for now
+            // Returning 3 to disable MessageFragment
             return 3;
         }
 
@@ -340,62 +471,49 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // TODO refresh all data
-        // TODO kick back to login page if not logged in
-    }
+    class AskQuestionTask extends AsyncTask<Object, Void, String> {
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        // logout here
-        new LogoutTask().execute(sm);
-    }
+        @Override
+        protected String doInBackground(Object... params) {
+            // param 0 is QuestionManager
+            // param 1 is string to send
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+            QuestionManager qm = (QuestionManager) params[0];
+            String question = (String) params[1];
 
-        /**
-         * Returns a new instance of this fragment for the given section number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
+            try {
+                qm.askQuestion(question);
+            } catch (Exception e) {
+                return e.toString();
+            }
 
-        public PlaceholderFragment() {
+            return null;
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container,
-                    false);
-            TextView textView = (TextView) rootView
-                    .findViewById(R.id.section_label);
-            textView.setText(Integer.toString(getArguments().getInt(
-                    ARG_SECTION_NUMBER)));
-            return rootView;
+        protected void onPostExecute(String s) {
+            //refreshQuestionList();
+            loadQuestionList();
         }
     }
 
-    /**
-     * Getters and Setters
-     */
+    class GetAskedQTask extends AsyncTask<QuestionManager, Void, List<Question>> {
+        @Override
+        protected List<Question> doInBackground(QuestionManager... params) {
+            try {
+                return params[0].getQuestions();
+            } catch (Exception e) {
+                // Something went terribly wrong here
+                e.printStackTrace();
+                return null;
+            }
+        }
 
-    public List<Question> getmCurrQuestions() {
-        return mCurrQuestions;
+        @Override
+        protected void onPostExecute(List<Question> questions) {
+            mRefreshedQList = true;
+            mCurrQuestions = questions;
+            refreshQuestionList();
+        }
     }
 }

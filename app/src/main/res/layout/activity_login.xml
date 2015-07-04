@@ -28,14 +28,14 @@
             android:id="@+id/email_login_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="vertical">
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/tcas_title"
-                android:contentDescription="Application Icon" />
+                android:contentDescription="Application Icon"
+                android:src="@drawable/tcas_title" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -45,17 +45,19 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/prompt_email"
-                    android:layout_marginRight="3dp" />
+                    android:layout_marginRight="3dp"
+                    android:text="@string/prompt_email" />
 
                 <AutoCompleteTextView
                     android:id="@+id/username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
                     android:inputType="textAutoComplete"
                     android:maxLines="1"
-                    android:singleLine="true"
-                    android:imeOptions="actionNext" />
+                    android:nextFocusLeft="@id/username"
+                    android:nextFocusUp="@id/username"
+                    android:singleLine="true" />
             </LinearLayout>
 
             <LinearLayout
@@ -66,26 +68,26 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/prompt_password"
-                    android:layout_marginRight="3dp" />
+                    android:layout_marginRight="3dp"
+                    android:text="@string/prompt_password" />
 
                 <EditText
                     android:id="@+id/password"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
                     android:layout_weight="1"
                     android:imeActionId="@+id/login"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:layout_marginLeft="3dp"
                     android:singleLine="true" />
 
                 <CheckBox
+                    android:id="@+id/save_pass_box"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/save_pass_box"
                     android:text="@string/save_box" />
             </LinearLayout>
 

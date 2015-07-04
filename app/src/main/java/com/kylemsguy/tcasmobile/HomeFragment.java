@@ -1,12 +1,14 @@
 package com.kylemsguy.tcasmobile;
 
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import java.lang.reflect.Type;
@@ -23,6 +25,13 @@ public class HomeFragment extends Fragment {
         // Required empty public constructor
     }
 
+    public static HomeFragment newInstance(String username) {
+        HomeFragment homeFragment = new HomeFragment();
+        Bundle homeArgs = new Bundle();
+        homeArgs.putString("username", username);
+        homeFragment.setArguments(homeArgs);
+        return homeFragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

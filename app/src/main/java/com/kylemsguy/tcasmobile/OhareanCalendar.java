@@ -1,82 +1,81 @@
 package com.kylemsguy.tcasmobile;
 
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.TimeZone;
 
-public class OhareanCalendar extends GregorianCalendar {
-    private Calendar cal;
+public class OhareanCalendar {
+
+    public static final String[] SEASON_NAMES = {"Ineo", "Cresco", "Vigeo", "Cado", "Abeo"};
+    public static final int MINUTE_LENGTH_SEC = 100;
+    public static final int HOUR_LENGTH_SEC = MINUTE_LENGTH_SEC * 50;
+    public static final int DAY_LENGTH_SEC = HOUR_LENGTH_SEC * 20;
+    public static final int WEEK_LENGTH_SEC = DAY_LENGTH_SEC * 6;
+    public static final int SEASON_LENGTH_SEC = WEEK_LENGTH_SEC * 15;
+    public static final int YEAR_LENGTH_SEC = SEASON_LENGTH_SEC * 4 + 5 * DAY_LENGTH_SEC;
+    public static final int LYEAR_LENGTH_SEC = YEAR_LENGTH_SEC + DAY_LENGTH_SEC;
+
+    // internal constants for int array format
+    private static final int DATE_ARY_YEAR = 0;
+    private static final int DATE_ARY_SEASON = 1;
+    private static final int DATE_ARY_WEEK = 2;
+
+
+    private long unix; // unix timestamp
 
     public OhareanCalendar() {
-        super();
+        // get current time
+        unix = System.currentTimeMillis() / 1000;
     }
 
-    public OhareanCalendar(int year, int month, int day) {
-        super(year, month, day);
+    public OhareanCalendar(long unix) {
+        this.unix = unix;
     }
 
-    public OhareanCalendar(int year, int month, int day, int hour, int minute) {
-        super(year, month, day, hour, minute);
+    public OhareanCalendar(Calendar date) {
+        // get unix timestamp and store
+        unix = date.getTimeInMillis() / 1000;
     }
 
-    public OhareanCalendar(int year, int month, int day, int hour, int minute, int second) {
-        super(year, month, day, hour, minute, second);
-    }
-
-    public OhareanCalendar(Locale locale) {
-        super(locale);
-    }
-
-    public OhareanCalendar(TimeZone timezone) {
-        super(timezone);
-    }
-
-    public OhareanCalendar(TimeZone timezone, Locale locale) {
-        super(timezone, locale);
-    }
-
-    public int getOhareanTimeZone() {
-        return 0;
-    }
-
-    public int[] getOhareanDate() {
-        Date d = getTime();
-        long s = d.getTime();
-        s = s - 946684800; // shift epoch to year 2000
-
-        // calculate length of Abeo
-        long m = s / 100;
-        s = s % 100;
-
-        long h = m / 50;
-        m = m % 50;
-
-        long day = h / 20;
-        h = h % 20;
-
-        //TODO figure out how to get current year
-
-        return null;
+    public OhareanCalendar(String ohareanDate) {
+        // parse date string and give date
     }
 
     @Override
     public String toString() {
-        //return super.toString();
-        int[] oDate = getOhareanDate();
-        return super.toString();
+        int[] dateAry = unixToOharean(unix);
+        StringBuilder sb = new StringBuilder();
+        sb.append(dateAry[0]);
+        sb.append(" ");
+        sb.append(SEASON_NAMES[dateAry[1]]);
+        sb.append(" ");
+        sb.append(dateAry[2]);
+        sb.append(" ");
+        sb.append("THIS CLASS IS NOT FUNCTIONAL YET");
+        return sb.toString();
     }
 
-    public static OhareanCalendar dateGregToOharean(int time_t, int offset) {
-        return null;
+    private static int[] unixToOharean(long unix) {
+        long sec = unix - 946684800; // shift epoch to year 2000
+
+        int year = (int) (sec / YEAR_LENGTH_SEC);
+        sec %= YEAR_LENGTH_SEC;
+        int month = (int) (sec / SEASON_LENGTH_SEC);
+        sec %= SEASON_LENGTH_SEC;
+        int week = (int) (sec / DAY_LENGTH_SEC);
+        sec %= DAY_LENGTH_SEC;
+        int hour = (int) (sec / HOUR_LENGTH_SEC);
+        sec %= HOUR_LENGTH_SEC;
+        int minute = (int) (sec / MINUTE_LENGTH_SEC);
+        sec %= MINUTE_LENGTH_SEC;
+
+        return new int[]{month, week, hour, minute, (int) sec};
     }
 
-    public static OhareanCalendar dateGregToOharean(int month, int day, int year) {
-        return null;
+    public static int getMonthIndex(String month) throws IllegalArgumentException {
+        for (int i = 0; i < SEASON_NAMES.length; i++) {
+            if (SEASON_NAMES[i].equals(month))
+                return i;
+        }
+        throw new IllegalArgumentException("Invalid month name, \"" + month + "\".");
     }
 
-    public static int dateOhareanToUNIX(int[] Oharean) {
-        return 0;
-    }
 }
