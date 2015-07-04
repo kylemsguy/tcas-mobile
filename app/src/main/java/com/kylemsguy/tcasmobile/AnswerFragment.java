@@ -43,9 +43,9 @@ public class AnswerFragment extends Fragment {
 		View view = inflater.inflate(R.layout.fragment_answer, container, false);
 		TextView questionText = (TextView) view.findViewById(R.id.questionText);
 		TextView questionId = (TextView) view.findViewById(R.id.questionId);
-		
-		questionText.setText(getArguments().getString(ARG_QUESTION_CONTENT));
-		questionId.setText(getArguments().getString(ARG_QUESTION_ID));
+
+        //questionText.setText(getArguments().getString(ARG_QUESTION_CONTENT));
+        //questionId.setText(getArguments().getString(ARG_QUESTION_ID));
 
 
         // TODO Make ActionBar only hide when keyboard activated

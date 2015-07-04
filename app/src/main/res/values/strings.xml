@@ -28,5 +28,7 @@
     <string name="debug_asked_question_resp">Hello there yes there is stuff here but I\'m just testing</string>
     <string name="save_box">Save</string>
     <string name="action_logout">Log Out</string>
+    <string name="session_expired">Session Expired</string>
+    <string name="session_expired_msg">It seems that your session has expired. Let me take you back to the Login screen.</string>
 
 </resources>

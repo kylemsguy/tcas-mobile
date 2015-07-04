@@ -1,15 +1,12 @@
 package com.kylemsguy.tcasmobile;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
-import com.kylemsguy.tcasmobile.tasks.GetQuestionTask;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
-import com.kylemsguy.tcasmobile.tasks.SendAnswerTask;
 import com.kylemsguy.tcasmobile.tasks.SkipQuestionTask;
 import com.kylemsguy.tcasmobile.backend.AnswerManager;
 import com.kylemsguy.tcasmobile.backend.Question;
@@ -21,7 +18,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.Fragment;
@@ -42,6 +38,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements GetLoggedInTask.OnPostLoginCheckListener {
 
@@ -68,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
     private AsyncTask mGotQuestionsTask;
     private AsyncTask mLogoutTask;
-    private AsyncTask mGetLoggedOutTask;
+    private AsyncTask mGetLoggedInTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,9 +118,11 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         qm = ((TCaSApp) getApplicationContext()).getQuestionManager();
         am = ((TCaSApp) getApplicationContext()).getAnswerManager();
 
-        mCurrQuestion = getNewQuestion();
-
+        // Load question list for Ask
         loadQuestionList();
+
+        // Load the first question for Answer!
+        getNewQuestion();
 
     }
 
@@ -234,6 +233,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         loadQuestionList();
     }
 
+    // END AskActivity
+
     // BEGIN AnswerActivity
     private void writeCurrQuestion() {
         TextView question = (TextView) findViewById(R.id.questionText);
@@ -243,9 +244,6 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         question.setText(mCurrQuestion.get("content"));
         id.setText(mCurrQuestion.get("id"));
     }
-
-
-    // END AskActivity
 
     private void skipQuestion(boolean forever) {
         if (mCurrQuestion != null) {
@@ -267,20 +265,19 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         }
     }
 
-    private Map<String, String> getNewQuestion() {
-        try {
-            return new GetQuestionTask().execute(sm).get();
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-        }
+
+    private void getNewQuestion() {
+        new GetQuestionTask().execute(sm);
     }
 
     public void getFirstQuestion() {
         ((Button) findViewById(R.id.btnSubmit)).setText("Submit");
-        mCurrQuestion = getNewQuestion();
+        getNewQuestion();
         writeCurrQuestion();
+    }
+
+    public void updateQuestion(Map<String, String> question) {
+        mCurrQuestion = question;
     }
 
     public void skipPerm(View view) {
@@ -324,6 +321,10 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         }
     }
 
+    private void onSubmitAnswerComplete(Map<String, String> tempQuestion) {
+
+    }
+
     /**
      * Misc. methods for MainActivity
      */
@@ -354,13 +355,11 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }*/
-            startActivity(intent); // isn't working very well atm
+            startActivity(intent);
             finish();
         }
         return super.onOptionsItemSelected(item);
     }
-
-
     // end AnswerActivity
 
     // start MessageActivity
@@ -373,25 +372,36 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         super.onResume();
 
         // check if logged in
+        mGetLoggedInTask = new GetLoggedInTask().execute(sm, this);
 
-        // refresh QuestionList();
-        loadQuestionList();
-
-        // TODO refresh all data
-        // TODO kick back to login page if not logged in
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         // logout here
-        new LogoutTask().execute(sm);
+        mLogoutTask = new LogoutTask().execute(sm);
     }
+
+    /**
+     * Callbacks for AsyncTasks
+     */
 
     @Override
     public void onPostLoginCheck(boolean loggedIn) {
         if (!loggedIn) {
             // kick back to LoginActivity
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+
+            Toast toast = Toast.makeText(getApplicationContext(), R.string.session_expired, Toast.LENGTH_SHORT);
+            toast.show();
+
+            finish();
+        } else {
+            // refresh data
+            loadQuestionList();
+
         }
     }
 
@@ -432,31 +442,52 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         }
     }
 
-    class GetAskedQTask extends AsyncTask<QuestionManager, Void, List<Question>> {
+    class GetQuestionTask extends AsyncTask<SessionManager, Void, Map<String, String>> {
+
         @Override
-        protected List<Question> doInBackground(QuestionManager... params) {
+        protected Map<String, String> doInBackground(SessionManager... params) {
+            AnswerManager am = new AnswerManager((SessionManager) params[0]);
             try {
-                return params[0].getQuestions();
+                return am.getQuestion();
             } catch (Exception e) {
-                // Something went terribly wrong here
-                e.printStackTrace();
+                // original message:"Failed to get question :("
                 return null;
             }
         }
 
         @Override
-        protected void onPostExecute(List<Question> questions) {
-            mRefreshedQList = true;
-            mCurrQuestions = questions;
-            refreshQuestionList();
+        protected void onPostExecute(Map<String, String> result) {
+            updateQuestion(result);
         }
+
     }
 
-    /**
-     * Getters and Setters
-     */
+    class SendAnswerTask extends AsyncTask<Object, Void, Map<String, String>> {
 
-    // None here.
+        @Override
+        protected Map<String, String> doInBackground(Object... params) {
+            // First parameter is id.
+            // Second param is contents of message
+            // 3rd param is ANswerManager
+
+            String id = (String) params[0];
+            String contents = (String) params[1];
+            AnswerManager am = (AnswerManager) params[2];
+
+            if (id.length() > 25) {
+                return null; // There's a big problem here...
+            }
+
+            try {
+                return am.sendAnswer(id, contents);
+            } catch (Exception e) {
+                // Big problemo
+                e.printStackTrace();
+                return null;
+            }
+
+        }
+    }
 
     class AskQuestionTask extends AsyncTask<Object, Void, String> {
 
@@ -482,10 +513,6 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             loadQuestionList();
         }
     }
-
-    /**
-     * Placeholder Items
-     */
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -514,7 +541,10 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
                     return new AskFragment();
                 case 2:
                     System.out.println("2");
-                    return AnswerFragment.newInstance(mCurrQuestion.get("id"), mCurrQuestion.get("content"));
+                    // TODO fire off asynctask or something to update fragment with initial state
+                    AnswerFragment fragment = AnswerFragment.newInstance(null, null); // pass in nothing for now mCurrQuestion.get("id"), mCurrQuestion.get("content")
+                    // TODO add asynctask to get new fragment and then wait until fragment is stable
+                    return fragment;
                 case 3:
                     System.out.println("3");
                     return MessageFragment.newInstance();
@@ -545,5 +575,36 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             return null;
         }
     }
+
+    /**
+     * Getters and Setters
+     */
+
+    // None here.
+
+    /**
+     * Placeholder Items
+     */
+
+    class GetAskedQTask extends AsyncTask<QuestionManager, Void, List<Question>> {
+        @Override
+        protected List<Question> doInBackground(QuestionManager... params) {
+            try {
+                return params[0].getQuestions();
+            } catch (Exception e) {
+                // Something went terribly wrong here
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(List<Question> questions) {
+            mRefreshedQList = true;
+            mCurrQuestions = questions;
+            refreshQuestionList();
+        }
+    }
+
 
 }
