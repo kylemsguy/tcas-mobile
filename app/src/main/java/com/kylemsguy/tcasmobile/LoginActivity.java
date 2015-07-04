@@ -14,7 +14,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -31,18 +30,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.kylemsguy.tcasmobile.backend.SessionManager;
-import com.kylemsguy.tcasmobile.tasks.GetLoggedInTaskExternal;
+import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.OnPostLoginCheckListener {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -191,10 +189,11 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void attemptLoginComplete(){
-        new GetLoggedInTask().execute(sm);
+        new GetLoggedInTask().execute(sm, this);
     }
 
-    private void checkLoggedInComplete(boolean loggedIn){
+    @Override
+    public void onPostLoginCheck(boolean loggedIn) {
         // Store values at the time of the login attempt.
         // This still works because sign in box should be hidden
         String username = mUsernameView.getText().toString();
@@ -360,7 +359,7 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * Use an AsyncTask to attempt a login with the server
      */
-    class LoginTask extends AsyncTask<Object, Void, String> {
+    private class LoginTask extends AsyncTask<Object, Void, String> {
         @Override
         protected String doInBackground(Object... params) {
             // param 1 should be username
@@ -388,20 +387,6 @@ public class LoginActivity extends AppCompatActivity {
             attemptLoginComplete();
         }
 
-    }
-
-    class GetLoggedInTask extends AsyncTask<SessionManager, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(SessionManager... params) {
-            SessionManager sm = params[0];
-            return sm.checkLoggedIn();
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            checkLoggedInComplete(result);
-        }
     }
 
 }

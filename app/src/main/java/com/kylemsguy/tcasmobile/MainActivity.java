@@ -359,6 +359,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        // check if logged in
+
+        // refresh QuestionList();
+        loadQuestionList();
+
         // TODO refresh all data
         // TODO kick back to login page if not logged in
     }
