@@ -187,7 +187,9 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
         }
     }
 
-
+    /**
+     * Login completed. Now check whether it completed successfully.
+     */
     private void attemptLoginComplete(){
         new GetLoggedInTask().execute(sm, this);
     }
@@ -262,13 +264,13 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
     }
 
     private boolean isUsernameValid(String username) {
-        // regex checks if at least one char
-        return username.matches("[a-zA-Z0-9]+") && username.length() <= 25;
+        // regex checks if at least one alphanumeric char
+        return username.matches(".*[a-zA-Z0-9].*") && username.length() <= 25;
     }
 
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
-        return password.length() > 0;
+        return password.length() > 5;
     }
 
     /**
