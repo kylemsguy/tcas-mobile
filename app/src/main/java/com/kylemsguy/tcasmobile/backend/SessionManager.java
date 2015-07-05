@@ -38,7 +38,7 @@ public class SessionManager {
     public boolean checkLoggedIn() {
         try {
             String page = getPageContent(AnswerManager.QUESTION_URL);
-            return page.startsWith("<!DOCTYPE html PUBLIC");
+            return !page.startsWith("<!DOCTYPE html PUBLIC");
         } catch (Exception e) {
             return false;
         }
