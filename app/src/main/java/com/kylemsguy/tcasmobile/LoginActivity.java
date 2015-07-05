@@ -57,6 +57,11 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
     private View mProgressView;
     private View mLoginFormView;
 
+    private static final boolean DEBUG = false;
+
+    // Autologin
+    private boolean autoLogin = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +109,20 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
         // set up the TCaS session manager
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
         connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        // check if already logged in
+        boolean loggedIn = PrefUtils.getFromPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, false);
+
+        if (loggedIn) {
+            autoLogin = true;
+            // Show spinner
+            showProgress(true);
+            // load cookies from Preferences
+            List<String> cookies = PrefUtils.getListFromPrefs(this, PrefUtils.PREF_COOKIES_KEY);
+            sm.setCookies(cookies);
+            // check if really logged in
+            attemptLoginComplete();
+        }
     }
 /*
     private void populateAutoComplete() {
@@ -203,20 +222,29 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
         CheckBox saveData = (CheckBox) findViewById(R.id.save_pass_box);
 
         if (!loggedIn) {
-            if (currNetworkConnected())
+            if (autoLogin) {
+                autoLogin = false;
+                showDialog("Session expired. Please log in again.");
+            } else if (currNetworkConnected())
                 showDialog("Login failed. Check your username or password.");
             else
                 showDialog("Login failed. Check your internet connection.");
             showProgress(false);
+            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, false);
+            //sm.setCookies(new ArrayList<String>()); // restart session just in case
             // log out just in case
             new LogoutTask().execute(sm);
         } else {
             // start the new activity
             if (saveData.isChecked())
                 saveUserData(username, password);
+            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, true);
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("username", username);
             startActivity(intent);
+
+            // save cookies to preferences to be used later
+            PrefUtils.saveListToPrefs(this, PrefUtils.PREF_COOKIES_KEY, sm.getCookies());
 
             finish();
         }

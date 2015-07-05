@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager;
+    private ViewPager mViewPager;
     private SessionManager sm;
     private QuestionManager qm;
     private AnswerManager am;
@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
     private AsyncTask mGotQuestionsTask;
     private AsyncTask mLogoutTask;
     private AsyncTask mGetLoggedInTask;
+
+    private static final boolean DEBUG = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -475,6 +477,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         } else if (id == R.id.action_logout) {
             // save logout task in case we need to cancel
             mLogoutTask = new LogoutTask().execute(sm);
+            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, false);
             Intent intent = new Intent(this, LoginActivity.class);
             // do stuff
             /*try { // temporary; change to a wheel spinning and dialog saying "logging out..."
@@ -489,8 +492,19 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
     }
 
     @Override
+    protected void onPause() {
+        // Save cookies to SharedPreferences
+        PrefUtils.saveListToPrefs(this, PrefUtils.PREF_COOKIES_KEY, sm.getCookies());
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+
+        // Reload cookies from SharedPreferences
+        List<String> cookies = PrefUtils.getListFromPrefs(this, PrefUtils.PREF_COOKIES_KEY);
+        sm.setCookies(cookies);
 
         // check if logged in
         mGetLoggedInTask = new GetLoggedInTask().execute(sm, this);
@@ -501,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
     public void onBackPressed() {
         super.onBackPressed();
         // logout here
-        mLogoutTask = new LogoutTask().execute(sm);
+        //mLogoutTask = new LogoutTask().execute(sm);
     }
 
     /**

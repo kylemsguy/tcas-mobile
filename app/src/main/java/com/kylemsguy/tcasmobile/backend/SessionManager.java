@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.cookie.Cookie;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,24 +24,21 @@ public class SessionManager {
     // let's define some constants
     private final String USER_AGENT = "Mozilla/5.0";
     public static final String BASE_URL = "http://twocansandstring.com/";
-    public static final boolean BACKEND_DEBUG = false;
+    public static final boolean BACKEND_DEBUG = true;
     private final String LOGIN = BASE_URL + "login/";
 
     private List<String> cookies;
     private HttpURLConnection connection;
+    private CookieManager cookieManager;
 
     public SessionManager() {
-        // TODO Auto-generated constructor stub
+        cookieManager = new CookieManager();
     }
 
     public boolean checkLoggedIn() {
         try {
             String page = getPageContent(AnswerManager.QUESTION_URL);
-            if (page.startsWith("<!DOCTYPE html PUBLIC")) {
-                return false;
-            } else {
-                return true;
-            }
+            return page.startsWith("<!DOCTYPE html PUBLIC");
         } catch (Exception e) {
             return false;
         }
@@ -49,13 +47,14 @@ public class SessionManager {
     /**
      * Logs in to the site with the given username and password.
      *
-     * @param username
-     * @param password
+     * @param username Username of user
+     * @param password Password of user
      * @throws Exception
      */
     public void login(String username, String password) throws Exception {
-        // make sure cookies are on
-        CookieHandler.setDefault(new CookieManager());
+        // Making sure cookies are enabled...?
+        // (Could someone please tell me why this line makes this whole thing work?)
+        CookieHandler.setDefault(cookieManager);
 
         // GET form's data
         String page = getPageContent(LOGIN);
@@ -80,7 +79,7 @@ public class SessionManager {
      *
      * @param url        The URL to send the POST request to
      * @param postParams The parameters to be sent. This will be sent as-is.
-     * @return
+     * @return The response of the request as a string.
      * @throws Exception
      */
     public String sendPost(String url, String postParams) throws Exception {
@@ -101,9 +100,15 @@ public class SessionManager {
         connection.setRequestProperty("Content-Type",
                 "application/x-www-form-urlencoded");
         // COOKIES
+        if (BACKEND_DEBUG)
+            System.out.println("sm.sendPost: Adding cookies:");
         for (String cookie : this.cookies) {
+            if (BACKEND_DEBUG)
+                System.out.println(cookie);
             connection.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
         }
+        if (BACKEND_DEBUG)
+            System.out.println("sm.getPageContent: Done adding cookies.");
         connection.setRequestProperty("Host", "twocansandstring.com");
 
         connection.setRequestProperty("User-Agent", USER_AGENT);
@@ -156,7 +161,7 @@ public class SessionManager {
         BufferedReader in = new BufferedReader(new InputStreamReader(
                 connection.getInputStream()));
         String inputLine;
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
 
         while ((inputLine = in.readLine()) != null) {
             response.append(inputLine);
@@ -170,7 +175,7 @@ public class SessionManager {
      * Gets the content of a page.
      *
      * @param url The page whose content should be retrieved
-     * @return
+     * @return Page contents as a string
      * @throws Exception
      */
     public String getPageContent(String url) throws Exception {
@@ -190,10 +195,16 @@ public class SessionManager {
                         "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
         connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
         if (cookies != null) {
+            if (BACKEND_DEBUG)
+                System.out.println("sm.getPageContent: Adding cookies:");
             for (String cookie : this.cookies) {
+                if (BACKEND_DEBUG)
+                    System.out.println(cookie);
                 connection
                         .addRequestProperty("Cookie", cookie.split(";", 1)[0]);
             }
+            if (BACKEND_DEBUG)
+                System.out.println("sm.getPageContent: Done adding cookies.");
         }
         int responseCode = connection.getResponseCode();
         if (BACKEND_DEBUG) {
@@ -204,7 +215,7 @@ public class SessionManager {
         BufferedReader in = new BufferedReader(new InputStreamReader(
                 connection.getInputStream()));
         String inputLine;
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
 
         while ((inputLine = in.readLine()) != null) {
             response.append(inputLine);
@@ -223,7 +234,7 @@ public class SessionManager {
      * @param html     the HTMl of the page
      * @param username The username that should be used
      * @param password The password that should be used
-     * @return
+     * @return A filled out parameter list that can be passed into an HTTP request
      * @throws UnsupportedEncodingException
      */
     public String getFormParams(String html, String username, String password)
@@ -237,7 +248,7 @@ public class SessionManager {
         // form id
         Element loginform = doc.getElementsByTag("form").get(0);
         Elements inputElements = loginform.getElementsByTag("input");
-        List<String> paramList = new ArrayList<String>();
+        List<String> paramList = new ArrayList<>();
         for (Element inputElement : inputElements) {
             String key = inputElement.attr("name");
             String value = inputElement.attr("value");
