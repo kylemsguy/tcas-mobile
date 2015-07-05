@@ -24,7 +24,7 @@ public class SessionManager {
     // let's define some constants
     private final String USER_AGENT = "Mozilla/5.0";
     public static final String BASE_URL = "http://twocansandstring.com/";
-    public static final boolean BACKEND_DEBUG = true;
+    public static final boolean BACKEND_DEBUG = false;
     private final String LOGIN = BASE_URL + "login/";
 
     private List<String> cookies;
