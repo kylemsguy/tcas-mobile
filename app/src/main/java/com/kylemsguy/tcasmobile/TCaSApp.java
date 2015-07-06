@@ -12,8 +12,9 @@ public class TCaSApp extends Application {
 	QuestionManager qm;
 
 	public TCaSApp() {
-		sm = new SessionManager();
-		am = new AnswerManager(sm);
+        // Perhaps load/store SessionManager in SharedPreferences?
+        sm = new SessionManager();
+        am = new AnswerManager(sm);
 		qm = new QuestionManager(sm);
 	}
 

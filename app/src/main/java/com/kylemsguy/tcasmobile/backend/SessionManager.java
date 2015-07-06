@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -109,7 +110,9 @@ public class SessionManager {
         }
         if (BACKEND_DEBUG)
             System.out.println("sm.getPageContent: Done adding cookies.");
-        connection.setRequestProperty("Host", "twocansandstring.com");
+        String hostname = new URI(url).getHost();
+        connection.setRequestProperty("Host", hostname);
+        System.out.println(hostname);
 
         connection.setRequestProperty("User-Agent", USER_AGENT);
 
@@ -151,7 +154,8 @@ public class SessionManager {
             connection.setRequestProperty("Cookie", cookies);
             connection.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
             connection.addRequestProperty("User-Agent", "Mozilla");
-            connection.addRequestProperty("Referer", "google.com");
+            // because the old url is the referer
+            connection.addRequestProperty("Referer", url);
 
             if (BACKEND_DEBUG)
                 System.out.println("Redirect to URL : " + newUrl);
@@ -194,6 +198,8 @@ public class SessionManager {
                 .setRequestProperty("Accept",
                         "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
         connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+        String hostname = new URI(url).getHost();
+        connection.setRequestProperty("Host", hostname);
         if (cookies != null) {
             if (BACKEND_DEBUG)
                 System.out.println("sm.getPageContent: Adding cookies:");
@@ -266,7 +272,8 @@ public class SessionManager {
             if (result.length() == 0) {
                 result.append(param);
             } else {
-                result.append("&" + param);
+                result.append("&");
+                result.append(param);
             }
         }
         return result.toString();

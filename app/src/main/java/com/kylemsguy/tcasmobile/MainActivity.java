@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
     private AnswerManager am;
     private Map<String, String> mCurrQuestion;
     private List<Question> mCurrQuestions;
-    private boolean mRefreshedQList = false;
     private ExpandableListView mListView;
     private ExpandableListAdapter mAdapter;
 
@@ -170,7 +169,9 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         try {
             mAdapter.reloadItems(mCurrQuestions);
             mAdapter.notifyDataSetChanged();
-            System.out.println("Successfully reloaded list items");
+            // TODO figure out why this may be running several times on startup
+            if (DEBUG)
+                System.out.println("Successfully reloaded list items");
         } catch (NullPointerException e) {
             System.out.println("Failed to reload list items");
         }
@@ -248,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
         @Override
         protected void onPostExecute(List<Question> questions) {
-            mRefreshedQList = true;
             mCurrQuestions = questions;
             refreshQuestionList();
         }
