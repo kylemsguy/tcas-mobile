@@ -5,10 +5,13 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import java.lang.reflect.Type;
+import java.net.CookieStore;
 import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.apache.http.cookie.Cookie;
 
 /**
  * Code taken from
@@ -21,6 +24,7 @@ public class PrefUtils {
     public static final String PREF_LOGIN_PASSWORD_KEY = "__PASSWORD__";
     public static final String PREF_LOGGED_IN_KEY = "__LOGGEDIN__";
     public static final String PREF_COOKIES_KEY = "__COOKIES__";
+    public static final String PREF_COOKIESTORE_KEY = "__COOKIES__";
 
     private PrefUtils() {
         // Prevent anyone from instantiating this class...
@@ -52,6 +56,26 @@ public class PrefUtils {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         final SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(key, value);
+        editor.apply();
+    }
+
+    /**
+     * Called to serialize and save supplied Object in shared preferences against given key.
+     *
+     * @param context Context of caller activity
+     * @param key     Key of value to save against
+     * @param cookies Value to save
+     */
+    public static void saveCookieStoreToPrefs(Context context, String key, CookieStore cookies) {
+        // serialize cookies
+        Gson gson = new Gson();
+        Type cookieStore = new TypeToken<CookieStore>() {
+        }.getType();
+        String serializedCookies = gson.toJson(cookies, cookieStore);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(key, serializedCookies);
         editor.apply();
     }
 
@@ -113,6 +137,29 @@ public class PrefUtils {
             return defaultValue;
         }
     }
+
+    /**
+     * Called to retrieve required CookieStore from shared preferences, identified by given key.
+     * null will be returned of no value found or error occurred.
+     *
+     * @param context Context of caller activity
+     * @param key     Key to find value against
+     * @return Return the value found against given key, default if not found or any error occurs
+     */
+    public static CookieStore getCookieStoreFromPrefs(Context context, String key) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        try {
+            String serializedCookies = sharedPrefs.getString(key, null);
+            Gson gson = new Gson();
+            Type cookieStore = new TypeToken<CookieStore>() {
+            }.getType();
+            return gson.fromJson(serializedCookies, cookieStore);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     /**
      * Called to retrieve required List&lt;String&gt; from shared preferences, identified by given key.

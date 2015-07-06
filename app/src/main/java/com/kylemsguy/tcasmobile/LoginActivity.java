@@ -118,8 +118,8 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
             // Show spinner
             showProgress(true);
             // load cookies from Preferences
-            List<String> cookies = PrefUtils.getListFromPrefs(this, PrefUtils.PREF_COOKIES_KEY);
-            sm.setCookies(cookies);
+            //List<String> cookies = PrefUtils.getListFromPrefs(this, PrefUtils.PREF_COOKIES_KEY);
+            //sm.setCookies(cookies);
             // check if really logged in
             attemptLoginComplete();
         }
@@ -244,7 +244,8 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
             startActivity(intent);
 
             // save cookies to preferences to be used later
-            PrefUtils.saveListToPrefs(this, PrefUtils.PREF_COOKIES_KEY, sm.getCookies());
+            //PrefUtils.saveListToPrefs(this, PrefUtils.PREF_COOKIES_KEY, sm.getCookies());
+            PrefUtils.saveCookieStoreToPrefs(this, PrefUtils.PREF_COOKIESTORE_KEY, sm.getCookieStore());
 
             finish();
         }

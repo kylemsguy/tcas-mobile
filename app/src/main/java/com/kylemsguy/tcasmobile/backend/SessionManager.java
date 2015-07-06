@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.CookieStore;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -28,12 +30,21 @@ public class SessionManager {
     public static final boolean BACKEND_DEBUG = false;
     private final String LOGIN = BASE_URL + "login/";
 
+    private static final boolean MANUAL_COOKIE = false;
+
     private List<String> cookies;
     private HttpURLConnection connection;
     private CookieManager cookieManager;
 
     public SessionManager() {
         cookieManager = new CookieManager();
+    }
+
+    public SessionManager(CookieStore cookies) {
+        //if(cookies == null)
+        cookieManager = new CookieManager();
+        //else
+        //cookieManager = new CookieManager(cookies, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
     }
 
     public boolean checkLoggedIn() {
@@ -101,15 +112,17 @@ public class SessionManager {
         connection.setRequestProperty("Content-Type",
                 "application/x-www-form-urlencoded");
         // COOKIES
-        if (BACKEND_DEBUG)
-            System.out.println("sm.sendPost: Adding cookies:");
-        for (String cookie : this.cookies) {
+        if (cookies != null && MANUAL_COOKIE) {
             if (BACKEND_DEBUG)
-                System.out.println(cookie);
-            connection.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
+                System.out.println("sm.sendPost: Adding cookies:");
+            for (String cookie : this.cookies) {
+                if (BACKEND_DEBUG)
+                    System.out.println(cookie);
+                connection.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
+            }
+            if (BACKEND_DEBUG)
+                System.out.println("sm.getPageContent: Done adding cookies.");
         }
-        if (BACKEND_DEBUG)
-            System.out.println("sm.getPageContent: Done adding cookies.");
         String hostname = new URI(url).getHost();
         connection.setRequestProperty("Host", hostname);
         System.out.println(hostname);
@@ -172,7 +185,12 @@ public class SessionManager {
         }
         in.close();
 
-        return response.toString();
+        String responseString = response.toString();
+
+
+        connection.disconnect();
+
+        return responseString;
     }
 
     /**
@@ -200,7 +218,7 @@ public class SessionManager {
         connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
         String hostname = new URI(url).getHost();
         connection.setRequestProperty("Host", hostname);
-        if (cookies != null) {
+        if (cookies != null && MANUAL_COOKIE) {
             if (BACKEND_DEBUG)
                 System.out.println("sm.getPageContent: Adding cookies:");
             for (String cookie : this.cookies) {
@@ -231,7 +249,11 @@ public class SessionManager {
         // Get the response cookies
         this.setCookies(connection.getHeaderFields().get("Set-Cookie"));
 
-        return response.toString();
+        String pageContents = response.toString();
+
+        connection.disconnect();
+
+        return pageContents;
     }
 
     /**
@@ -297,6 +319,10 @@ public class SessionManager {
 
     public void setCookies(List<String> cookies) {
         this.cookies = cookies;
+    }
+
+    public CookieStore getCookieStore() {
+        return cookieManager.getCookieStore();
     }
 
     public HttpURLConnection getConnection() {

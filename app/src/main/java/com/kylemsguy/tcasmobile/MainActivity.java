@@ -494,7 +494,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
     @Override
     protected void onPause() {
         // Save cookies to SharedPreferences
-        PrefUtils.saveListToPrefs(this, PrefUtils.PREF_COOKIES_KEY, sm.getCookies());
+        //PrefUtils.saveListToPrefs(this, PrefUtils.PREF_COOKIES_KEY, sm.getCookies());
+        PrefUtils.saveCookieStoreToPrefs(this, PrefUtils.PREF_COOKIESTORE_KEY, sm.getCookieStore());
         super.onPause();
     }
 
@@ -503,8 +504,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         super.onResume();
 
         // Reload cookies from SharedPreferences
-        List<String> cookies = PrefUtils.getListFromPrefs(this, PrefUtils.PREF_COOKIES_KEY);
-        sm.setCookies(cookies);
+        //List<String> cookies = PrefUtils.getListFromPrefs(this, PrefUtils.PREF_COOKIES_KEY);
+        //sm.setCookies(cookies);
 
         // check if logged in
         mGetLoggedInTask = new GetLoggedInTask().execute(sm, this);

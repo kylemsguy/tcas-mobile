@@ -6,17 +6,26 @@ import com.kylemsguy.tcasmobile.backend.SessionManager;
 
 import android.app.Application;
 
+import org.apache.http.cookie.Cookie;
+
+import java.net.CookieStore;
+
 public class TCaSApp extends Application {
 	SessionManager sm;
 	AnswerManager am;
 	QuestionManager qm;
 
 	public TCaSApp() {
-        // Perhaps load/store SessionManager in SharedPreferences?
-        sm = new SessionManager();
-        am = new AnswerManager(sm);
-		qm = new QuestionManager(sm);
+
 	}
+
+    @Override
+    public void onCreate() {
+        CookieStore cookies = PrefUtils.getCookieStoreFromPrefs(this, PrefUtils.PREF_COOKIESTORE_KEY);
+        sm = new SessionManager(cookies);
+        am = new AnswerManager(sm);
+        qm = new QuestionManager(sm);
+    }
 
 	public SessionManager getSessionManager() {
 		return sm;
