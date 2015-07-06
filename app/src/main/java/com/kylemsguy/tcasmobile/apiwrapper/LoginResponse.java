@@ -76,12 +76,10 @@ public final class LoginResponse {
 	}
 	
 	private Object[] getValuesFromV0Response(Object response) {
-		if (response instanceof Object[]) {
-			Object[] table = (Object[]) response;
+		if (response instanceof Object[][]) {
+			Object[][] table = (Object[][]) response;
 			if (table.length == 1) {
-				if (table[0] instanceof Object[]) {
-					return (Object[]) table[0];
-				}
+				return table[0];
 			}
 		}
 		return null;

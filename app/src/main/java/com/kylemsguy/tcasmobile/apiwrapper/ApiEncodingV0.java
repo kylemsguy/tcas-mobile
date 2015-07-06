@@ -13,6 +13,10 @@ final class ApiEncodingV0 extends ApiEncoding {
 	}
 	
 	public Object decode(String rawValue) {
+		return decodeImpl(rawValue);
+	}
+	
+	public Object[][] decodeImpl(String rawValue) {
 		String prefix = getVersionPrefix();
 		if (prefix.equals(rawValue.substring(0, prefix.length()))) {
 			// trim encoding prefix
@@ -23,7 +27,7 @@ final class ApiEncodingV0 extends ApiEncoding {
 		}
 		
 		String[] rows = rawValue.split(",");
-		Object[] output = new Object[rows.length];
+		Object[][] output = new Object[rows.length][];
 		for (int y = 0; y < rows.length; ++y) {
 			String[] rawRow = rows[y].split("\\|");
 			int width = rawRow.length;
