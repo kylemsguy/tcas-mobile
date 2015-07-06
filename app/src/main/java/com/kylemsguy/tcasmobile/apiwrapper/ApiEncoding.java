@@ -2,6 +2,9 @@ package com.kylemsguy.tcasmobile.apiwrapper;
 
 import java.io.UnsupportedEncodingException;
 
+/**
+ * Base class for all encodings.
+ */
 abstract class ApiEncoding {
 	private final String encodingVersionPrefix;
 	

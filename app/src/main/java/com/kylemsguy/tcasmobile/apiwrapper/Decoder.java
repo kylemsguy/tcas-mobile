@@ -2,6 +2,7 @@ package com.kylemsguy.tcasmobile.apiwrapper;
 
 import java.util.HashMap;
 
+/** Decodes an arbitrary server response with encoding detection. */
 final class Decoder {
 	private static final ApiEncoding V0_ENCODING = new ApiEncodingV0();
 	

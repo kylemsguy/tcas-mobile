@@ -1,5 +1,6 @@
 package com.kylemsguy.tcasmobile.apiwrapper;
 
+/** Builds a raw HTTP body from structured fields for a login request. */
 public final class LoginRequest extends AbstractRequest {
 	
 	private String username = null;

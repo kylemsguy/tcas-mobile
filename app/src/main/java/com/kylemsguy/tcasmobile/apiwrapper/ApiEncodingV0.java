@@ -3,7 +3,26 @@ package com.kylemsguy.tcasmobile.apiwrapper;
 import java.io.UnsupportedEncodingException;
 
 /**
- * 
+ * TwoCans structured request encoding version 0. 
+ * This encoding was designed on a napkin. It is simple, compact-ish and quick.
+ * Because I fully intend to get fancier later in TwoCans3 which is coming soon, 
+ * I have given it the name v0 instead of v1.
+ *
+ * <p>Essentially, this is just a encoding for a 2D uneven array of objects.
+ * Rows are separated by commas.
+ * Items in each row are separated by vertical pipes '|'.
+ * Strings, integers, floats, booleans, and nulls are supported as items in each
+ * row. They have the following encodings:
+ * <ul>
+ * <li>Null: 'n'</li>
+ * <li>Boolean: 'B' for true, 'b' for false</li>
+ * <li>Integer: 'i' followed by a decimal representation</li>
+ * <li>Float: 'f' followed by a reasonable toString output of the value</li>
+ * <li>String: '$' followed by a hex encoded representation of the raw binary value</li>
+ * </ul>
+ *
+ * <p>TODO: fix unicode support for strings. Currently this is a raw repeater of 
+ * the ASCII values returned. Need to pass the decoded bytes through a decoding method.
  */
 final class ApiEncodingV0 extends ApiEncoding {
 	private static final char[] HEX = "0123456789ABCDEF".toCharArray();

@@ -1,9 +1,10 @@
 package com.kylemsguy.tcasmobile.apiwrapper;
 
+/**
+ * Unit tests for API Wrappers.
+ */
 final class UnitTests {
-	/**
-	 * Tests
-	 */
+
 	public static void main(String[] args) {
 		testApiEncodingV0();
 		testEncodingDetection();

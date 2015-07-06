@@ -1,5 +1,8 @@
 package com.kylemsguy.tcasmobile.apiwrapper;
 
+/**
+ * Converts a raw login response into structured form.
+ */
 public final class LoginResponse {
 	
 	private final LoginStatus status;
@@ -8,9 +11,16 @@ public final class LoginResponse {
 	private final String usernameCanonicalized;
 	
 	public static enum LoginStatus {
+		/** Everything is fine. */
 		OK,
+		
+		/** User provided incorrect credentials. */
 		BAD_LOGIN,
+		
+		/** Server complained, but in a way client is unfamiliar with. */
 		UNKNOWN_ERROR,
+		
+		/** Server returned gobbldygook. */
 		UNRECOGNIZED_RESPONSE
 	}
 	
@@ -55,22 +65,27 @@ public final class LoginResponse {
 		this.usernameCanonicalized = usernameCanonicalized;
 	}
 	
+	/** Login was successful. */
 	public boolean isSuccess() {
 		return status == LoginStatus.OK;
 	}
 	
+	/** Status of the response. */
 	public LoginStatus getStatus() {
 		return status;
 	}
 	
+	/** TwoCans internal User ID# */
 	public int getUserId() {
 		return userId;
 	}
 	
+	/** Formatted string of the username. */
 	public String getUsernameFormatted() {
 		return usernameFormatted;
 	}
 	
+	/** Canonicalized form of the name. Alphanumerics only. */
 	public String getUsernameCanonicalized() {
 		return usernameCanonicalized;
 	}
