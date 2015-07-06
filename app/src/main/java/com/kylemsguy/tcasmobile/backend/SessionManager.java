@@ -1,5 +1,8 @@
 package com.kylemsguy.tcasmobile.backend;
 
+import com.kylemsguy.tcasmobile.apiwrapper.LoginRequest;
+import com.kylemsguy.tcasmobile.apiwrapper.LoginResponse;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -74,6 +77,32 @@ public class SessionManager {
 
     }
 
+
+    /**
+     * Uses the TwoCans Mobile API to make a Login request.
+     * <p/>
+     * Currently only used to get user info because Login is the only endpoint in the API.s
+     *
+     * @param username
+     * @param password
+     */
+    public LoginResponse loginMobile(String username, String password) throws Exception {
+        LoginRequest requestBuilder = new LoginRequest()
+                .setUsername(username)
+                .setPassword(password);
+
+        String requestBody = requestBuilder.getRequestBody();
+        String requestUrl = requestBuilder.getRequestUrl();
+
+        String rawResponse = sendPost(requestUrl, requestBody);
+
+        return new LoginResponse(rawResponse);
+
+    }
+
+    /**
+     * Logs out of Two Cans and String
+     */
     public void logout() {
         try {
             getPageContent(BASE_URL + "logout/");
