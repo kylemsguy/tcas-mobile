@@ -59,7 +59,7 @@ public class PersistentCookieStore implements CookieStore {
     @Override
     public void add(URI uri, HttpCookie cookie) {
         store.add(uri, cookie);
-        System.out.println(uri.toString() + " " + cookie.toString());
+        //System.out.println(uri.toString() + " " + cookie.toString());
         writeCookiesToPrefs();
     }
 

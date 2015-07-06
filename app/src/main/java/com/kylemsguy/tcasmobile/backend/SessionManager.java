@@ -83,10 +83,10 @@ public class SessionManager {
      * <p/>
      * Currently only used to get user info because Login is the only endpoint in the API.s
      *
-     * @param username
-     * @param password
+     * @param username user's username
+     * @param password user's password
      */
-    public LoginResponse loginMobile(String username, String password) throws Exception {
+    public LoginResponse mobileLogin(String username, String password) throws Exception {
         LoginRequest requestBuilder = new LoginRequest()
                 .setUsername(username)
                 .setPassword(password);
@@ -95,8 +95,17 @@ public class SessionManager {
         String requestUrl = requestBuilder.getRequestUrl();
 
         String rawResponse = sendPost(requestUrl, requestBody);
+        LoginResponse response = new LoginResponse(rawResponse);
+        if (BACKEND_DEBUG) {
+            System.out.println("Request: " + requestBody);
+            System.out.println("RawResponse: " + rawResponse);
+            System.out.println("Status: " + response.getStatus());
+            System.out.println("User ID: " + response.getUserId());
+            System.out.println("CanonicalizedUsername: " + response.getUsernameCanonicalized());
+            System.out.println("FormattedUsername: " + response.getUsernameFormatted());
+        }
 
-        return new LoginResponse(rawResponse);
+        return response;
 
     }
 

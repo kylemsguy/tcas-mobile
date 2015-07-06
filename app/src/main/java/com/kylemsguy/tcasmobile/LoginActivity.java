@@ -29,11 +29,10 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.kylemsguy.tcasmobile.apiwrapper.LoginResponse;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
 import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
-
-import org.apache.http.cookie.Cookie;
 
 import java.net.CookieStore;
 import java.net.HttpCookie;
@@ -45,6 +44,8 @@ import java.util.List;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.OnPostLoginCheckListener {
+
+    private static final boolean DEBUG = false;
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -61,7 +62,10 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
     private View mProgressView;
     private View mLoginFormView;
 
-    private static final boolean DEBUG = true;
+    // Username storage (for display on main page)
+    private String mDisplayUsername;
+    private String mUsername;
+    private String mPassword;
 
     // Autologin
     private boolean autoLogin = false;
@@ -175,26 +179,26 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String username = mUsernameView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        mUsername = mUsernameView.getText().toString();
+        mPassword = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (!TextUtils.isEmpty(mPassword) && !isPasswordValid(mPassword)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
         // Check for a valid username.
-        if (TextUtils.isEmpty(username)) {
+        if (TextUtils.isEmpty(mUsername)) {
             mUsernameView.setError(getString(R.string.error_field_required));
             focusView = mUsernameView;
             cancel = true;
-        } else if (!isUsernameValid(username)) {
+        } else if (!isUsernameValid(mUsername)) {
             mUsernameView.setError(getString(R.string.error_invalid_email));
             focusView = mUsernameView;
             cancel = true;
@@ -212,12 +216,26 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
             CheckBox saveData = (CheckBox) findViewById(R.id.save_pass_box);
             if (!saveData.isChecked())
                 saveUserData(null, null); // clear credential store
-            mAuthTask = new LoginTask().execute(username, password, sm);
+            //mAuthTask = new LoginTask().execute(username, password, sm);
+            // Run the Mobile API login first
+            new MobileLoginTask().execute(mUsername, mPassword, sm);
         }
     }
 
+    private void attemptMobileLoginComplete(LoginResponse response) {
+        if (response != null && response.isSuccess()) {
+            // Success! do stuff.
+            mDisplayUsername = response.getUsernameFormatted();
+        } else {
+            // Didn't work. Fall back to username obtained from Web API
+            mDisplayUsername = null;
+        }
+        // TODO Temporary while TwoCans Mobile API is not complete
+        mAuthTask = new LoginTask().execute(mUsername, mPassword, sm);
+    }
+
     /**
-     * Login completed. Now check whether it completed successfully.
+     * Web Login completed. Now check whether it completed successfully.
      */
     private void attemptLoginComplete(){
         new GetLoggedInTask().execute(sm, this);
@@ -227,8 +245,8 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
     public void onPostLoginCheck(boolean loggedIn) {
         // Store values at the time of the login attempt.
         // This still works because sign in box should be hidden
-        String username = mUsernameView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        //String username = mUsernameView.getText().toString();
+        //String password = mPasswordView.getText().toString();
         CheckBox saveData = (CheckBox) findViewById(R.id.save_pass_box);
 
         if (!loggedIn) {
@@ -247,10 +265,13 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
         } else {
             // start the new activity
             if (saveData.isChecked())
-                saveUserData(username, password);
+                saveUserData(mUsername, mPassword);
             PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, true);
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("username", username);
+            // TODO temp while we are using both the Mobile and Web APIs
+            if (mDisplayUsername == null)
+                mDisplayUsername = mUsername;
+            intent.putExtra("username", mDisplayUsername);
             startActivity(intent);
 
             // save cookies to preferences to be used later
@@ -428,6 +449,39 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
             attemptLoginComplete();
         }
 
+    }
+
+    /**
+     * Use an AsyncTask to attempt a login with the server via the TwoCans Mobile API
+     */
+    private class MobileLoginTask extends AsyncTask<Object, Void, LoginResponse> {
+        @Override
+        protected LoginResponse doInBackground(Object... params) {
+            // param 1 should be username
+            // param 2 should be password
+            // param 3 should be SessionManager object
+            if (!(params[0] instanceof String)
+                    || !(params[1] instanceof String)
+                    || !(params[2] instanceof SessionManager))
+                return null;
+
+            String username = (String) params[0];
+            String password = (String) params[1];
+            SessionManager sm = (SessionManager) params[2];
+
+            try {
+                return sm.mobileLogin(username, password);
+            } catch (Exception e) {
+                // something has gone horribly wrong
+                return null;
+                //return e.toString();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(LoginResponse response) {
+            attemptMobileLoginComplete(response);
+        }
     }
 
 }
