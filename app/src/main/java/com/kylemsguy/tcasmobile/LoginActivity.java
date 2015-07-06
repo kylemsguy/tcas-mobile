@@ -33,6 +33,10 @@ import com.kylemsguy.tcasmobile.backend.SessionManager;
 import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 
+import org.apache.http.cookie.Cookie;
+
+import java.net.CookieStore;
+import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +61,7 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
     private View mProgressView;
     private View mLoginFormView;
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
     // Autologin
     private boolean autoLogin = false;
@@ -118,9 +122,15 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
             // Show spinner
             showProgress(true);
             // load cookies from Preferences
-            //List<String> cookies = PrefUtils.getListFromPrefs(this, PrefUtils.PREF_COOKIES_KEY);
+            //List<String> cookies = PrefUtils.getStringListFromPrefs(this, PrefUtils.PREF_COOKIES_KEY);
             //sm.setCookies(cookies);
             // check if really logged in
+            if (DEBUG) {
+                CookieStore cookies = sm.getCookieStore();
+                for (HttpCookie cookie : cookies.getCookies()) {
+                    System.out.println(cookie.toString());
+                }
+            }
             attemptLoginComplete();
         }
     }
@@ -245,7 +255,7 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
 
             // save cookies to preferences to be used later
             //PrefUtils.saveListToPrefs(this, PrefUtils.PREF_COOKIES_KEY, sm.getCookies());
-            PrefUtils.saveCookieStoreToPrefs(this, PrefUtils.PREF_COOKIESTORE_KEY, sm.getCookieStore());
+            //PrefUtils.saveCookieStoreToPrefs(this, PrefUtils.PREF_COOKIESTORE_KEY, sm.getCookieStore());
 
             finish();
         }

@@ -2,16 +2,21 @@ package com.kylemsguy.tcasmobile;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 
 import java.lang.reflect.Type;
 import java.net.CookieStore;
+import java.net.HttpCookie;
+import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.apache.http.cookie.Cookie;
+import org.apache.http.protocol.HTTP;
 
 /**
  * Code taken from
@@ -23,8 +28,9 @@ public class PrefUtils {
     public static final String PREF_LOGIN_USERNAME_KEY = "__USERNAME__";
     public static final String PREF_LOGIN_PASSWORD_KEY = "__PASSWORD__";
     public static final String PREF_LOGGED_IN_KEY = "__LOGGEDIN__";
+    public static final String PREF_URLS_KEY = "__COOKIEURLS__";
     public static final String PREF_COOKIES_KEY = "__COOKIES__";
-    public static final String PREF_COOKIESTORE_KEY = "__COOKIES__";
+
 
     private PrefUtils() {
         // Prevent anyone from instantiating this class...
@@ -51,31 +57,10 @@ public class PrefUtils {
      * @param key     Key of value to save against
      * @param value   Value to save
      */
-
     public static void saveToPrefs(Context context, String key, boolean value) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         final SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(key, value);
-        editor.apply();
-    }
-
-    /**
-     * Called to serialize and save supplied Object in shared preferences against given key.
-     *
-     * @param context Context of caller activity
-     * @param key     Key of value to save against
-     * @param cookies Value to save
-     */
-    public static void saveCookieStoreToPrefs(Context context, String key, CookieStore cookies) {
-        // serialize cookies
-        Gson gson = new Gson();
-        Type cookieStore = new TypeToken<CookieStore>() {
-        }.getType();
-        String serializedCookies = gson.toJson(cookies, cookieStore);
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        final SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(key, serializedCookies);
         editor.apply();
     }
 
@@ -86,8 +71,7 @@ public class PrefUtils {
      * @param key     Key of value to save against
      * @param values  List of values to save
      */
-
-    public static void saveListToPrefs(Context context, String key, List<String> values) {
+    public static void saveStringListToPrefs(Context context, String key, List<String> values) {
         // First serialize to string
         Gson gson = new Gson();
         Type listOfString = new TypeToken<List<String>>() {
@@ -98,6 +82,50 @@ public class PrefUtils {
         final SharedPreferences.Editor editor = prefs.edit();
         editor.putString(key, serializedValues);
         editor.apply();
+    }
+
+    /**
+     * Called to save supplied List&lt;URI&gt; in shared preferences against given key.
+     *
+     * @param context Context of caller activity
+     * @param key     Key of value to save against
+     * @param values  List of values to save
+     */
+    public static void saveURIListToPrefs(Context context, String key, List<URI> values) {
+        // First serialize to string
+        Gson gson = new Gson();
+        Type t = new TypeToken<List<URI>>() {
+        }.getType();
+        String serializedValues = gson.toJson(values, t);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(key, serializedValues);
+        editor.apply();
+    }
+
+    /**
+     * Called to save supplied List&lt;HttpCookie&gt; in shared preferences against given key.
+     *
+     * @param context Context of caller activity
+     * @param key     Key of value to save against
+     * @param values  List of values to save
+     */
+    public static void saveHttpCookieListToPrefs(Context context, String key, List<HttpCookie> values) {
+        // First serialize to string
+        Gson gson = new Gson();
+        Type t = new TypeToken<List<HttpCookie>>() {
+        }.getType();
+        String serializedValues = gson.toJson(values, t);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(key, serializedValues);
+        editor.apply();
+    }
+
+    public static void saveUriCookieMapToPrefs(Context context, String key, Map<Uri, HttpCookie> cookieJar) {
+        // NOT IMPLEMENTED
     }
 
     /**
@@ -138,28 +166,6 @@ public class PrefUtils {
         }
     }
 
-    /**
-     * Called to retrieve required CookieStore from shared preferences, identified by given key.
-     * null will be returned of no value found or error occurred.
-     *
-     * @param context Context of caller activity
-     * @param key     Key to find value against
-     * @return Return the value found against given key, default if not found or any error occurs
-     */
-    public static CookieStore getCookieStoreFromPrefs(Context context, String key) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        try {
-            String serializedCookies = sharedPrefs.getString(key, null);
-            Gson gson = new Gson();
-            Type cookieStore = new TypeToken<CookieStore>() {
-            }.getType();
-            return gson.fromJson(serializedCookies, cookieStore);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
 
     /**
      * Called to retrieve required List&lt;String&gt; from shared preferences, identified by given key.
@@ -169,7 +175,7 @@ public class PrefUtils {
      * @param key     Key to find value against
      * @return Return the value found against given key, default if not found or any error occurs
      */
-    public static List<String> getListFromPrefs(Context context, String key) {
+    public static List<String> getStringListFromPrefs(Context context, String key) {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         try {
             String serializedList = sharedPrefs.getString(key, null);
@@ -182,5 +188,50 @@ public class PrefUtils {
             return null;
         }
     }
+
+    /**
+     * Called to retrieve required List&lt;URI&gt; from shared preferences, identified by given key.
+     * null will be returned of no value found or error occurred.
+     *
+     * @param context Context of caller activity
+     * @param key     Key to find value against
+     * @return Return the value found against given key, default if not found or any error occurs
+     */
+    public static List<URI> getUriListFromPrefs(Context context, String key) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        try {
+            String serializedList = sharedPrefs.getString(key, null);
+            Gson gson = new Gson();
+            Type listOfString = new TypeToken<List<Uri>>() {
+            }.getType();
+            return gson.fromJson(serializedList, listOfString);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Called to retrieve required List&lt;HttpCookie&gt; from shared preferences, identified by given key.
+     * null will be returned of no value found or error occurred.
+     *
+     * @param context Context of caller activity
+     * @param key     Key to find value against
+     * @return Return the value found against given key, default if not found or any error occurs
+     */
+    public static List<HttpCookie> getHttpCookieListFromPrefs(Context context, String key) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        try {
+            String serializedList = sharedPrefs.getString(key, null);
+            Gson gson = new Gson();
+            Type listOfString = new TypeToken<List<HttpCookie>>() {
+            }.getType();
+            return gson.fromJson(serializedList, listOfString);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
 }

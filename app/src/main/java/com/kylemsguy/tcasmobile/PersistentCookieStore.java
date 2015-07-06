@@ -1,24 +1,49 @@
 package com.kylemsguy.tcasmobile;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import java.net.CookieManager;
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 /**
  * Created by kyle on 06/07/15.
+ *
+ * Implementation of a CookieStore that stores data of a CookieStore every time it is modified
  */
 public class PersistentCookieStore implements CookieStore {
 
-    private Map<URI, List<HttpCookie>> cookies;
+    private Map<URI, HttpCookie> cookieJar;
+    private CookieStore store;
+    private Context context;
 
-    public PersistentCookieStore() {
-        // TODO load cookies from SharedPreferences.
-        Map<URI, List<HttpCookie>> prefCookies = null;
-        if (prefCookies == null)
-            cookies = new TreeMap<>();
+    public PersistentCookieStore(Context context) {
+        // get the default in memory cookie store
+        //cookieJar = new HashMap<>();
+        store = new CookieManager().getCookieStore();
+        this.context = context;
+
+        // load cookies from SharedPreferences
+        // we are not loading list of URIs because not necessary
+        List<HttpCookie> cookies = PrefUtils.getHttpCookieListFromPrefs(context, PrefUtils.PREF_COOKIES_KEY);
+        if (cookies != null)
+            for (HttpCookie cookie : cookies) {
+                //System.out.println(cookie.toString());
+                store.add(null, cookie);
+            }
+
+        // add a shutdown hook to write out the in memory cookies
+        // NOTE this should be done in the activity
+        //Runtime.getRuntime().addShutdownHook(new Thread(this));
+
     }
 
     /**
@@ -33,9 +58,9 @@ public class PersistentCookieStore implements CookieStore {
      */
     @Override
     public void add(URI uri, HttpCookie cookie) {
-        if (cookie == null)
-            throw new NullPointerException();
-        // TODO commit cookie store to SharedPreferences
+        store.add(uri, cookie);
+        System.out.println(uri.toString() + " " + cookie.toString());
+        writeCookiesToPrefs();
     }
 
     /**
@@ -45,31 +70,29 @@ public class PersistentCookieStore implements CookieStore {
      * @param uri The URI
      * @return an immutable list of HttpCookie, return empty list if no cookies match the given URI
      */
-
     @Override
     public List<HttpCookie> get(URI uri) {
-        // TODO list must be immutable
-        if (uri == null)
-            throw new NullPointerException();
-        return null;
+        return store.get(uri);
     }
 
     /**
      * Get all not-expired cookies in cookie store.
+     *
      * @return an immutable list of http cookies; return empty list if there's no http cookie in store
      */
     @Override
     public List<HttpCookie> getCookies() {
-        return null;
+        return store.getCookies();
     }
 
     /**
      * Get all URIs which identify the cookies in this cookie store.
+     *
      * @return an immutable list of URIs; return empty list if no cookie in this cookie store is associated with an URI
      */
     @Override
     public List<URI> getURIs() {
-        return null;
+        return store.getURIs();
     }
 
     /**
@@ -81,10 +104,10 @@ public class PersistentCookieStore implements CookieStore {
      */
     @Override
     public boolean remove(URI uri, HttpCookie cookie) {
-        // return true; if successfully stored
-        if (cookie == null)
-            throw new NullPointerException();
-        return false;
+        boolean contained = store.remove(uri, cookie);
+        // sync cookies back to SharedPreferences
+        writeCookiesToPrefs();
+        return contained;
     }
 
     /**
@@ -94,7 +117,17 @@ public class PersistentCookieStore implements CookieStore {
      */
     @Override
     public boolean removeAll() {
-        // return true; if successfully stored
-        return false;
+        boolean changed = store.removeAll();
+        // sync cookies back to SharedPreferences
+        writeCookiesToPrefs();
+        return changed;
+    }
+
+    private void writeCookiesToPrefs() {
+        //List<URI> uris = store.getURIs();
+        List<HttpCookie> cookies = store.getCookies();
+
+        //PrefUtils.saveURIListToPrefs(context, PrefUtils.PREF_URLS_KEY, uris);
+        PrefUtils.saveHttpCookieListToPrefs(context, PrefUtils.PREF_COOKIES_KEY, cookies);
     }
 }

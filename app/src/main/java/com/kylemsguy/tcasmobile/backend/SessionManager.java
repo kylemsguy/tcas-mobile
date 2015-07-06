@@ -40,11 +40,8 @@ public class SessionManager {
         cookieManager = new CookieManager();
     }
 
-    public SessionManager(CookieStore cookies) {
-        //if(cookies == null)
-        cookieManager = new CookieManager();
-        //else
-        //cookieManager = new CookieManager(cookies, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+    public SessionManager(CookieStore cookieJar) {
+        cookieManager = new CookieManager(cookieJar, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
     }
 
     public boolean checkLoggedIn() {
