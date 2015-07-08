@@ -33,5 +33,6 @@
     <string name="session_expired">Session Expired</string>
     <string name="session_expired_msg">It seems that your session has expired. Let me take you back to the Login screen.</string>
     <string name="answer_send_failed">Failed to send message. Your message may be too short or unoriginal.</string>
+    <string name="sure_quit">Really quit?</string>
 
 </resources>

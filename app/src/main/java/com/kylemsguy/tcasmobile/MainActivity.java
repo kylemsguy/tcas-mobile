@@ -15,6 +15,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -514,7 +515,24 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        // show a message asking if really want to close
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.sure_quit);
+        builder.setPositiveButton("OK", new AlertDialog.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == DialogInterface.BUTTON_POSITIVE)
+                    // Close app.
+                    finish();
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.setCancelable(true);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        //super.onBackPressed();
+
         // logout here
         //mLogoutTask = new LogoutTask().execute(sm);
     }
