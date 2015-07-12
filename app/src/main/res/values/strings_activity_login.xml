@@ -4,8 +4,8 @@
     <!-- Strings related to login -->
     <string name="prompt_email">Username</string>
     <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in</string>
-    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_sign_in">Loggest In</string>
+    <string name="action_sign_in_short">Loggest In</string>
 
     <string name="error_invalid_email">Invalid Username</string>
     <string name="error_invalid_password">This password is too short</string>
