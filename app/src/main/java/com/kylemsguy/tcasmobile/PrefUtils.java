@@ -28,7 +28,6 @@ public class PrefUtils {
     public static final String PREF_LOGIN_USERNAME_KEY = "__USERNAME__";
     public static final String PREF_LOGIN_PASSWORD_KEY = "__PASSWORD__";
     public static final String PREF_LOGGED_IN_KEY = "__LOGGEDIN__";
-    public static final String PREF_URLS_KEY = "__COOKIEURLS__";
     public static final String PREF_COOKIES_KEY = "__COOKIES__";
 
 

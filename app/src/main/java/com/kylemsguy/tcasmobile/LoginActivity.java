@@ -119,10 +119,11 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
         connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         // check if already logged in
-        boolean loggedIn = PrefUtils.getFromPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, false);
+        String user = PrefUtils.getFromPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
 
-        if (loggedIn) {
+        if (user != null) {
             autoLogin = true;
+            mDisplayUsername = user;
             // Show spinner
             showProgress(true);
             // load cookies from Preferences
@@ -258,7 +259,7 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
             else
                 showDialog("Login failed. Check your internet connection.");
             showProgress(false);
-            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, false);
+            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
             //sm.setCookies(new ArrayList<String>()); // restart session just in case
             // log out just in case
             new LogoutTask().execute(sm);
@@ -266,7 +267,7 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
             // start the new activity
             if (saveData.isChecked())
                 saveUserData(mUsername, mPassword);
-            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, true);
+            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, mDisplayUsername);
             Intent intent = new Intent(this, MainActivity.class);
             // TODO temp while we are using both the Mobile and Web APIs
             if (mDisplayUsername == null)

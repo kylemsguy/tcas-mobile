@@ -478,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         } else if (id == R.id.action_logout) {
             // save logout task in case we need to cancel
             mLogoutTask = new LogoutTask().execute(sm);
-            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, false);
+            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
             Intent intent = new Intent(this, LoginActivity.class);
             // do stuff
             /*try { // temporary; change to a wheel spinning and dialog saying "logging out..."
