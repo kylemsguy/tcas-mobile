@@ -124,8 +124,17 @@ public class PrefUtils {
         editor.apply();
     }
 
-    public static void saveUriCookieMapToPrefs(Context context, String key, Map<Uri, HttpCookie> cookieJar) {
-        // NOT IMPLEMENTED
+    public static void saveURICookieMapToPrefs(Context context, String key, Map<URI, List<HttpCookie>> cookieJar) {
+        // First serialize to string
+        Gson gson = new Gson();
+        Type t = new TypeToken<Map<URI, List<HttpCookie>>>() {
+        }.getType();
+        String serializedValues = gson.toJson(cookieJar, t);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(key, serializedValues);
+        editor.apply();
     }
 
     /**
@@ -233,5 +242,18 @@ public class PrefUtils {
         }
     }
 
-
+    public static Map<URI, List<HttpCookie>> getURICookieMapFromPrefs(Context context, String key) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        try {
+            String serializedList = sharedPrefs.getString(key, null);
+            Gson gson = new Gson();
+            Type listOfString = new TypeToken<Map<URI, List<HttpCookie>>>() {
+            }.getType();
+            return gson.fromJson(serializedList, listOfString);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
+

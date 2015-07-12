@@ -9,7 +9,10 @@ import java.net.HttpCookie;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -21,24 +24,21 @@ import java.util.TreeMap;
  */
 public class PersistentCookieStore implements CookieStore {
 
-    private Map<URI, HttpCookie> cookieJar;
+    private Map<URI, List<HttpCookie>> cookieJar;
     private CookieStore store;
     private Context context;
 
     public PersistentCookieStore(Context context) {
         // get the default in memory cookie store
-        //cookieJar = new HashMap<>();
-        store = new CookieManager().getCookieStore();
+        //store = new CookieManager().getCookieStore();
         this.context = context;
 
         // load cookies from SharedPreferences
-        // we are not loading list of URIs because not necessary
-        List<HttpCookie> cookies = PrefUtils.getHttpCookieListFromPrefs(context, PrefUtils.PREF_COOKIES_KEY);
-        if (cookies != null)
-            for (HttpCookie cookie : cookies) {
-                //System.out.println(cookie.toString());
-                store.add(null, cookie);
-            }
+        Map<URI, List<HttpCookie>> cookies = PrefUtils.getURICookieMapFromPrefs(context, PrefUtils.PREF_COOKIES_KEY);
+        if (cookies == null)
+            cookieJar = new HashMap<>();
+        else
+            cookieJar = cookies;
 
         // add a shutdown hook to write out the in memory cookies
         // NOTE this should be done in the activity
@@ -57,10 +57,33 @@ public class PersistentCookieStore implements CookieStore {
      * @param cookie The cookie to store
      */
     @Override
-    public void add(URI uri, HttpCookie cookie) {
-        store.add(uri, cookie);
+    public synchronized void add(URI uri, HttpCookie cookie) {
+        if (cookie == null) {
+            throw new NullPointerException("cookie == null");
+        }
+        //store.add(uri, cookie);
+        uri = cookiesUri(uri);
+        List<HttpCookie> cookies = cookieJar.get(uri);
+        if (cookies == null) {
+            cookies = new ArrayList<>();
+            cookieJar.put(uri, cookies);
+        } else {
+            cookies.remove(cookie);
+        }
+        cookies.add(cookie);
         //System.out.println(uri.toString() + " " + cookie.toString());
         writeCookiesToPrefs();
+    }
+
+    private URI cookiesUri(URI uri) {
+        if (uri == null) {
+            return null;
+        }
+        try {
+            return new URI("http", uri.getHost(), null, null);
+        } catch (URISyntaxException e) {
+            return uri; // probably a URI with no host
+        }
     }
 
     /**
@@ -71,8 +94,45 @@ public class PersistentCookieStore implements CookieStore {
      * @return an immutable list of HttpCookie, return empty list if no cookies match the given URI
      */
     @Override
-    public List<HttpCookie> get(URI uri) {
-        return store.get(uri);
+    public synchronized List<HttpCookie> get(URI uri) {
+        //return store.get(uri);
+        //return cookieJar.get(uri);
+        if (uri == null) {
+            throw new NullPointerException("uri == null");
+        }
+        List<HttpCookie> result = new ArrayList<>();
+        // get cookies associated with given URI. If none, returns an empty list
+        List<HttpCookie> cookiesForUri = cookieJar.get(uri);
+        if (cookiesForUri != null) {
+            for (Iterator<HttpCookie> i = cookiesForUri.iterator(); i.hasNext(); ) {
+                HttpCookie cookie = i.next();
+                if (cookie.hasExpired()) {
+                    i.remove(); // remove expired cookies
+                } else {
+                    result.add(cookie);
+                }
+            }
+        }
+        // get all cookies that domain matches the URI
+        for (Map.Entry<URI, List<HttpCookie>> entry : cookieJar.entrySet()) {
+            if (uri.equals(entry.getKey())) {
+                continue; // skip the given URI; we've already handled it
+            }
+            List<HttpCookie> entryCookies = entry.getValue();
+            for (Iterator<HttpCookie> i = entryCookies.iterator(); i.hasNext(); ) {
+                HttpCookie cookie = i.next();
+                if (!HttpCookie.domainMatches(cookie.getDomain(), uri.getHost())) {
+                    continue;
+                }
+                if (cookie.hasExpired()) {
+                    i.remove(); // remove expired cookies
+                } else if (!result.contains(cookie)) {
+                    result.add(cookie);
+                }
+            }
+        }
+        writeCookiesToPrefs();
+        return Collections.unmodifiableList(result);
     }
 
     /**
@@ -81,8 +141,21 @@ public class PersistentCookieStore implements CookieStore {
      * @return an immutable list of http cookies; return empty list if there's no http cookie in store
      */
     @Override
-    public List<HttpCookie> getCookies() {
-        return store.getCookies();
+    public synchronized List<HttpCookie> getCookies() {
+        //return store.getCookies();
+        List<HttpCookie> result = new ArrayList<>();
+        for (List<HttpCookie> list : cookieJar.values()) {
+            for (Iterator<HttpCookie> i = list.iterator(); i.hasNext(); ) {
+                HttpCookie cookie = i.next();
+                if (cookie.hasExpired()) {
+                    i.remove(); // remove expired cookies
+                } else if (!result.contains(cookie)) {
+                    result.add(cookie);
+                }
+            }
+        }
+        writeCookiesToPrefs();
+        return Collections.unmodifiableList(result);
     }
 
     /**
@@ -91,8 +164,11 @@ public class PersistentCookieStore implements CookieStore {
      * @return an immutable list of URIs; return empty list if no cookie in this cookie store is associated with an URI
      */
     @Override
-    public List<URI> getURIs() {
-        return store.getURIs();
+    public synchronized List<URI> getURIs() {
+        //return store.getURIs();
+        List<URI> result = new ArrayList<>(cookieJar.keySet());
+        result.remove(null); // sigh // lull
+        return Collections.unmodifiableList(result);
     }
 
     /**
@@ -103,11 +179,21 @@ public class PersistentCookieStore implements CookieStore {
      * @return true if this store contained the specified cookie
      */
     @Override
-    public boolean remove(URI uri, HttpCookie cookie) {
-        boolean contained = store.remove(uri, cookie);
+    public synchronized boolean remove(URI uri, HttpCookie cookie) {
+        //boolean contained = store.remove(uri, cookie);
         // sync cookies back to SharedPreferences
-        writeCookiesToPrefs();
-        return contained;
+        if (cookie == null) {
+            throw new NullPointerException("cookie == null");
+        }
+        List<HttpCookie> cookies = cookieJar.get(cookiesUri(uri));
+        if (cookies != null) {
+            writeCookiesToPrefs();
+            return cookies.remove(cookie);
+        } else {
+            return false;
+        }
+        //writeCookiesToPrefs();
+        //return contained;
     }
 
     /**
@@ -116,18 +202,21 @@ public class PersistentCookieStore implements CookieStore {
      * @return true if this store changed as a result of the call
      */
     @Override
-    public boolean removeAll() {
-        boolean changed = store.removeAll();
+    public synchronized boolean removeAll() {
+        //boolean changed = store.removeAll();
+        boolean changed = !cookieJar.isEmpty();
+        cookieJar.clear();
         // sync cookies back to SharedPreferences
         writeCookiesToPrefs();
         return changed;
     }
 
     private void writeCookiesToPrefs() {
-        //List<URI> uris = store.getURIs();
-        List<HttpCookie> cookies = store.getCookies();
+        //List<HttpCookie> cookies = store.getCookies();
 
-        //PrefUtils.saveURIListToPrefs(context, PrefUtils.PREF_URLS_KEY, uris);
-        PrefUtils.saveHttpCookieListToPrefs(context, PrefUtils.PREF_COOKIES_KEY, cookies);
+        //PrefUtils.saveHttpCookieListToPrefs(context, PrefUtils.PREF_COOKIES_KEY, cookies);
+
+        PrefUtils.saveURICookieMapToPrefs(context, PrefUtils.PREF_COOKIES_KEY, cookieJar);
+
     }
 }

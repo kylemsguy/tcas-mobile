@@ -30,7 +30,7 @@ public class SessionManager {
     // let's define some constants
     private final String USER_AGENT = "Mozilla/5.0";
     public static final String BASE_URL = "http://twocansandstring.com/";
-    public static final boolean BACKEND_DEBUG = false;
+    public static final boolean BACKEND_DEBUG = true;
     private final String LOGIN = BASE_URL + "login/";
 
     private static final boolean MANUAL_COOKIE = false;
@@ -41,15 +41,28 @@ public class SessionManager {
 
     public SessionManager() {
         cookieManager = new CookieManager();
+        // Making sure cookies are enabled
+        CookieHandler.setDefault(cookieManager);
+
     }
 
     public SessionManager(CookieStore cookieJar) {
         cookieManager = new CookieManager(cookieJar, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
+        // Making sure cookies are enabled
+        CookieHandler.setDefault(cookieManager);
+
     }
 
     public boolean checkLoggedIn() {
+        if (BACKEND_DEBUG)
+            System.out.println("chkLoggedIn: Checking if logged in.");
         try {
+            //Thread.sleep(1000);
             String page = getPageContent(AnswerManager.QUESTION_URL);
+            if (BACKEND_DEBUG) {
+                System.out.println("chkLoggedIn: " + cookieManager.getCookieStore().get(new URI(AnswerManager.QUESTION_URL)));
+                System.out.println("chkLoggedIn: Page: " + page);
+            }
             return !page.startsWith("<!DOCTYPE html PUBLIC");
         } catch (Exception e) {
             return false;
@@ -64,10 +77,6 @@ public class SessionManager {
      * @throws Exception
      */
     public void login(String username, String password) throws Exception {
-        // Making sure cookies are enabled...?
-        // (Could someone please tell me why this line makes this whole thing work?)
-        CookieHandler.setDefault(cookieManager);
-
         // GET form's data
         String page = getPageContent(LOGIN);
         String postParams = getFormParams(page, username, password);
@@ -160,7 +169,7 @@ public class SessionManager {
         }
         String hostname = new URI(url).getHost();
         connection.setRequestProperty("Host", hostname);
-        System.out.println(hostname);
+        //System.out.println(hostname);
 
         connection.setRequestProperty("User-Agent", USER_AGENT);
 
@@ -282,7 +291,8 @@ public class SessionManager {
         in.close();
 
         // Get the response cookies
-        this.setCookies(connection.getHeaderFields().get("Set-Cookie"));
+        if (MANUAL_COOKIE)
+            this.setCookies(connection.getHeaderFields().get("Set-Cookie"));
 
         String pageContents = response.toString();
 

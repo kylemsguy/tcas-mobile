@@ -39,7 +39,6 @@ public final class LoginResponse {
         String usernameCanonicalized = null;
 
         if (response != null) {
-            System.out.println("TODO1");
             if (response.length >= 4 && "OK".equals(response[0])) {
                 if (response[1] instanceof Integer &&
                     response[2] instanceof String &&
