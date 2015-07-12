@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -117,6 +118,18 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
         // set up the TCaS session manager
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
         connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        // Check version code and see if we need to purge Preferences
+        int prevVersion = PrefUtils.getFromPrefs(this, PrefUtils.PREF_VERSION_CODE_KEY, 0);
+        System.out.println(prevVersion);
+        if (prevVersion == 0) {
+            // do some cleanup (added in version 9)
+            PrefUtils.clearAllPrefs(this);
+        }
+
+        // set version code preference
+        int versionCode = BuildConfig.VERSION_CODE;
+        PrefUtils.saveToPrefs(this, PrefUtils.PREF_VERSION_CODE_KEY, versionCode);
 
         // check if already logged in
         String user = PrefUtils.getFromPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
