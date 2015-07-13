@@ -590,6 +590,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
                     //System.out.println("2");
                     AnswerFragment fragment = AnswerFragment.newInstance();
                     // NOTE: There is a race condition if internet connection is not fast enough
+                    // TODO disable buttons by default and enable when question is loaded
                     new GetFirstQuestionTask().execute(sm);
                     return fragment;
                 case 3:
