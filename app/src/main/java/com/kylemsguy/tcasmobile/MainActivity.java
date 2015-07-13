@@ -579,21 +579,21 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             // return PlaceholderFragment.newInstance(position + 1);
             switch (position) {
                 case 0:
-                    System.out.println("0");
+                    //System.out.println("0");
                     Intent prevIntent = getIntent();
                     String username = prevIntent.getStringExtra("username");
                     return HomeFragment.newInstance(username);
                 case 1:
-                    System.out.println("1");
+                    //System.out.println("1");
                     return new AskFragment();
                 case 2:
-                    System.out.println("2");
+                    //System.out.println("2");
                     AnswerFragment fragment = AnswerFragment.newInstance();
                     // NOTE: There is a race condition if internet connection is not fast enough
                     new GetFirstQuestionTask().execute(sm);
                     return fragment;
                 case 3:
-                    System.out.println("3");
+                    //System.out.println("3");
                     return MessageFragment.newInstance();
             }
             return null;
