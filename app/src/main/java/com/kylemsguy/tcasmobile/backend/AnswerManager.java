@@ -22,32 +22,32 @@ public class AnswerManager {
 	 * Gets a question from TwoCansandString
 	 * 
 	 * @return A map containing the ID and question
-	 * @throws Exception
+	 * @throws NotLoggedInException
 	 */
 	public Map<String, String> getQuestion() throws Exception {
 		String pageContent = session.getPageContent(QUESTION_URL);
-		Map<String, String> question = null;
+		Map<String, String> question;
 
 		question = extractQuestionData(pageContent);
 		return question;
 	}
 
 	private Map<String, String> extractQuestionData(String rawData)
-			throws Exception {
+			throws NotLoggedInException {
 		// check if logged in
 		if (rawData.matches(".*?<div id=\"login_nav\">"
 				+ "<a href=\"/login/\">Login</a>"
 				+ ".*?That page could not be found.*?")) {
-			throw new Exception("Not logged in.");
+			throw new NotLoggedInException("Not logged in.");
 		}
-		Map<String, String> question = new TreeMap<String, String>();
+		Map<String, String> question = new TreeMap<>();
 		// extract ID
 		Pattern idPattern = Pattern.compile("(.*?)sid\\^i(.*?)\\^(.*?)");
 		Matcher idMatcher = idPattern.matcher(rawData);
 		if (idMatcher.find()) {
 			question.put("id", idMatcher.group(2));
 		} else {
-			throw new Exception("Not logged in.");
+			throw new NotLoggedInException("Not logged in.");
 		}
 
 		// extract content
@@ -60,7 +60,7 @@ public class AnswerManager {
 
 			question.put("content", newContent);
 		} else {
-			throw new Exception("Not logged in.");
+			throw new NotLoggedInException("Not logged in.");
 		}
 		return question;
 	}
@@ -68,9 +68,9 @@ public class AnswerManager {
 	/**
 	 * Takes in the ID of the question and the answer, and sends the request to
 	 * TwoCansandString
-	 * 
-	 * @param id
-	 * @param rawAnswer
+	 *
+	 * @param id Quesiton ID
+	 * @param rawAnswer Unencoded answer given by user
 	 * @return A map containing data for the next question.
 	 * @throws Exception
 	 */
@@ -105,7 +105,7 @@ public class AnswerManager {
 		}
 
 		String pageContent = session.getPageContent(skip);
-		Map<String, String> question = null;
+		Map<String, String> question;
 
 		// check if logged in
 		if (pageContent.matches(".*?<div id=\"login_nav\">"
