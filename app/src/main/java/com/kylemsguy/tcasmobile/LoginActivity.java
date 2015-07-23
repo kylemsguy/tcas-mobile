@@ -139,9 +139,6 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
             mDisplayUsername = user;
             // Show spinner
             showProgress(true);
-            // load cookies from Preferences
-            //List<String> cookies = PrefUtils.getStringListFromPrefs(this, PrefUtils.PREF_COOKIES_KEY);
-            //sm.setCookies(cookies);
             // check if really logged in
             if (DEBUG) {
                 CookieStore cookies = sm.getCookieStore();
@@ -252,6 +249,7 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
      * Web Login completed. Now check whether it completed successfully.
      */
     private void attemptLoginComplete(){
+        // we have to go through the pipeline even if it fails...
         new GetLoggedInTask().execute(sm, this);
     }
 
@@ -259,8 +257,6 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
     public void onPostLoginCheck(boolean loggedIn) {
         // Store values at the time of the login attempt.
         // This still works because sign in box should be hidden
-        //String username = mUsernameView.getText().toString();
-        //String password = mPasswordView.getText().toString();
         CheckBox saveData = (CheckBox) findViewById(R.id.save_pass_box);
 
         if (!loggedIn) {
@@ -287,10 +283,6 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
                 mDisplayUsername = mUsername;
             intent.putExtra("username", mDisplayUsername);
             startActivity(intent);
-
-            // save cookies to preferences to be used later
-            //PrefUtils.saveListToPrefs(this, PrefUtils.PREF_COOKIES_KEY, sm.getCookies());
-            //PrefUtils.saveCookieStoreToPrefs(this, PrefUtils.PREF_COOKIESTORE_KEY, sm.getCookieStore());
 
             finish();
         }
@@ -343,7 +335,6 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 5;
     }
 
@@ -487,8 +478,9 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
                 return sm.mobileLogin(username, password);
             } catch (Exception e) {
                 // something has gone horribly wrong
+                System.out.print("MobileLoginTask: ");
+                e.printStackTrace();
                 return null;
-                //return e.toString();
             }
         }
 

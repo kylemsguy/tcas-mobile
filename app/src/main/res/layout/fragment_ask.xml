@@ -46,14 +46,29 @@
     <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
-        <!-- Login progress -->
-        <ProgressBar
-            android:id="@+id/refresh_progress"
-            style="?android:attr/progressBarStyleLarge"
+
+        <RelativeLayout
+            android:id="@+id/ask_refresh_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone" />
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <!-- Login progress -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/loading_questions"
+                android:id="@+id/textView" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_below="@+id/textView"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
 
         <ExpandableListView
             android:id="@+id/questionList"

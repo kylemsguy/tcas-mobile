@@ -65,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
     private AsyncTask mLogoutTask;
     private AsyncTask mGetLoggedInTask;
 
+    private View mAskProgressSpinner;
+
     private static final boolean DEBUG = false;
 
     @Override
@@ -164,6 +166,10 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         if (mListView == null) {
             mListView = (ExpandableListView) findViewById(R.id.questionList);
         }
+        if (mAskProgressSpinner == null) {
+            mAskProgressSpinner = findViewById(R.id.ask_refresh_progress);
+        }
+        showProgress(true, mListView, mAskProgressSpinner);
         if (mAdapter == null) {
             mAdapter = ((ExpandableListAdapter) mListView.getExpandableListAdapter());
         }
@@ -178,47 +184,6 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         }
     }
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    public void showListRefreshProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mListView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mListView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            // TODO temporary. Make instance variable perhaps?
-            final View progressView = findViewById(R.id.refresh_progress);
-
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            progressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // TODO temporary. Make instance variable perhaps?
-            final View progressView = findViewById(R.id.refresh_progress);
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
-
     public void showNotifDialog(String contents) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(contents);
@@ -229,12 +194,52 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
     }
 
     public void refreshButtonClick(View v) {
-        // TODO hide listview and show spinner
         //Button refreshButton = (Button) v;
         //refreshQuestionList();
+        if (mListView == null)
+            mListView = (ExpandableListView) findViewById(R.id.questionList);
+        if (mAskProgressSpinner == null)
+            mAskProgressSpinner = findViewById(R.id.ask_refresh_progress);
+
+        showProgress(false, mListView, mAskProgressSpinner);
         loadQuestionList();
     }
 
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public void showProgress(final boolean show, final View progressView, final View regularView) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            regularView.setVisibility(show ? View.GONE : View.VISIBLE);
+            regularView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    regularView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            regularView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
 
     class GetAskedQTask extends AsyncTask<QuestionManager, Void, List<Question>> {
         @Override
@@ -515,6 +520,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
     @Override
     public void onBackPressed() {
+    /*
         // show a message asking if really want to close
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.sure_quit);
@@ -530,8 +536,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         builder.setCancelable(true);
         AlertDialog dialog = builder.create();
         dialog.show();
-
-        //super.onBackPressed();
+    */
+        super.onBackPressed();
 
         // logout here
         //mLogoutTask = new LogoutTask().execute(sm);
