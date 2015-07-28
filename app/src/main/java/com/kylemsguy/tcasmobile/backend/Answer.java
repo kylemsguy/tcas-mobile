@@ -11,6 +11,15 @@ public class Answer extends QAObject {
         this.read = read;
     }
 
+    boolean markRead() {
+        if (read)
+            return false;
+        else {
+            read = true;
+            return true;
+        }
+    }
+
     public String toString() {
         return "Answer <" + getId() + "> " + getContent();
     }

@@ -10,6 +10,7 @@ public class QuestionManager {
     private final String QUESTION_URL = SessionManager.BASE_URL + "apiw/qa/notifications/";
     private final String DEL_QUESTION_URL = SessionManager.BASE_URL + "apiw/qa/delete/question/";
     private final String DEL_ANSWER_URL = SessionManager.BASE_URL + "apiw/qa/delete/answer/";
+    private final String MARK_READ_URL = SessionManager.BASE_URL + "apiw/qa/markread/";
 
     private SessionManager session;
     private List<Question> questionAns;
@@ -34,7 +35,7 @@ public class QuestionManager {
 
     public void deleteQuestion(Question question) throws Exception {
         // send a request deleting the question
-        String deleteURL = DEL_ANSWER_URL + question.getId() + "/";
+        String deleteURL = DEL_QUESTION_URL + question.getId() + "/";
         session.getPageContent(deleteURL);
 
         // remove the question from the list
@@ -48,6 +49,15 @@ public class QuestionManager {
 
         // remove the question from the list
         question.removeAnswer(answer);
+    }
+
+    public void markAnswerRead(Answer answer) throws Exception {
+        // send a request marking the answer as read
+        String requestURL = MARK_READ_URL + answer.getId() + "/";
+        session.getPageContent(requestURL);
+
+        // mark question as read locally
+        answer.markRead();
     }
 
 }
