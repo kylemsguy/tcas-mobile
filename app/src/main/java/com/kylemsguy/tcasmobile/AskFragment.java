@@ -189,15 +189,6 @@ public class AskFragment extends Fragment {
         dialog.show();
     }
 
-    public void refreshButtonClick(View v) {
-        //Button refreshButton = (Button) v;
-        //refreshQuestionList();
-
-
-        //showProgress(false, mExpListView, mAskProgressSpinner);
-        loadQuestionList();
-    }
-
     /**
      * Shows the progress UI and hides the login form.
      */

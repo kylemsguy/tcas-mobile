@@ -110,15 +110,6 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         mAskFragment.askQuestion(view);
     }
 
-    /**
-     * No longer used because now using swipe-to-refresh
-     *
-     * @param v caller
-     */
-    public void refreshButtonClick(View v) {
-        mAskFragment.refreshButtonClick(v);
-    }
-
     // END AskActivity
 
 
