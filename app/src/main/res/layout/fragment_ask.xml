@@ -27,20 +27,20 @@
 
         <Button
             android:id="@+id/btnAskQuestion"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="5"
             android:onClick="askQuestion"
             android:text="@string/title_activity_ask" />
 
-        <ImageButton
+        <!--<ImageButton
             android:id="@+id/asked_refresh"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:layout_weight="1"
             android:onClick="refreshButtonClick"
-            android:src="@drawable/ic_menu_refresh" />
+            android:src="@drawable/ic_menu_refresh" />-->
     </LinearLayout>
 
     <FrameLayout
@@ -70,11 +70,18 @@
                 android:layout_centerHorizontal="true" />
         </RelativeLayout>
 
-        <ExpandableListView
-            android:id="@+id/questionList"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:drawSelectorOnTop="false" />
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/questionListContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ExpandableListView
+                android:id="@+id/questionList"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:drawSelectorOnTop="false" />
+        </android.support.v4.widget.SwipeRefreshLayout>
+
     </FrameLayout>
 
 

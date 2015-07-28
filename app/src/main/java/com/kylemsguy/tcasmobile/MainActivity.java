@@ -26,6 +26,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -54,18 +55,13 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
      */
     private ViewPager mViewPager;
     private SessionManager sm;
-    private QuestionManager qm;
     private AnswerManager am;
     private Map<String, String> mCurrQuestion;
-    private List<Question> mCurrQuestions;
-    private ExpandableListView mListView;
-    private ExpandableListAdapter mAdapter;
 
-    private AsyncTask mGotQuestionsTask;
     private AsyncTask mLogoutTask;
     private AsyncTask mGetLoggedInTask;
 
-    private View mAskProgressSpinner;
+    private AskFragment mAskFragment;
 
     private static final boolean DEBUG = false;
 
@@ -117,71 +113,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         });
 
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
-        qm = ((TCaSApp) getApplicationContext()).getQuestionManager();
         am = ((TCaSApp) getApplicationContext()).getAnswerManager();
 
-        // Load question list for Ask
-        loadQuestionList();
-
-        // Load the first question for Answer!
-        //getNewQuestion();
-
-    }
-
-    /**
-     * Methods for each Fragment
-     */
-
-    // BEGIN AskActivity
-    public void askQuestion(View view) {
-        // hide keyboard
-        View currentFocus = this.getCurrentFocus();
-        if (currentFocus != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(
-                    Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
-        }
-        // get text
-        EditText askQuestionField = (EditText) findViewById(R.id.askQuestionField);
-        String question = askQuestionField.getText().toString();
-
-        if (question.equals("")) {
-            showNotifDialog("You cannot send a blank message.");
-            return;
-        }
-
-        // Clear field
-        askQuestionField.setText("");
-
-        // send question to be asked.
-        new AskQuestionTask().execute(qm, question);
-    }
-
-    public void loadQuestionList(){
-        //mListView.setVisibility(View.GONE);
-        mGotQuestionsTask = new GetAskedQTask().execute(qm);
-    }
-
-    public void refreshQuestionList() {
-        if (mListView == null) {
-            mListView = (ExpandableListView) findViewById(R.id.questionList);
-        }
-        if (mAskProgressSpinner == null) {
-            mAskProgressSpinner = findViewById(R.id.ask_refresh_progress);
-        }
-        showProgress(true, mListView, mAskProgressSpinner);
-        if (mAdapter == null) {
-            mAdapter = ((ExpandableListAdapter) mListView.getExpandableListAdapter());
-        }
-        try {
-            mAdapter.reloadItems(mCurrQuestions);
-            mAdapter.notifyDataSetChanged();
-            // TODO figure out why this may be running several times on startup
-            if (DEBUG)
-                System.out.println("Successfully reloaded list items");
-        } catch (NullPointerException e) {
-            System.out.println("Failed to reload list items");
-        }
     }
 
     public void showNotifDialog(String contents) {
@@ -193,101 +126,23 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         dialog.show();
     }
 
-    public void refreshButtonClick(View v) {
-        //Button refreshButton = (Button) v;
-        //refreshQuestionList();
-        if (mListView == null)
-            mListView = (ExpandableListView) findViewById(R.id.questionList);
-        if (mAskProgressSpinner == null)
-            mAskProgressSpinner = findViewById(R.id.ask_refresh_progress);
-
-        showProgress(false, mListView, mAskProgressSpinner);
-        loadQuestionList();
-    }
 
     /**
-     * Shows the progress UI and hides the login form.
+     * Methods for each Fragment
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    public void showProgress(final boolean show, final View progressView, final View regularView) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            regularView.setVisibility(show ? View.GONE : View.VISIBLE);
-            regularView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    regularView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
+    // BEGIN AskActivity
 
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            progressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            regularView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+    public void askQuestion(View view) {
+        mAskFragment.askQuestion(view);
     }
 
-    class GetAskedQTask extends AsyncTask<QuestionManager, Void, List<Question>> {
-        @Override
-        protected List<Question> doInBackground(QuestionManager... params) {
-            try {
-                return params[0].getQuestions();
-            } catch (Exception e) {
-                // Something went terribly wrong here
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(List<Question> questions) {
-            mCurrQuestions = questions;
-            refreshQuestionList();
-        }
+    public void refreshButtonClick(View v) {
+        mAskFragment.refreshButtonClick(v);
     }
-
-
-    class AskQuestionTask extends AsyncTask<Object, Void, String> {
-
-        @Override
-        protected String doInBackground(Object... params) {
-            // param 0 is QuestionManager
-            // param 1 is string to send
-
-            QuestionManager qm = (QuestionManager) params[0];
-            String question = (String) params[1];
-
-            try {
-                qm.askQuestion(question);
-            } catch (Exception e) {
-                return e.toString();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            loadQuestionList();
-        }
-    }
-
 
     // END AskActivity
+
 
     // BEGIN AnswerActivity
     private void writeCurrQuestion() {
@@ -562,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             finish();
         } else {
             // refresh data
-            loadQuestionList();
+            mAskFragment.loadQuestionList();
 
         }
     }
@@ -591,7 +446,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
                     return HomeFragment.newInstance(username);
                 case 1:
                     //System.out.println("1");
-                    return new AskFragment();
+                    mAskFragment = AskFragment.newInstance(((TCaSApp) getApplicationContext()).getQuestionManager());
+                    return mAskFragment;
                 case 2:
                     //System.out.println("2");
                     AnswerFragment fragment = AnswerFragment.newInstance();
