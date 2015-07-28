@@ -55,13 +55,12 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
      */
     private ViewPager mViewPager;
     private SessionManager sm;
-    private AnswerManager am;
-    private Map<String, String> mCurrQuestion;
 
     private AsyncTask mLogoutTask;
     private AsyncTask mGetLoggedInTask;
 
     private AskFragment mAskFragment;
+    private AnswerFragment mAnswerFragment;
 
     private static final boolean DEBUG = false;
 
@@ -113,19 +112,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         });
 
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
-        am = ((TCaSApp) getApplicationContext()).getAnswerManager();
 
     }
-
-    public void showNotifDialog(String contents) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(contents);
-        builder.setPositiveButton("OK", null);
-        builder.setCancelable(true);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
 
     /**
      * Methods for each Fragment
@@ -137,6 +125,11 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         mAskFragment.askQuestion(view);
     }
 
+    /**
+     * No longer used because now using swipe-to-refresh
+     *
+     * @param v caller
+     */
     public void refreshButtonClick(View v) {
         mAskFragment.refreshButtonClick(v);
     }
@@ -145,168 +138,16 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
 
     // BEGIN AnswerActivity
-    private void writeCurrQuestion() {
-        TextView question = (TextView) findViewById(R.id.questionText);
-        //LinearLayout idWrapper = (LinearLayout) findViewById(R.id.idLinearLayout);
-        TextView id = (TextView) findViewById(R.id.questionId);
-
-        question.setText(mCurrQuestion.get("content"));
-        id.setText(mCurrQuestion.get("id"));
-    }
-
-    private void skipQuestion(boolean forever) {
-        if (mCurrQuestion != null) {
-            new SkipQuestionTask().execute(sm,
-                    mCurrQuestion.get("id"), forever);
-        } else {
-            // should never happen...
-            getFirstQuestion();
-        }
-    }
-
-    private void onSkipQuestionComplete(Map<String, String> tempQuestion) {
-        if (tempQuestion != null) {
-            mCurrQuestion = tempQuestion;
-            writeCurrQuestion();
-        } else {
-            System.out.println("Failed to get new question! Should never happen!");
-        }
-    }
-
-
-    private void getNewQuestion() {
-        new GetQuestionTask().execute(sm);
-    }
-
-    public void getFirstQuestion() {
-        ((Button) findViewById(R.id.btnSubmit)).setText("Submit");
-        //getNewQuestion();
-        writeCurrQuestion();
-    }
-
-    public void updateQuestion(Map<String, String> question) {
-        mCurrQuestion = question;
+    public void skipTemp(View view) {
+        mAnswerFragment.skipTemp(view);
     }
 
     public void skipPerm(View view) {
-        skipQuestion(true);
-    }
-
-    public void skipTemp(View view) {
-        skipQuestion(false);
+        mAnswerFragment.skipPerm(view);
     }
 
     public void submitAnswer(View view) {
-        // get ID
-        String id = mCurrQuestion.get("id");
-
-        // get text
-        EditText answerField = (EditText) findViewById(R.id.answerField);
-        String answer = answerField.getText().toString();
-
-        new SendAnswerTask().execute(id, answer, am);
-    }
-
-    private void onSubmitAnswerComplete(Map<String, String> nextQuestion) {
-        if (nextQuestion != null) {
-            mCurrQuestion = nextQuestion;
-            writeCurrQuestion();
-
-            // clear answer field
-            EditText answerField = (EditText) findViewById(R.id.answerField);
-            answerField.setText("");
-        } else {
-            // Answer send failed...
-            showNotifDialog(getResources().getString(R.string.answer_send_failed));
-        }
-    }
-
-    class GetQuestionTask extends AsyncTask<SessionManager, Void, Map<String, String>> {
-
-        @Override
-        protected Map<String, String> doInBackground(SessionManager... params) {
-            // TODO figure out why we're creating a new AM instead of using an existing one
-            AnswerManager am = new AnswerManager(params[0]);
-            try {
-                return am.getQuestion();
-            } catch (Exception e) {
-                // original message:"Failed to get question :("
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Map<String, String> result) {
-            updateQuestion(result);
-        }
-
-    }
-
-    public class GetFirstQuestionTask extends GetQuestionTask {
-        @Override
-        protected void onPostExecute(Map<String, String> result) {
-            updateQuestion(result);
-            writeCurrQuestion();
-        }
-    }
-
-    class SkipQuestionTask extends AsyncTask<Object, Void, Map<String, String>> {
-
-        @Override
-        protected Map<String, String> doInBackground(Object... params) {
-            // param 0 is SessionManager
-            // param 1 is id
-            // param 2 is forever? (boolean)
-
-            AnswerManager am = new AnswerManager((SessionManager) params[0]);
-            String id = (String) params[1];
-            boolean forever = (boolean) params[2];
-
-            try {
-                return am.skipQuestion(id, forever);
-            } catch (Exception e) {
-                // original message:"Failed to get question :("
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Map<String, String> result) {
-            onSkipQuestionComplete(result);
-        }
-
-    }
-
-    class SendAnswerTask extends AsyncTask<Object, Void, Map<String, String>> {
-
-        @Override
-        protected Map<String, String> doInBackground(Object... params) {
-            // First parameter is id.
-            // Second param is contents of message
-            // 3rd param is AnswerManager
-
-            String id = (String) params[0];
-            String contents = (String) params[1];
-            AnswerManager am = (AnswerManager) params[2];
-
-            if (id.length() > 25) {
-                return null; // There's a big problem here...
-            }
-
-            try {
-                return am.sendAnswer(id, contents);
-            } catch (Exception e) {
-                System.out.println("Big problemo");
-                e.printStackTrace();
-                return null;
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(Map<String, String> result) {
-            onSubmitAnswerComplete(result);
-        }
+        mAnswerFragment.submitAnswer(view);
     }
 
     // end AnswerActivity
@@ -446,15 +287,13 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
                     return HomeFragment.newInstance(username);
                 case 1:
                     //System.out.println("1");
-                    mAskFragment = AskFragment.newInstance(((TCaSApp) getApplicationContext()).getQuestionManager());
-                    return mAskFragment;
+                    return AskFragment.newInstance();
                 case 2:
                     //System.out.println("2");
-                    AnswerFragment fragment = AnswerFragment.newInstance();
+                    mAnswerFragment = AnswerFragment.newInstance();
                     // NOTE: There is a race condition if internet connection is not fast enough
                     // TODO disable buttons by default and enable when question is loaded
-                    new GetFirstQuestionTask().execute(sm);
-                    return fragment;
+                    return mAnswerFragment;
                 case 3:
                     //System.out.println("3");
                     return MessageFragment.newInstance();

@@ -44,12 +44,8 @@ public class AskFragment extends Fragment {
     private ExpandableListView mExpListView;
     private SwipeRefreshLayout swipeContainer;
 
-    public static AskFragment newInstance(QuestionManager qm) {
-        return new AskFragment(qm);
-    }
-
-    public AskFragment(QuestionManager qm) {
-        this.qm = qm;
+    public static AskFragment newInstance() {
+        return new AskFragment();
     }
 
     @Override
@@ -58,6 +54,8 @@ public class AskFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_ask, container,
                 false);
+
+        qm = ((TCaSApp) getActivity().getApplicationContext()).getQuestionManager();
 
         // get elements
         mAskProgressSpinner = rootView.findViewById(R.id.ask_refresh_progress);
