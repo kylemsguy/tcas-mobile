@@ -79,7 +79,7 @@ public class Question extends QAObject {
     }
 
     public String toString() {
-        String active_s = active ? "Y" : "N";
+        String active_s = active ? "A" : "N";
         return "Question (" + active_s + ") <" + getId() + "> " + getContent();
     }
 }
