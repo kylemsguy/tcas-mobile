@@ -3,7 +3,6 @@ package com.kylemsguy.tcasmobile;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -11,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +42,7 @@ public class AskFragment extends Fragment {
     // stuff for Asked questions
     private ExpandableListAdapter mListAdapter;
     private ExpandableListView mExpListView;
-    private SwipeRefreshLayout swipeContainer;
+    private SwipeRefreshLayout mSwipeContainer;
 
     public static AskFragment newInstance() {
         return new AskFragment();
@@ -72,7 +70,16 @@ public class AskFragment extends Fragment {
         // set list adapter
         mExpListView.setAdapter(mListAdapter);
 
-        // set up long click callbacks
+        // set up click callbacks
+        mExpListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View view,
+                                        int groupPosition, int childPosition, long id) {
+                Answer toMark = mAdapter.getChildItem(groupPosition, childPosition);
+                new MarkAnswerReadTask().execute(qm, toMark);
+                return false;
+            }
+        });
         mExpListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -85,25 +92,22 @@ public class AskFragment extends Fragment {
 
                 /*  if group item clicked */
                 if (itemType == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
-                    //  ...
                     onGroupLongClick(groupPosition);
                 }
 
                 /*  if child item clicked */
                 else if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                    //  ...
                     onChildLongClick(groupPosition, childPosition);
                 }
-
 
                 return false;
             }
         });
 
         // Set up the container for the ListView to allow pull-to-refresh
-        swipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.questionListContainer);
+        mSwipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.questionListContainer);
         // Setup refresh listener which triggers new data loading
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mSwipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 loadQuestionList();
@@ -164,7 +168,7 @@ public class AskFragment extends Fragment {
     }
 
     public void refreshQuestionList() {
-        swipeContainer.setRefreshing(false);
+        mSwipeContainer.setRefreshing(false);
         //showProgress(true, mExpListView, mAskProgressSpinner);
         if (mAdapter == null) {
             mAdapter = ((ExpandableListAdapter) mExpListView.getExpandableListAdapter());
@@ -267,6 +271,32 @@ public class AskFragment extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             loadQuestionList();
+        }
+    }
+
+    class MarkAnswerReadTask extends AsyncTask<Object, Void, Boolean> {
+        @Override
+        public Boolean doInBackground(Object... params) {
+            // param 0 is QuestionManager
+            // param 1 is the Answer
+            QuestionManager qm = (QuestionManager) params[0];
+            Answer answer = (Answer) params[1];
+
+            try {
+                qm.markAnswerRead(answer);
+                return true;
+            } catch (Exception e) {
+                System.out.println("MarkAnswerReadTask: ");
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        public void onPostExecute(Boolean retval) {
+            boolean success = retval;
+            if (success)
+                mAdapter.notifyDataSetChanged();
         }
     }
 

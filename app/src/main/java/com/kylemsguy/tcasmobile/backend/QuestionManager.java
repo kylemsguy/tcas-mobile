@@ -11,6 +11,7 @@ public class QuestionManager {
     private final String DEL_QUESTION_URL = SessionManager.BASE_URL + "apiw/qa/delete/question/";
     private final String DEL_ANSWER_URL = SessionManager.BASE_URL + "apiw/qa/delete/answer/";
     private final String MARK_READ_URL = SessionManager.BASE_URL + "apiw/qa/markread/";
+    private final String REACTIVATE_QUESTION_URL = SessionManager.BASE_URL + "apiw/qa/reactivate/";
 
     private SessionManager session;
     private List<Question> questionAns;
@@ -52,12 +53,26 @@ public class QuestionManager {
     }
 
     public void markAnswerRead(Answer answer) throws Exception {
+        if (answer.getRead())
+            return; // nothing to do
         // send a request marking the answer as read
         String requestURL = MARK_READ_URL + answer.getId() + "/";
         session.getPageContent(requestURL);
 
         // mark question as read locally
         answer.markRead();
+    }
+
+    public void reactivateQuestion(Question question) throws Exception {
+        // send a request marking the question as active
+        if (question.getActive())
+            return; // nothing to do
+        // send a request reactivating the Question
+        String requestURL = REACTIVATE_QUESTION_URL + question.getId() + "/";
+        session.getPageContent(requestURL);
+
+        // mark question as active locally
+        question.setActive(true);
     }
 
     public void replyToAnswer(Answer answer) {

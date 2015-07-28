@@ -70,12 +70,20 @@ public class Question extends QAObject {
         return null;
     }
 
+    public boolean getActive() {
+        return active;
+    }
+
     public void addAnswer(Answer answer) {
         answers.add(answer);
     }
 
     public boolean removeAnswer(Answer answer) {
         return answers.remove(answer);
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public String toString() {
