@@ -60,4 +60,8 @@ public class QuestionManager {
         answer.markRead();
     }
 
+    public void replyToAnswer(Answer answer) {
+        // TODO implement once there's an API OR open WebView
+    }
+
 }
