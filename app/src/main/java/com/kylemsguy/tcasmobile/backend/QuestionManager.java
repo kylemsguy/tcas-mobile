@@ -1,13 +1,15 @@
 package com.kylemsguy.tcasmobile.backend;
 
 import java.net.URLEncoder;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class QuestionManager {
     private final String ASK_URL = SessionManager.BASE_URL + "apiw/qa/ask/";
-    private final String QUESTION_URL = SessionManager.BASE_URL
-            + "apiw/qa/notifications/";
+    private final String QUESTION_URL = SessionManager.BASE_URL + "apiw/qa/notifications/";
+    private final String DEL_QUESTION_URL = SessionManager.BASE_URL + "apiw/qa/delete/question/";
+    private final String DEL_ANSWER_URL = SessionManager.BASE_URL + "apiw/qa/delete/answer/";
 
     private SessionManager session;
     private List<Question> questionAns;
@@ -28,6 +30,24 @@ public class QuestionManager {
         questionAns = QAObject.parseData(rawData);
 
         return questionAns;
+    }
+
+    public void deleteQuestion(Question question) throws Exception {
+        // send a request deleting the question
+        String deleteURL = DEL_ANSWER_URL + question.getId() + "/";
+        session.getPageContent(deleteURL);
+
+        // remove the question from the list
+        questionAns.remove(question);
+    }
+
+    public void deleteAnswer(Question question, Answer answer) throws Exception {
+        // send a request deleting the answer
+        String deleteURL = DEL_ANSWER_URL + answer.getId() + "/";
+        session.getPageContent(deleteURL);
+
+        // remove the question from the list
+        question.removeAnswer(answer);
     }
 
 }

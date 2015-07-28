@@ -9,20 +9,35 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class Question extends QAObject {
-    private List<Answer> answers = new ArrayList<Answer>();
+    private List<Answer> answers;
 
     public Question(int id, String content) {
         super(id, content);
+        answers = new ArrayList<>();
     }
 
     public List<Integer> getAnswerIDs() {
-        List<Integer> ids = new ArrayList<Integer>();
+        List<Integer> ids = new ArrayList<>();
         for (Answer a : answers) {
             ids.add(a.getId());
         }
         return ids;
     }
 
+    /**
+     * Returns a shallow copy of the Answers
+     *
+     * @return the answers to the Question
+     */
+    public List<Answer> getAnswersList() {
+        return answers;
+    }
+
+    /**
+     * Returns a deep copy of all of the answers contained within this Question
+     *
+     * @return the Answers to the Question
+     */
     public List<Answer> getAnswers() {
         // make deep copy of answers before returning
         List<Answer> answers = new ArrayList<>();
@@ -55,6 +70,10 @@ public class Question extends QAObject {
 
     public void addAnswer(Answer answer) {
         answers.add(answer);
+    }
+
+    public boolean removeAnswer(Answer answer) {
+        return answers.remove(answer);
     }
 
     public String toString() {
