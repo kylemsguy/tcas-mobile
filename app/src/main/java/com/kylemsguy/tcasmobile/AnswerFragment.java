@@ -71,6 +71,8 @@ public class AnswerFragment extends Fragment {
 
         // Get the first question!
         new GetFirstQuestionTask().execute(am);
+
+        // TODO disable buttons by default and enable when question is loaded
         return view;
 	}
 

@@ -272,12 +272,11 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
                     return HomeFragment.newInstance(username);
                 case 1:
                     //System.out.println("1");
-                    return AskFragment.newInstance();
+                    mAskFragment = AskFragment.newInstance();
+                    return mAskFragment;
                 case 2:
                     //System.out.println("2");
                     mAnswerFragment = AnswerFragment.newInstance();
-                    // NOTE: There is a race condition if internet connection is not fast enough
-                    // TODO disable buttons by default and enable when question is loaded
                     return mAnswerFragment;
                 case 3:
                     //System.out.println("3");
