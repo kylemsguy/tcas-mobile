@@ -11,13 +11,4 @@
         android:layout_weight="5"
         android:text="@string/debug_asked_question_resp" />
 
-    <ImageButton
-        android:id="@+id/delete_item"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:src="@drawable/btn_close"
-        android:layout_weight="1"
-        android:visibility="gone"
-        android:autoLink="all" />
-
 </LinearLayout>

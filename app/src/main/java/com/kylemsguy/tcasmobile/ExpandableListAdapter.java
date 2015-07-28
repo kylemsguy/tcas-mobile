@@ -46,6 +46,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         if (convertView == null) {
             LayoutInflater infalInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = infalInflater.inflate(R.layout.list_item, null);
+            convertView.setLongClickable(true);
+            convertView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    // TODO ask user if want to reply or delete answer
+                    return false;
+                }
+            });
         }
         TextView listItemName = (TextView) convertView.findViewById(R.id.list_item_name);
 
@@ -81,6 +89,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
             LayoutInflater infalInflater = (LayoutInflater) mContext.getSystemService(
                     Context.LAYOUT_INFLATER_SERVICE);
             convertView = infalInflater.inflate(R.layout.list_group, null);
+            convertView.setLongClickable(true);
+            convertView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    // TODO ask user if really want to delete question
+                    return false;
+                }
+            });
         }
 
         TextView listHeaderName = (TextView) convertView.findViewById(R.id.list_header_name);
