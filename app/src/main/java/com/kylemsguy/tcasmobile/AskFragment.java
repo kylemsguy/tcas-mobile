@@ -16,9 +16,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 
+import com.kylemsguy.tcasmobile.backend.Answer;
 import com.kylemsguy.tcasmobile.backend.Question;
 import com.kylemsguy.tcasmobile.backend.QuestionManager;
 
@@ -70,6 +72,34 @@ public class AskFragment extends Fragment {
         // set list adapter
         mExpListView.setAdapter(mListAdapter);
 
+        // set up long click callbacks
+        mExpListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                long packedPosition = mExpListView.getExpandableListPosition(position);
+
+                int itemType = ExpandableListView.getPackedPositionType(packedPosition);
+                int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+                int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+
+
+                /*  if group item clicked */
+                if (itemType == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
+                    //  ...
+                    onGroupLongClick(groupPosition);
+                }
+
+                /*  if child item clicked */
+                else if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                    //  ...
+                    onChildLongClick(groupPosition, childPosition);
+                }
+
+
+                return false;
+            }
+        });
+
         // Set up the container for the ListView to allow pull-to-refresh
         swipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.questionListContainer);
         // Setup refresh listener which triggers new data loading
@@ -84,6 +114,25 @@ public class AskFragment extends Fragment {
 
         return rootView;
     }
+
+    /**
+     * Methods for long-click on list items
+     */
+
+    public void onGroupLongClick(int position) {
+        Question question = mListAdapter.getGroupItem(position);
+
+        // TODO ask if really want to delete item
+        showNotifDialog(question.toString());
+    }
+
+    public void onChildLongClick(int groupPosition, int childPosition) {
+        Answer answer = mListAdapter.getChildItem(groupPosition, childPosition);
+
+        // TODO ask if want to reply or delete
+        showNotifDialog(answer.toString());
+    }
+
 
     // BEGIN AskActivity
     public void askQuestion(View view) {
