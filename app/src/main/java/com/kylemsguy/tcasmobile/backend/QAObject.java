@@ -31,11 +31,11 @@ public abstract class QAObject {
 
     public static List<Question> parseData(String data)
             throws NoSuchQuestionException {
-        List<Question> questions = new ArrayList<Question>();
+        List<Question> questions = new ArrayList<>();
 
         // regex objects
         Pattern qPattern = Pattern
-                .compile("lsQ\\^i(\\d+)\\^b[01]\\^i1\\^s(.*?)\\^\\^");
+                .compile("lsQ\\^i(\\d+)\\^b([01])\\^i1\\^s(.*?)\\^\\^");
         Pattern aPattern = Pattern
                 .compile("lsA\\^i(\\d+)\\^i(\\d+)\\^b([01])\\^s(.*?)\\^\\^");
 
@@ -45,8 +45,9 @@ public abstract class QAObject {
         while (qMatcher.find()) {
             // get data from regex
             int id = Integer.parseInt(qMatcher.group(1));
-            String strQ = qMatcher.group(2).replaceAll("\\$n", "\n");
-            Question q = new Question(id, strQ);
+            boolean active = Integer.parseInt(qMatcher.group(2)) != 0;
+            String strQ = qMatcher.group(3).replaceAll("\\$n", "\n");
+            Question q = new Question(id, strQ, active);
 
             // insert into map
             questions.add(q);
@@ -59,11 +60,7 @@ public abstract class QAObject {
             int intRead = Integer.parseInt(aMatcher.group(3));
             boolean read;
             // check if read
-            if (intRead == 0) {
-                read = false;
-            } else {
-                read = true;
-            }
+            read = intRead != 0;
             String ans = aMatcher.group(4).replaceAll("\\$n", "\n");
 
             // get relevant Question object
@@ -92,11 +89,11 @@ public abstract class QAObject {
     }
 
     public static Map<String, List<String>> questionToListData(List<Question> questions) {
-        Map<String, List<String>> listData = new TreeMap<String, List<String>>();
+        Map<String, List<String>> listData = new TreeMap<>();
 
         for (Question q : questions) {
             String questionTitle = q.getContent();
-            List<String> answerTitles = new ArrayList<String>();
+            List<String> answerTitles = new ArrayList<>();
 
             for (Answer a : q.getAnswers()) {
                 answerTitles.add(a.getContent());

@@ -10,10 +10,12 @@ import java.util.TreeMap;
 
 public class Question extends QAObject {
     private List<Answer> answers;
+    private boolean active;
 
-    public Question(int id, String content) {
+    public Question(int id, String content, boolean active) {
         super(id, content);
         answers = new ArrayList<>();
+        this.active = active;
     }
 
     public List<Integer> getAnswerIDs() {
@@ -48,7 +50,7 @@ public class Question extends QAObject {
     }
 
     public Question getReversed(){
-        Question q = new Question(getId(), getContent());
+        Question q = new Question(getId(), getContent(), active);
         q.answers = getAnswersReverse();
         return q;
     }
@@ -77,6 +79,7 @@ public class Question extends QAObject {
     }
 
     public String toString() {
-        return "Question <" + getId() + "> " + getContent();
+        String active_s = active ? "Y" : "N";
+        return "Question (" + active_s + ") <" + getId() + "> " + getContent();
     }
 }

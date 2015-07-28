@@ -21,7 +21,8 @@ public class Answer extends QAObject {
     }
 
     public String toString() {
-        return "Answer <" + getId() + "> " + getContent();
+        String read_s = read ? "R" : "U";
+        return "Answer (" + read_s + ") <" + getId() + "> " + getContent();
     }
 
 }
