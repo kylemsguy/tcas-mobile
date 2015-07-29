@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -93,11 +94,13 @@ public class AskFragment extends Fragment {
                 /*  if group item clicked */
                 if (itemType == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
                     onGroupLongClick(groupPosition);
+                    return true;
                 }
 
                 /*  if child item clicked */
                 else if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
                     onChildLongClick(groupPosition, childPosition);
+                    return true;
                 }
 
                 return false;
@@ -127,14 +130,50 @@ public class AskFragment extends Fragment {
         Question question = mListAdapter.getGroupItem(position);
 
         // TODO ask if really want to delete item
-        showNotifDialog(question.toString());
+        //showNotifDialog(question.toString());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setItems(R.array.question_action_array, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // The 'which' argument contains the index position
+                // of the selected item
+                switch (which) {
+                    case 0:
+                        // reactivate question
+                        break;
+                    case 1:
+                        // delete question
+                        break;
+                }
+            }
+        });
+        // TODO disable some of the items when not applicable
+        builder.show();
     }
 
     public void onChildLongClick(int groupPosition, int childPosition) {
         Answer answer = mListAdapter.getChildItem(groupPosition, childPosition);
+        new MarkAnswerReadTask().execute(qm, answer);
 
         // TODO ask if want to reply or delete
-        showNotifDialog(answer.toString());
+        //showNotifDialog(answer.toString());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setItems(R.array.answer_action_array, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // The 'which' argument contains the index position
+                // of the selected item
+                switch (which) {
+                    case 0:
+                        // reactivate question
+                        break;
+                    case 1:
+                        // delete question
+                        break;
+                }
+            }
+        });
+        // TODO disable some of the items when not applicable
+        builder.show();
     }
 
 

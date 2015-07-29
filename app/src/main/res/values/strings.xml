@@ -35,5 +35,16 @@
     <string name="answer_send_failed">Failed to send message. Your message may be too short or unoriginal.</string>
     <string name="loading_questions">Loading Questions...</string>
     <string name="sure_quit">Really quit?</string>
+    <string name="select_action">Select Action</string>
+
+    <string-array name="question_action_array">
+        <item>Reactivate Question</item>
+        <item>Delete Question</item>
+    </string-array>
+
+    <string-array name="answer_action_array">
+        <item>Reply to Answer</item>
+        <item>Delete Answer</item>
+    </string-array>
 
 </resources>
