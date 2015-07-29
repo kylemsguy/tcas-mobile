@@ -127,51 +127,59 @@ public class AskFragment extends Fragment {
      */
 
     public void onGroupLongClick(int position) {
-        Question question = mListAdapter.getGroupItem(position);
+        final Question question = mListAdapter.getGroupItem(position);
 
         // TODO ask if really want to delete item
         //showNotifDialog(question.toString());
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setItems(R.array.question_action_array, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                // The 'which' argument contains the index position
-                // of the selected item
-                switch (which) {
-                    case 0:
-                        // reactivate question
-                        break;
-                    case 1:
-                        // delete question
-                        break;
-                }
-            }
-        });
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setItems(R.array.question_action_array, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        switch (which) {
+                            case 0:
+                                // reactivate question
+                                break;
+                            case 1:
+                                // delete question
+                                break;
+                            case 2:
+                                // TODO debug show full text fo Answer
+                                showNotifDialog(question.toString());
+                                break;
+                        }
+                    }
+                });
         // TODO disable some of the items when not applicable
         builder.show();
     }
 
     public void onChildLongClick(int groupPosition, int childPosition) {
-        Answer answer = mListAdapter.getChildItem(groupPosition, childPosition);
+        final Answer answer = mListAdapter.getChildItem(groupPosition, childPosition);
         new MarkAnswerReadTask().execute(qm, answer);
 
         // TODO ask if want to reply or delete
         //showNotifDialog(answer.toString());
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setItems(R.array.answer_action_array, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                // The 'which' argument contains the index position
-                // of the selected item
-                switch (which) {
-                    case 0:
-                        // reactivate question
-                        break;
-                    case 1:
-                        // delete question
-                        break;
-                }
-            }
-        });
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setItems(R.array.answer_action_array, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        switch (which) {
+                            case 0:
+                                // reactivate question
+                                break;
+                            case 1:
+                                // delete question
+                                break;
+                            case 2:
+                                // TODO debug show full text fo Answer
+                                showNotifDialog(answer.toString());
+                                break;
+                        }
+                    }
+                });
         // TODO disable some of the items when not applicable
         builder.show();
     }
