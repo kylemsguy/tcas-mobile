@@ -9,6 +9,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="5"
+        android:autoLink="all"
         android:text="@string/debug_asked_question_resp" />
 
 </LinearLayout>
