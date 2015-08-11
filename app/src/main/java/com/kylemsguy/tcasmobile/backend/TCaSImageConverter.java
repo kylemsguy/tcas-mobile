@@ -18,7 +18,7 @@ public class TCaSImageConverter {
         image.getPixels(argbAry, 0, width, 0, 0, width, height);
     }
 
-    public String convertToTImg() {
+    public String convertToTCaSImg() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < argbAry.length - 1; i++) {
             int[] rgb = ARGB2RGB(argbAry[i], BACKGROUND_COLOUR);
@@ -39,7 +39,6 @@ public class TCaSImageConverter {
         sb.append(lastPixel[1] / 4);
         sb.append("|");
         sb.append(lastPixel[2] / 4);
-        ;
 
         return sb.toString();
     }

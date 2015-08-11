@@ -2,8 +2,11 @@ package com.kylemsguy.tcasmobile.backend;
 
 import android.graphics.Bitmap;
 
+import java.net.URLEncoder;
+
 /**
  * Created by kyle on 10/08/15.
+ * Manages the user's profile
  */
 public class ProfileManager {
     private static String PROFILE_URL = SessionManager.BASE_URL + "profile/";
@@ -14,10 +17,18 @@ public class ProfileManager {
         sm = sessionManager;
     }
 
-    public void updateProfileImage(Bitmap image) throws InvalidFileException {
-        String imgData = new TCaSImageConverter(image).convertToTImg();
+    /**
+     * Update the user's Profile image with the bitmap given
+     *
+     * @param image The user's desired Profile image
+     * @return The response from the server, usually the encoded image again.
+     * @throws Exception
+     */
+    public String updateProfileImage(Bitmap image) throws Exception {
+        String imgData = new TCaSImageConverter(image).convertToTCaSImg();
+        String params = "data=" + URLEncoder.encode(imgData, "UTF-8");
 
-
+        return sm.sendPost(PROFILE_IMG_URL, params);
     }
 
     public Profile getProfile() {
@@ -25,7 +36,7 @@ public class ProfileManager {
         return null;
     }
 
-    public void updateProfile(Profile profile) {
+    public void updateProfile(Profile profile) throws Exception {
         // TODO implement sending profile updates
     }
 
