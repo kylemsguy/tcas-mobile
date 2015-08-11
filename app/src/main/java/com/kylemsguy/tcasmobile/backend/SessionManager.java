@@ -5,6 +5,7 @@ import com.kylemsguy.tcasmobile.apiwrapper.LoginResponse;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
@@ -17,6 +18,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,6 +34,11 @@ public class SessionManager {
     public static final String BASE_URL = "http://twocansandstring.com/";
     public static final boolean BACKEND_DEBUG = false;
     private final String LOGIN = BASE_URL + "login/";
+
+    // Multipart form stuff
+    private static String CRLF = "\r\n";
+    private static String TWO_HYPHENS = "--";
+    private static String BOUNDARY = "*****";
 
     private static final boolean MANUAL_COOKIE = false;
 
@@ -235,6 +242,37 @@ public class SessionManager {
         connection.disconnect();
 
         return responseString;
+    }
+
+    public String sendMultipartPost(String url, Map<String, byte[]> params) throws IOException {
+        URL obj = new URL("http://example.com/server.cgi");
+        connection = (HttpURLConnection) obj.openConnection();
+
+        connection.setUseCaches(false);
+        connection.setDoOutput(true);
+
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Connection", "Keep-Alive");
+        connection.setRequestProperty("Cache-Control", "no-cache");
+        connection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + BOUNDARY);
+
+        DataOutputStream request = new DataOutputStream(connection.getOutputStream());
+
+        for (String paramName : params.keySet()) {
+            request.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
+            // TODO figure out how to get filename into this method
+            request.writeBytes("Content-Disposition: form-data; name=\"" + paramName + "\";filename=\"" + "TODO: Change Filename" + "\"" + CRLF);
+            request.writeBytes(CRLF);
+            request.write(params.get(paramName));
+            request.writeBytes(CRLF);
+            request.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
+        }
+
+        request.flush();
+        request.close();
+
+        // TODO get response
+        return null;
     }
 
     /**
