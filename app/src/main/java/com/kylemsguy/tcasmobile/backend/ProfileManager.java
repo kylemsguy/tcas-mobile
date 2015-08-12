@@ -41,6 +41,7 @@ public class ProfileManager {
     }
 
     public static class Profile {
+        private Bitmap profileImage;
         private String blurb;
         private String aim;
         private String msn;
@@ -49,7 +50,8 @@ public class ProfileManager {
         private String twitter;
         private String website;
 
-        private Profile(String blurb, String aim, String msn, String ymsg, String gtalk, String twitter, String website) {
+        private Profile(Bitmap profileImage, String blurb, String aim, String msn, String ymsg, String gtalk, String twitter, String website) {
+            this.profileImage = profileImage;
             this.blurb = blurb;
             this.aim = aim;
             this.msn = msn;
@@ -116,6 +118,7 @@ public class ProfileManager {
         }
 
         public static class Builder {
+            private String profileImageText;
             private String blurb;
             private String aim;
             private String msn;
@@ -126,6 +129,11 @@ public class ProfileManager {
 
             public Builder() {
 
+            }
+
+            public Builder setProfileImage(String profileImageText) {
+                this.profileImageText = profileImageText;
+                return this;
             }
 
             public Builder setBlurb(String blurb) {
@@ -164,7 +172,8 @@ public class ProfileManager {
             }
 
             public Profile build() {
-                return new Profile(blurb, aim, msn, ymsg, gtalk, twitter, website);
+                Bitmap profileImage = TCaSImageConverter.textToBitmap(profileImageText);
+                return new Profile(profileImage, blurb, aim, msn, ymsg, gtalk, twitter, website);
             }
 
         }
