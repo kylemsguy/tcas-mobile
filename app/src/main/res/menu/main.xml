@@ -9,6 +9,7 @@
         android:title="@string/action_logout"
         app:showAsAction="ifRoom" />
 
+    <!-- Set visible to true when complete, and swap ^'s ShowAsAction with v's -->
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

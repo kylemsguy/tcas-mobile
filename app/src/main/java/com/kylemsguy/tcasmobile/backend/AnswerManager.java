@@ -82,12 +82,9 @@ public class AnswerManager {
 
 		postParams = "text" + "=" + URLEncoder.encode(answer, "UTF-8");
 
-		String nextQuestion = session.sendPost(ANSWER_URL + id + "/",
-				postParams.toString());
+		String nextQuestion = session.sendPost(ANSWER_URL + id + "/", postParams);
 
-		Map<String, String> nextQuestionMap = extractQuestionData(nextQuestion);
-
-		return nextQuestionMap;
+		return extractQuestionData(nextQuestion);
 	}
 
 	/**

@@ -3,8 +3,11 @@ package com.kylemsguy.tcasmobile.backend;
 import com.kylemsguy.tcasmobile.apiwrapper.LoginRequest;
 import com.kylemsguy.tcasmobile.apiwrapper.LoginResponse;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
@@ -17,10 +20,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.http.cookie.Cookie;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,10 +29,15 @@ import org.jsoup.select.Elements;
 
 public class SessionManager {
     // let's define some constants
-    private final String USER_AGENT = "Mozilla/5.0";
+    private final String USER_AGENT = "Mozilla/5.0 (compatible; TCaSMobile/1.x)";
     public static final String BASE_URL = "http://twocansandstring.com/";
     public static final boolean BACKEND_DEBUG = false;
     private final String LOGIN = BASE_URL + "login/";
+
+    // Multipart form stuff
+    private static final String CRLF = "\r\n";
+    private static final String TWO_HYPHENS = "--";
+    private static final String BOUNDARY = "*****";
 
     private static final boolean MANUAL_COOKIE = false;
 
@@ -57,7 +63,6 @@ public class SessionManager {
         if (BACKEND_DEBUG)
             System.out.println("chkLoggedIn: Checking if logged in.");
         try {
-            //Thread.sleep(1000);
             String page = getPageContent(AnswerManager.QUESTION_URL);
             if (BACKEND_DEBUG) {
                 System.out.println("chkLoggedIn: " + cookieManager.getCookieStore().get(new URI(AnswerManager.QUESTION_URL)));
@@ -237,6 +242,66 @@ public class SessionManager {
         return responseString;
     }
 
+    public String sendMultipartPost(String url, List<MultipartRequestParam> params) throws IOException {
+        URL obj = new URL("http://example.com/server.cgi");
+        connection = (HttpURLConnection) obj.openConnection();
+
+        connection.setUseCaches(false);
+        connection.setDoOutput(true);
+
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Connection", "Keep-Alive");
+        connection.setRequestProperty("Cache-Control", "no-cache");
+        connection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + BOUNDARY);
+
+        DataOutputStream request = new DataOutputStream(connection.getOutputStream());
+
+        for (MultipartRequestParam param : params) {
+            String paramName = param.getParamName();
+            String fileName = param.getFileName();
+            byte[] data = param.getData();
+
+            // build parameter from MultipartRequestParam
+            StringBuilder sb = new StringBuilder();
+            sb.append("Content-Disposition: form-data; name=\"");
+            sb.append(paramName);
+            if (fileName != null) {
+                sb.append("\";filename=\"");
+                sb.append(fileName);
+            }
+            sb.append("\"");
+            sb.append(CRLF);
+
+            request.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
+            request.writeBytes(sb.toString());
+            request.writeBytes(CRLF);
+            request.write(data);
+            request.writeBytes(CRLF);
+            request.writeBytes(TWO_HYPHENS + BOUNDARY + CRLF);
+        }
+
+        request.flush();
+        request.close();
+
+        // get the response
+        InputStream responseStream = new BufferedInputStream(connection.getInputStream());
+
+        BufferedReader responseStreamReader = new BufferedReader(new InputStreamReader(responseStream));
+        String line = "";
+        StringBuilder stringBuilder = new StringBuilder();
+        while ((line = responseStreamReader.readLine()) != null) {
+            stringBuilder.append(line).append("\n");
+        }
+        responseStreamReader.close();
+
+        String response = stringBuilder.toString();
+
+        // cleanup
+        responseStream.close();
+        connection.disconnect();
+        return response;
+    }
+
     /**
      * Gets the content of a page.
      *
@@ -372,6 +437,74 @@ public class SessionManager {
 
     public HttpURLConnection getConnection() {
         return connection;
+    }
+
+    public static class MultipartRequestParam {
+        private String paramName;
+        private String fileName;
+        private byte[] data;
+
+        private MultipartRequestParam(String paramName, String fileName, byte[] data) {
+            this.paramName = paramName;
+            this.fileName = fileName;
+            this.data = data;
+        }
+
+        public String getParamName() {
+            return paramName;
+        }
+
+        public void setParamName(String paramName) {
+            this.paramName = paramName;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public byte[] getData() {
+            return data;
+        }
+
+        public void setData(byte[] data) {
+            this.data = data;
+        }
+
+        public static class Builder {
+            private String paramName;
+            private String fileName;
+            private byte[] data;
+
+            public Builder() {
+
+            }
+
+            public Builder setParamName(String paramName) {
+                this.paramName = paramName;
+                return this;
+            }
+
+            public Builder setFileName(String fileName) {
+                this.fileName = fileName;
+                return this;
+            }
+
+            public Builder setData(byte[] data) {
+                this.data = data;
+                return this;
+            }
+
+            public MultipartRequestParam build() throws IllegalStateException {
+                if (paramName == null || data == null)
+                    throw new IllegalStateException("Parameters not set correctly");
+
+                return new MultipartRequestParam(paramName, fileName, data);
+            }
+        }
     }
 
 }
