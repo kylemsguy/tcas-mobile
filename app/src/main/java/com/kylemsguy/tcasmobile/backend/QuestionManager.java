@@ -27,7 +27,7 @@ public class QuestionManager {
         String rawData = session.getPageContent(QUESTION_URL);
         if (SessionManager.BACKEND_DEBUG)
             System.out.println(rawData);
-        questionAns = TCaSObject.parseData(rawData);
+        questionAns = TCaSObject.parseQuestionData(rawData);
 
         return questionAns;
     }

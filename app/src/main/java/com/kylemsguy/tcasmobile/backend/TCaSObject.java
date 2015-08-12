@@ -29,7 +29,14 @@ public abstract class TCaSObject {
         return "TCaSObject <" + id + "> " + content;
     }
 
-    public static List<Question> parseData(String data)
+    /**
+     * Used to parse raw data from the Ask API call.
+     *
+     * @param data Input from the Ask API call
+     * @return A list of Questions with Answers.
+     * @throws NoSuchQuestionException
+     */
+    public static List<Question> parseQuestionData(String data)
             throws NoSuchQuestionException {
         List<Question> questions = new ArrayList<>();
 
