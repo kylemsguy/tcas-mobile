@@ -7,6 +7,12 @@ public class TCaSImageConverter {
 
     private int[] argbAry;
 
+    /**
+     * Loads the image into a new TCaSImageConverter object
+     *
+     * @param image The desired 32x32 image as a Bitmap
+     * @throws InvalidFileException
+     */
     public TCaSImageConverter(Bitmap image) throws InvalidFileException {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -18,10 +24,26 @@ public class TCaSImageConverter {
         image.getPixels(argbAry, 0, width, 0, 0, width, height);
     }
 
+    /**
+     * Does the conversion and returns the data as a String.
+     *
+     * @return converted image data
+     */
     public String convertToTCaSImg() {
+        return convertToTCaSImg(BACKGROUND_COLOUR);
+    }
+
+    /**
+     * Does the conversion with bgcolour as the background colour,
+     * and returns the data as a String.
+     *
+     * @param bgcolour the background colour for images with transparency
+     * @return converted image data
+     */
+    public String convertToTCaSImg(int[] bgcolour) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < argbAry.length - 1; i++) {
-            int[] rgb = ARGB2RGB(argbAry[i], BACKGROUND_COLOUR);
+            int[] rgb = ARGB2RGB(argbAry[i], bgcolour);
 
             sb.append(rgb[0] / 4);
             sb.append("|");
@@ -32,7 +54,7 @@ public class TCaSImageConverter {
 
         }
 
-        int[] lastPixel = ARGB2RGB(argbAry[argbAry.length - 1], BACKGROUND_COLOUR);
+        int[] lastPixel = ARGB2RGB(argbAry[argbAry.length - 1], bgcolour);
 
         sb.append(lastPixel[0] / 4);
         sb.append("|");
