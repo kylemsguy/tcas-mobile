@@ -1,6 +1,6 @@
 package com.kylemsguy.tcasmobile.backend;
 
-public class Answer extends QAObject {
+public class Answer extends TCaSObject {
 
     private Question parent;
     private boolean read;
@@ -22,6 +22,10 @@ public class Answer extends QAObject {
             read = true;
             return true;
         }
+    }
+
+    public Question getQuestion() {
+        return parent;
     }
 
     public String toString() {

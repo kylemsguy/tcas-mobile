@@ -1,9 +1,7 @@
 package com.kylemsguy.tcasmobile.backend;
 
 import java.net.URLEncoder;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class QuestionManager {
     private final String ASK_URL = SessionManager.BASE_URL + "apiw/qa/ask/";
@@ -29,7 +27,7 @@ public class QuestionManager {
         String rawData = session.getPageContent(QUESTION_URL);
         if (SessionManager.BACKEND_DEBUG)
             System.out.println(rawData);
-        questionAns = QAObject.parseData(rawData);
+        questionAns = TCaSObject.parseData(rawData);
 
         return questionAns;
     }

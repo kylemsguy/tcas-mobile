@@ -256,7 +256,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("example_text"));
             bindPreferenceSummaryToValue(findPreference("example_list"));
 
-            Preference button = (Preference) findPreference(getString(R.string.pref_profile_image_key));
+            Preference button = findPreference(getString(R.string.pref_profile_image_key));
             button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {

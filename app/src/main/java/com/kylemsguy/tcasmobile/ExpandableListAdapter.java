@@ -2,7 +2,6 @@ package com.kylemsguy.tcasmobile;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,10 +9,8 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
 import com.kylemsguy.tcasmobile.backend.Answer;
-import com.kylemsguy.tcasmobile.backend.QAObject;
 import com.kylemsguy.tcasmobile.backend.Question;
 
-import java.util.Collections;
 import java.util.List;
 
 
