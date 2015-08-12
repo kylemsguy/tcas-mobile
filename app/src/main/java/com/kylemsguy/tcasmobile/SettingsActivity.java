@@ -2,6 +2,7 @@ package com.kylemsguy.tcasmobile;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -254,6 +255,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("example_text"));
             bindPreferenceSummaryToValue(findPreference("example_list"));
+
+            Preference button = (Preference) findPreference(getString(R.string.pref_profile_image_key));
+            button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    // TODO uncomment below when the activity is created
+                    //Intent intent = new Intent(getActivity(), ChangeProfileImageActivity.class);
+                    //startActivity(intent);
+                    return true;
+                }
+            });
         }
     }
 

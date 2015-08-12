@@ -13,6 +13,8 @@ public class ProfileManager {
     private static String PROFILE_IMG_URL = PROFILE_URL + "draw/update/";
     private SessionManager sm;
 
+    private Profile profile;
+
     public ProfileManager(SessionManager sessionManager) {
         sm = sessionManager;
     }
@@ -24,7 +26,7 @@ public class ProfileManager {
      * @return The response from the server, usually the encoded image again.
      * @throws Exception
      */
-    public String updateProfileImage(Bitmap image) throws Exception {
+    public String submitProfileImage(Bitmap image) throws Exception {
         String imgData = new TCaSImageConverter(image).convertToTCaSImg();
         String params = "data=" + URLEncoder.encode(imgData, "UTF-8");
 
@@ -32,11 +34,20 @@ public class ProfileManager {
     }
 
     public Profile getProfile() {
-        // TODO get profile and build Profile object
-        return null;
+        if (profile == null) {
+            // TODO get profile and build Profile object
+        }
+        return profile;
     }
 
-    public void updateProfile(Profile profile) throws Exception {
+    /**
+     * Updates entire profile given a Profile object.
+     * Please use other methods that only send a change in a single Profile element
+     *
+     * @param profile
+     * @throws Exception
+     */
+    private void submitProfileUpdate(Profile profile) throws Exception {
         // TODO implement sending profile updates
     }
 
