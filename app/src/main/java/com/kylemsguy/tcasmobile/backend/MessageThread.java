@@ -1,5 +1,7 @@
 package com.kylemsguy.tcasmobile.backend;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,7 +10,7 @@ import java.util.List;
  * Created by kyle on 12/08/15.
  *
  */
-public class MessageThread extends TCaSObject {
+public class MessageThread extends TCaSObject implements Comparable<MessageThread> {
     private String title;
     private Message lastMessage;
     private List<String> users;
@@ -59,6 +61,10 @@ public class MessageThread extends TCaSObject {
         return Collections.unmodifiableList(users);
     }
 
+    public Message getLastMessage() {
+        return lastMessage;
+    }
+
     @Deprecated
     public void addMessage(String sentBy, String message, double daysOffset) throws UserNotInConversationException {
         long unix = OhareanCalendar.daysOffsetToUnix(daysOffset);
@@ -86,6 +92,16 @@ public class MessageThread extends TCaSObject {
     @Override
     public String getContent() {
         throw new UnsupportedOperationException("Unsupported operation on a MessageThread.");
+    }
+
+    @Override
+    public int compareTo(@NonNull MessageThread o) {
+        if (lastMessage.getTimeReceived() < o.getLastMessage().getTimeReceived())
+            return -1;
+        else if (lastMessage.getTimeReceived() == o.getLastMessage().getTimeReceived())
+            return 0;
+        else
+            return 1;
     }
 
     public static class UserNotInConversationException extends Exception {
