@@ -64,6 +64,7 @@ public class MessageManager {
                 String lastMessage;
                 double timeReceivedOffset;
 
+                // Find the title, and id from the second column of list
                 Element titleElement = e.child(1).child(0).child(0);
                 if (!titleElement.tagName().equals("a"))
                     continue; // wrong tag
@@ -71,23 +72,22 @@ public class MessageManager {
                 id = Integer.parseInt(splitMessageUrl[splitMessageUrl.length - 1]);
                 title = titleElement.text();
 
+                // Find the summary of the last message received from the second column of list
                 Element messageElement = e.child(1).child(1);
                 if (!(messageElement.tagName().equals("div") && messageElement.attr("style").equals("font-size:11px; color:#888;")))
                     continue; // what the heck?
                 lastMessage = messageElement.text();
 
+                // find the time message was sent
                 Element offsetElement = e.child(3);
                 Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?) days? ago");
                 Matcher matcher = pattern.matcher(offsetElement.text());
-
                 if (!matcher.find())
                     continue; // something is wrong... can't find something that should be there...
-
                 timeReceivedOffset = Double.parseDouble(matcher.group(1));
 
                 // Finally get users involved
                 Elements usersElements = e.child(4).children();
-
                 for (Element userElement : usersElements) {
                     if (userElement.tagName().equals("a") && userElement.attr("href").startsWith("/users/")) {
                         users.add(userElement.text());
