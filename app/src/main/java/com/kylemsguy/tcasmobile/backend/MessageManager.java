@@ -28,6 +28,22 @@ public class MessageManager {
     }
 
     /**
+     * Returns a list of all the folders in Messages
+     *
+     * @return a list of folder names
+     */
+    public List<String> getFolders() throws Exception {
+        // TODO implement
+        List<String> folders = new ArrayList<>();
+
+        String html = sm.getPageContent(MESSAGES_URL);
+
+        Document dom = Jsoup.parse(html);
+
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    /**
      * Gets the threads on a specified page. Returns null if the folder is empty.
      * Temporary until a proper API is available
      *
