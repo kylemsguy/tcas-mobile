@@ -45,7 +45,7 @@ public class MessageManager {
 
         String html = sm.getPageContent(urlPage);
 
-        if (html.matches("<!DOCTYPE html>.*This folder is currently empty\\..*"))
+        if (html.matches("<!DOCTYPE html.*This folder is currently empty\\..*"))
             return null; // folder is empty
 
         List<MessageThread> threads = new ArrayList<>();
