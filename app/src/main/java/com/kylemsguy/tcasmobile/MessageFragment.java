@@ -74,7 +74,15 @@ public class MessageFragment extends Fragment {
 
 
     public void requestPage(View v) {
-        int pageNumber = Integer.parseInt(this.pageNumber.getText().toString());
+        String strPageNumber = this.pageNumber.getText().toString();
+        if (strPageNumber.isEmpty()) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Error")
+                    .setMessage("Please specify a PageNumber")
+                    .show();
+            return;
+        }
+        int pageNumber = Integer.parseInt(strPageNumber);
         String folderName = this.folderName.getText().toString();
 
         new AsyncTask<Object, Void, List<MessageThread>>() {

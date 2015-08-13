@@ -84,10 +84,9 @@ public class OhareanCalendar {
         return (long) (currentTime - offset * secsInDay);
     }
 
-    public static long unixToDaysOffset(long unix) {
+    public static double unixToDaysOffset(long unix) {
         long currentTime = System.currentTimeMillis() / 1000;
-        double daysInSec = 1 / DAY_LENGTH_SEC;
-        return (long) ((currentTime - unix) * daysInSec);
+        return (currentTime - unix) / DAY_LENGTH_SEC;
     }
 
 }

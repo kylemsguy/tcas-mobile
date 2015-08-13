@@ -51,6 +51,7 @@ public class MessageThread extends TCaSObject implements Comparable<MessageThrea
         }
 
         this.lastMessage = lastMessage;
+        this.timeReceived = timeReceived;
     }
 
     public String getTitle() {

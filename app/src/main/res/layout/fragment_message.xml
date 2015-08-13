@@ -8,7 +8,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Messages Debug Page" />
+        android:text="Messages Debug Page"
+        android:textSize="35sp" />
 
     <EditText
         android:id="@+id/page_number"
@@ -25,7 +26,8 @@
 
     <Button
         android:id="@+id/test_button"
-        android:layout_width="wrap_content"
+        android:hint="Query"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="requestPage" />
 
