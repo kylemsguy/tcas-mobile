@@ -1,12 +1,11 @@
 package com.kylemsguy.tcasmobile.backend;
 
-import android.support.annotation.NonNull;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,64 +21,38 @@ public class MessageManager {
 
     private SessionManager sm;
 
-    private List<MessageThread> threads;
-
     public MessageManager(SessionManager sm) {
         this.sm = sm;
-        threads = new ArrayList<>();
     }
 
     /**
-     * Returns a shallow copy of the thread list
+     * Gets the thread on page.
+     * Temporary until a proper API is available
      *
-     * @return threads list
+     * @param page Message page
+     * @return List of messages
      */
-    public List<MessageThread> getThreadList() {
-        return threads;
+    public List<MessageThread> getThreadPage(int page) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
-    /**
-     * Returns an immutable list containing all the message threads.
-     *
-     * @return Immutable list of message threads
-     */
-    public List<MessageThread> getThreads() {
-        return Collections.unmodifiableList(threads);
-    }
 
     /**
      * Creates a new message thread
      *
-     * @param title        Title of the thread
-     * @param users        recipients, excluding the current user
+     * @param recipients recipients, excluding the current user
+     * @param title Title of the thread
      * @param firstMessage First message sent to all recipients
+     * @throws Exception
      */
-    public void newThread(String title, List<String> users, String firstMessage) throws Exception {
-        int id = 0;
-        id = submitNewThread(users, title, firstMessage);
-
-        // TODO Only temporarily keeping try-catch block. Delete when we are done.
-        /* if(e instanceof NoSuchUserException){
-            throw new NoSuchUserException(e);
-        } else {
-            throw e;
-        }*/
-
-        Message message = new Message(id, USER_NAME, firstMessage, 0.0);
-
-        MessageThread thread = new MessageThread(id, title, users, message);
-
-        threads.add(thread);
-    }
-
-    private int submitNewThread(List<String> recipients, String title, String firstMessage) throws Exception {
+    public void newThread(List<String> recipients, String title, String firstMessage) throws Exception {
         // TODO replace Exceptions with proper exceptions
         if (title == null || !title.matches(".*[a-zA-Z0-9].*"))
-            throw new Exception("The ");
+            throw new InvalidParameterException("The subject must have at least 1 alphanumeric character");
         else if (firstMessage == null || firstMessage.isEmpty())
-            throw new Exception("You may not send a blank message.");
+            throw new InvalidParameterException("You may not send a blank message.");
         else if (recipients == null || recipients.size() == 0)
-            throw new Exception("You must have at least one recipient.");
+            throw new InvalidParameterException("You must have at least one recipient.");
 
         SessionManager.GetRequestBuilder rb = new SessionManager.GetRequestBuilder();
         StringBuilder sb = new StringBuilder();
@@ -101,19 +74,7 @@ public class MessageManager {
         // TODO replace by getting an id!!! THIS IS TEMPORARY ONLY!!!
         // the following is temporary. When a proper API is released rewrite this.
         if (dom.getElementsByTag("title").text().equals("Two Cans and String : Messages in Inbox")) {
-            // success. get ID.
-            // TODO THIS IS TEMPORARY!!!!!!!!!!
-            Elements elements = dom.getElementsByAttribute("href");
-            for (Element e : elements) {
-                if (e.text().equals(title)) {
-                    String url = e.attr("href");
-                    String[] splitUrl = url.split("/");
-                    String id = splitUrl[splitUrl.length - 1];
-                    return Integer.parseInt(id);
-                }
-            }
-
-            throw new Exception("An unknown error occurred.");
+            return; // success
         }
 
         Elements elements = dom.getElementsByAttributeValue("style", "color:#f00;");
@@ -124,15 +85,6 @@ public class MessageManager {
 
         throw new Exception("An error occurred while submitting your message.");
 
-    }
-
-    /**
-     * Adds a thread to the list of threads
-     *
-     * @param thread the thread to be added
-     */
-    private void addThread(MessageThread thread) {
-        threads.add(thread);
     }
 
     public static class NoSuchUserException extends Exception {
