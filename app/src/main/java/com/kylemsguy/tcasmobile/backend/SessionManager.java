@@ -20,6 +20,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
@@ -437,6 +438,40 @@ public class SessionManager {
 
     public HttpURLConnection getConnection() {
         return connection;
+    }
+
+    public static class GetRequestBuilder {
+        private Map<String, String> params;
+
+        public GetRequestBuilder() {
+
+        }
+
+        public void addParam(String name, String content) {
+            params.put(name, content);
+        }
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (String key : params.keySet()) {
+                sb.append(key);
+                sb.append("=");
+                try {
+                    sb.append(URLEncoder.encode(params.get(key), "UTF-8"));
+                } catch (UnsupportedEncodingException ex) {
+                    // WHY IS UNICODE NOT SUPPORTED?! WHAT HAPPENED?!
+                    return null;
+                }
+                sb.append("&");
+            }
+
+            if (sb.length() > 0)
+                sb.setLength(sb.length() - 1);
+
+            return sb.toString();
+
+        }
+
     }
 
     public static class MultipartRequestParam {
