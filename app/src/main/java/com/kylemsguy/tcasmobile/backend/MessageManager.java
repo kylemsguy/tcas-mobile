@@ -28,7 +28,7 @@ public class MessageManager {
     }
 
     /**
-     * Gets the threads on a specified page.
+     * Gets the threads on a specified page. Returns null if the folder is empty.
      * Temporary until a proper API is available
      *
      * @param page   Message page

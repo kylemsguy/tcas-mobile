@@ -110,16 +110,20 @@ public class MessageFragment extends Fragment {
     }
 
     public void postRequestPage(List<MessageThread> reply) {
-        StringBuilder sb = new StringBuilder();
+        if (reply == null) {
+            debugView.setText("This folder is currently empty.");
+        } else {
+            StringBuilder sb = new StringBuilder();
 
-        for (MessageThread item : reply) {
-            sb.append(item.toString());
-            sb.append("\n\n");
+            for (MessageThread item : reply) {
+                sb.append(item.toString());
+                sb.append("\n\n");
+            }
+
+            sb.setLength(sb.length() - 1);
+
+            debugView.setText(sb.toString());
         }
-
-        sb.setLength(sb.length() - 1);
-
-        debugView.setText(sb.toString());
     }
 
 }
