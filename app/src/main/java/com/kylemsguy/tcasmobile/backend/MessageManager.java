@@ -1,5 +1,7 @@
 package com.kylemsguy.tcasmobile.backend;
 
+import android.support.annotation.NonNull;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -71,6 +73,14 @@ public class MessageManager {
     }
 
     private int submitNewThread(List<String> recipients, String title, String firstMessage) throws Exception {
+        // TODO replace Exceptions with proper exceptions
+        if (title == null || !title.matches(".*[a-zA-Z0-9].*"))
+            throw new Exception("The ");
+        else if (firstMessage == null || firstMessage.isEmpty())
+            throw new Exception("You may not send a blank message.");
+        else if (recipients == null || recipients.size() == 0)
+            throw new Exception("You must have at least one recipient.");
+
         SessionManager.GetRequestBuilder rb = new SessionManager.GetRequestBuilder();
         StringBuilder sb = new StringBuilder();
 
@@ -103,7 +113,7 @@ public class MessageManager {
                 }
             }
 
-            return 0;
+            throw new Exception("An unknown error occurred.");
         }
 
         Elements elements = dom.getElementsByAttributeValue("style", "color:#f00;");
@@ -112,7 +122,7 @@ public class MessageManager {
                 throw new NoSuchUserException(e.text());
         }
 
-        throw new Exception("An unknown error occurred.");
+        throw new Exception("An error occurred while submitting your message.");
 
     }
 
