@@ -1,16 +1,13 @@
 package com.kylemsguy.tcasmobile;
 
-import android.app.Activity;
-import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -18,27 +15,22 @@ import android.widget.TextView;
 import com.kylemsguy.tcasmobile.backend.MessageManager;
 import com.kylemsguy.tcasmobile.backend.MessageThread;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MessageFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MessageFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MessageFragment extends Fragment {
     private MessageManager mm;
+    private List<MessageThread> currentPageThreads;
+    private int pageNum = 1;
+    private String folderName;
 
+    private MessageListAdapter messageListAdapter;
     private ListView messageListView;
+    private TextView emptyFolderTextView;
 
-    // temporary only
-    private EditText pageNumber;
-    private EditText folderName;
-
-    private TextView debugView;
+    private EditText pageNumberView;
+    private EditText folderNameView;
 
     /**
      * Use this factory method to create a new instance of
@@ -67,71 +59,114 @@ public class MessageFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_message, container, false);
         mm = ((TCaSApp) getActivity().getApplicationContext()).getMessageManager();
 
-        pageNumber = (EditText) v.findViewById(R.id.page_number);
-        folderName = (EditText) v.findViewById(R.id.folder_name);
-        debugView = (TextView) v.findViewById(R.id.debug_output);
+        pageNumberView = (EditText) v.findViewById(R.id.page_number_field);
+        folderNameView = (EditText) v.findViewById(R.id.folder_name_field);
 
+        emptyFolderTextView = (TextView) v.findViewById(R.id.empty_folder_text);
+
+        // Set up ListView of messages
+        currentPageThreads = new ArrayList<>();
         messageListView = (ListView) v.findViewById(R.id.message_list);
+        messageListAdapter = new MessageListAdapter(getActivity(), currentPageThreads);
+
+        messageListView.setAdapter(messageListAdapter);
+
+        reloadMessageThreads();
 
         return v;
     }
 
+    private void reloadMessageThreads() {
+        new GetThreadsTask().execute();
+    }
+
+    private void refreshThreadsList(List<MessageThread> threads) {
+        // *shakes out list*
+        messageListAdapter.clear();
+        currentPageThreads.clear();
+
+        if (threads == null) {
+            setEmptyFolderTextDisplay(true);
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= 11)
+            currentPageThreads.addAll(threads);
+        else {
+            for (MessageThread thread : threads) {
+                currentPageThreads.add(thread);
+            }
+        }
+
+        messageListAdapter.notifyDataSetChanged();
+
+        if (currentPageThreads.isEmpty()) {
+            setEmptyFolderTextDisplay(true);
+        } else {
+            setEmptyFolderTextDisplay(false);
+        }
+    }
+
+    private void setEmptyFolderTextDisplay(boolean shown) {
+        if (shown) {
+            messageListView.setVisibility(View.GONE);
+            emptyFolderTextView.setVisibility(View.VISIBLE);
+        } else {
+            messageListView.setVisibility(View.VISIBLE);
+            emptyFolderTextView.setVisibility(View.GONE);
+        }
+    }
 
     /**
-     * Temporary Methods
+     * Button actions
      */
 
     public void requestPage(View v) {
-        String strPageNumber = this.pageNumber.getText().toString();
+        String strPageNumber = this.pageNumberView.getText().toString();
         if (strPageNumber.isEmpty()) {
             new AlertDialog.Builder(getActivity())
                     .setTitle("Error")
                     .setMessage("Please specify a PageNumber")
+                    .setPositiveButton("Ok", null)
                     .show();
             return;
         }
-        int pageNumber = Integer.parseInt(strPageNumber);
-        String folderName = this.folderName.getText().toString();
+        pageNum = Integer.parseInt(strPageNumber);
+        folderName = this.folderNameView.getText().toString();
 
-        new AsyncTask<Object, Void, List<MessageThread>>() {
-            @Override
-            protected List<MessageThread> doInBackground(Object... params) {
-                MessageManager mm = (MessageManager) params[0];
-                int pageNum = (int) params[1];
-                String folderName = (String) params[2];
+        reloadMessageThreads();
 
-                List<MessageThread> threads = null;
-
-                try {
-                    threads = mm.getThreads(pageNum, folderName);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return threads;
-            }
-
-            @Override
-            protected void onPostExecute(List<MessageThread> retval) {
-                postRequestPage(retval);
-            }
-        }.execute(mm, pageNumber, folderName);
     }
 
-    public void postRequestPage(List<MessageThread> reply) {
-        if (reply == null) {
-            debugView.setText("This folder is currently empty.");
-        } else {
-            StringBuilder sb = new StringBuilder();
 
-            for (MessageThread item : reply) {
-                sb.append(item.toString());
-                sb.append("\n\n");
+    @Override
+    public void onResume() {
+        super.onResume();
+        reloadMessageThreads();
+    }
+
+    /**
+     * Classes used
+     */
+
+    private class GetThreadsTask extends AsyncTask<Void, Void, List<MessageThread>> {
+        @Override
+        protected List<MessageThread> doInBackground(Void... params) {
+            List<MessageThread> threads = null;
+            try {
+                threads = mm.getThreads(pageNum, folderName);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            sb.setLength(sb.length() - 1);
+            return threads;
+        }
 
-            debugView.setText(sb.toString());
+        @Override
+        protected void onPostExecute(List<MessageThread> threads) {
+            refreshThreadsList(threads);
         }
     }
+
 
 }

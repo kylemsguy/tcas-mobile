@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import com.kylemsguy.tcasmobile.backend.MessageThread;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 /**
@@ -41,10 +43,13 @@ public class MessageListAdapter extends ArrayAdapter<MessageThread> {
 
         MessageThread currentThread = threads.get(position);
 
+        // set attributes
         titleView.setText(currentThread.getTitle());
         summaryView.setText(currentThread.getLastMessage());
         usersView.setText(currentThread.getUsers().toString());
-        timeView.setText(String.valueOf(currentThread.getOffsetDaysReceived()));
+
+        NumberFormat df = new DecimalFormat("#0.00");
+        timeView.setText(df.format(currentThread.getOffsetDaysReceived()) + " days ago");
 
         return convertView;
     }
