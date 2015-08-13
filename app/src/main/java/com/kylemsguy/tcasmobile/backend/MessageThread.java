@@ -12,18 +12,34 @@ import java.util.List;
  */
 public class MessageThread extends TCaSObject implements Comparable<MessageThread> {
     private String title;
-    private Message lastMessage;
+    private String lastMessage;
     private List<String> users;
-    private List<Message> messages;
+    private long timeReceived;
+
+    /**
+     * DEPRECATED: Creates a new MessageThread.
+     *
+     * @param id                 the ID of the thread
+     * @param title              The title of the conversation
+     * @param users              The names of the users
+     * @param lastMessage        The latest message in the conversation
+     * @param timeReceivedOffset When the last message was received in days in the past
+     */
+    @Deprecated
+    public MessageThread(int id, String title, List<String> users, String lastMessage, double timeReceivedOffset) {
+        this(id, title, users, lastMessage, OhareanCalendar.daysOffsetToUnix(timeReceivedOffset));
+    }
 
     /**
      * Creates a new MessageThread.
      *
      * @param id the ID of the thread
      * @param title The title of the conversation
-     * @param users The name of the users
+     * @param users The names of the users
+     * @param lastMessage The latest message in the conversation
+     * @param timeReceived When the last message was received
      */
-    public MessageThread(int id, String title, List<String> users, Message firstMessage) {
+    public MessageThread(int id, String title, List<String> users, String lastMessage, long timeReceived) {
         super(id, null);
 
         this.title = title;
@@ -34,22 +50,11 @@ public class MessageThread extends TCaSObject implements Comparable<MessageThrea
             this.users.add(user);
         }
 
-        messages = new ArrayList<>();
-        messages.add(firstMessage);
-        lastMessage = firstMessage;
+        this.lastMessage = lastMessage;
     }
 
     public String getTitle() {
         return title;
-    }
-
-    /**
-     * Returns an immutable list of messages
-     *
-     * @return Immutable list of messages
-     */
-    public List<Message> getMessages() {
-        return Collections.unmodifiableList(messages);
     }
 
     /**
@@ -61,32 +66,12 @@ public class MessageThread extends TCaSObject implements Comparable<MessageThrea
         return Collections.unmodifiableList(users);
     }
 
-    public Message getLastMessage() {
+    public String getLastMessage() {
         return lastMessage;
     }
 
-    @Deprecated
-    public void addMessage(String sentBy, String message, double daysOffset) throws UserNotInConversationException {
-        long unix = OhareanCalendar.daysOffsetToUnix(daysOffset);
-        addMessage(sentBy, message, unix);
-    }
-
-    public void addMessage(String sentBy, String message, long when) throws UserNotInConversationException {
-        Message m = new Message(getId(), sentBy, message, when);
-        addMessage(m);
-    }
-
-    public void addMessage(Message message) throws UserNotInConversationException {
-        if (!users.contains(message.getSender()))
-            throw new UserNotInConversationException("User " + message.getSender() + " is not in conversation with ID " + getId());
-        messages.add(message);
-
-        if (lastMessage.compareTo(message) > 0) {
-            // resort because message is out of place
-            Collections.sort(messages);
-        } else {
-            lastMessage = message;
-        }
+    public long getTimeReceived() {
+        return timeReceived;
     }
 
     @Override
@@ -96,51 +81,12 @@ public class MessageThread extends TCaSObject implements Comparable<MessageThrea
 
     @Override
     public int compareTo(@NonNull MessageThread o) {
-        if (lastMessage.getTimeReceived() < o.getLastMessage().getTimeReceived())
+        if (timeReceived < o.getTimeReceived())
             return -1;
-        else if (lastMessage.getTimeReceived() == o.getLastMessage().getTimeReceived())
+        else if (timeReceived == o.getTimeReceived())
             return 0;
         else
             return 1;
-    }
-
-    public static class UserNotInConversationException extends Exception {
-        /**
-         * Constructs a new {@code Exception} that includes the current stack trace.
-         */
-        public UserNotInConversationException() {
-        }
-
-        /**
-         * Constructs a new {@code Exception} with the current stack trace and the
-         * specified detail message.
-         *
-         * @param detailMessage the detail message for this exception.
-         */
-        public UserNotInConversationException(String detailMessage) {
-            super(detailMessage);
-        }
-
-        /**
-         * Constructs a new {@code Exception} with the current stack trace, the
-         * specified detail message and the specified cause.
-         *
-         * @param detailMessage the detail message for this exception.
-         * @param throwable
-         */
-        public UserNotInConversationException(String detailMessage, Throwable throwable) {
-            super(detailMessage, throwable);
-        }
-
-        /**
-         * Constructs a new {@code Exception} with the current stack trace and the
-         * specified cause.
-         *
-         * @param throwable the cause of this exception.
-         */
-        public UserNotInConversationException(Throwable throwable) {
-            super(throwable);
-        }
     }
 
 }

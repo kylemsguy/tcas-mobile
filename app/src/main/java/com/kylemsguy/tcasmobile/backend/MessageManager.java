@@ -9,6 +9,8 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MessageManager {
     private static final String MESSAGES_URL = SessionManager.BASE_URL + "messages/";
@@ -26,22 +28,87 @@ public class MessageManager {
     }
 
     /**
-     * Gets the thread on page.
+     * Gets the threads on a specified page.
      * Temporary until a proper API is available
      *
-     * @param page Message page
-     * @return List of messages
+     * @param page   Message page
+     * @param folder Message folder. If null then inbox
+     * @return List of MessageThreads
      */
-    public List<MessageThread> getThreadPage(int page) {
-        throw new UnsupportedOperationException("Not implemented");
+    public List<MessageThread> getThreads(int page, String folder) throws Exception {
+        String urlPage;
+        if (folder == null) {
+            urlPage = MESSAGES_URL + "page" + page + "/";
+        } else {
+            urlPage = MESSAGES_URL + "folder/" + folder + "/" + page + "/";
+        }
+
+        String html = sm.getPageContent(urlPage);
+
+        if (html.matches("<!DOCTYPE html>.*This folder is currently empty\\..*"))
+            return null; // folder is empty
+
+        List<MessageThread> threads = new ArrayList<>();
+
+        Document dom = Jsoup.parse(html);
+
+        // TODO use an HTML class
+        // TEMPORARY!!!!!! ONLY UNTIL PROPER API IS AVAILABLE
+        Elements messages = dom.getElementsByAttributeValueMatching("style", "background-color:(#fff|#eee);");
+        for (Element e : messages) {
+            if (e.tagName().equals("tr")) {
+                // needed parameters for creating a Message object
+                int id;
+                String title;
+                List<String> users = new ArrayList<>();
+                String lastMessage;
+                double timeReceivedOffset;
+
+                Element titleElement = e.child(1).child(0).child(0);
+                if (!titleElement.tagName().equals("a"))
+                    continue; // wrong tag
+                String[] splitMessageUrl = titleElement.attr("href").split("/");
+                id = Integer.parseInt(splitMessageUrl[splitMessageUrl.length - 1]);
+                title = titleElement.text();
+
+                Element messageElement = e.child(1).child(1);
+                if (!(messageElement.tagName().equals("div") && messageElement.attr("style").equals("font-size:11px; color:#888;")))
+                    continue; // what the heck?
+                lastMessage = messageElement.text();
+
+                Element offsetElement = e.child(3);
+                Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?) days? ago");
+                Matcher matcher = pattern.matcher(offsetElement.text());
+
+                if (!matcher.find())
+                    continue; // something is wrong... can't find something that should be there...
+
+                timeReceivedOffset = Double.parseDouble(matcher.group(1));
+
+                // Finally get users involved
+                Elements usersElements = e.child(4).children();
+
+                for (Element userElement : usersElements) {
+                    if (userElement.tagName().equals("a") && userElement.attr("href").startsWith("/users/")) {
+                        users.add(userElement.text());
+                    }
+                }
+
+                // got all the data we need! time to make MessageThread!
+                MessageThread thread = new MessageThread(id, title, users, lastMessage, timeReceivedOffset);
+                threads.add(thread);
+            }
+        }
+
+        return threads;
     }
 
 
     /**
      * Creates a new message thread
      *
-     * @param recipients recipients, excluding the current user
-     * @param title Title of the thread
+     * @param recipients   recipients, excluding the current user
+     * @param title        Title of the thread
      * @param firstMessage First message sent to all recipients
      * @throws Exception
      */
