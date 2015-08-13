@@ -30,6 +30,12 @@ public class Message extends TCaSObject implements Comparable<Message> {
     }
 
     @Override
+    public String toString() {
+        return "Message: \"" + getContent() + "\" sent by: " + sentBy + " " +
+                OhareanCalendar.unixToDaysOffset(timeReceived) + " days ago.";
+    }
+
+    @Override
     public int compareTo(@NonNull Message o) {
         if (timeReceived < o.getTimeReceived())
             return -1;

@@ -37,7 +37,7 @@ public class MessageManager {
      */
     public List<MessageThread> getThreads(int page, String folder) throws Exception {
         String urlPage;
-        if (folder == null) {
+        if (folder == null || folder.isEmpty()) {
             urlPage = MESSAGES_URL + "page" + page + "/";
         } else {
             urlPage = MESSAGES_URL + "folder/" + folder + "/" + page + "/";
@@ -91,8 +91,13 @@ public class MessageManager {
                 for (Element userElement : usersElements) {
                     if (userElement.tagName().equals("a") && userElement.attr("href").startsWith("/users/")) {
                         users.add(userElement.text());
+                        break;
                     }
                 }
+
+                // now check if the only recipient is ???
+                if (users.isEmpty())
+                    users.add("???");
 
                 // got all the data we need! time to make MessageThread!
                 MessageThread thread = new MessageThread(id, title, users, lastMessage, timeReceivedOffset);

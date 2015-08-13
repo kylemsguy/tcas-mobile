@@ -2,13 +2,22 @@ package com.kylemsguy.tcasmobile;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import com.kylemsguy.tcasmobile.backend.MessageManager;
+import com.kylemsguy.tcasmobile.backend.MessageThread;
+
+import java.util.List;
 
 
 /**
@@ -20,7 +29,12 @@ import android.webkit.WebView;
  * create an instance of this fragment.
  */
 public class MessageFragment extends Fragment {
-    private OnFragmentInteractionListener mListener;
+    private MessageManager mm;
+
+    private EditText pageNumber;
+    private EditText folderName;
+
+    private TextView debugView;
 
     /**
      * Use this factory method to create a new instance of
@@ -47,50 +61,57 @@ public class MessageFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_message, container, false);
-        WebView webView = (WebView) v.findViewById(R.id.temp_webview);
+        mm = ((TCaSApp) getActivity().getApplicationContext()).getMessageManager();
+        //WebView webView = (WebView) v.findViewById(R.id.temp_webview);
         //WebSettings webSettings = webView.getSettings();
         //webSettings.setJavaScriptEnabled(true);
-        webView.setWebViewClient(new MessagesWebViewClient());
+        //webView.setWebViewClient(new MessagesWebViewClient());
+        pageNumber = (EditText) v.findViewById(R.id.page_number);
+        folderName = (EditText) v.findViewById(R.id.folder_name);
+        debugView = (TextView) v.findViewById(R.id.debug_output);
         return v;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-/*
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+
+    public void requestPage(View v) {
+        int pageNumber = Integer.parseInt(this.pageNumber.getText().toString());
+        String folderName = this.folderName.getText().toString();
+
+        new AsyncTask<Object, Void, List<MessageThread>>() {
+            @Override
+            protected List<MessageThread> doInBackground(Object... params) {
+                MessageManager mm = (MessageManager) params[0];
+                int pageNum = (int) params[1];
+                String folderName = (String) params[2];
+
+                List<MessageThread> threads = null;
+
+                try {
+                    threads = mm.getThreads(pageNum, folderName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return threads;
+            }
+
+            @Override
+            protected void onPostExecute(List<MessageThread> retval) {
+                postRequestPage(retval);
+            }
+        }.execute(mm, pageNumber, folderName);
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-*/
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+    public void postRequestPage(List<MessageThread> reply) {
+        StringBuilder sb = new StringBuilder();
+
+        for (MessageThread item : reply) {
+            sb.append(item.toString());
+            sb.append("\n\n");
+        }
+
+        sb.setLength(sb.length() - 1);
+
+        debugView.setText(sb.toString());
     }
 
 }

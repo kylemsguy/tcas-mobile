@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
     private AskFragment mAskFragment;
     private AnswerFragment mAnswerFragment;
+    private MessageFragment mMessageFragment;
 
     private static final boolean DEBUG = false;
 
@@ -129,6 +130,10 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
     // end AnswerActivity
 
     // start MessageActivity
+
+    public void requestPage(View v) {
+        mMessageFragment.requestPage(v);
+    }
 
 
     // end MessageActivity
@@ -273,7 +278,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
                     return mAnswerFragment;
                 case 3:
                     //System.out.println("3");
-                    return MessageFragment.newInstance();
+                    mMessageFragment = MessageFragment.newInstance();
+                    return mMessageFragment;
             }
             return null;
         }
@@ -282,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         public int getCount() {
             // Show 4 total pages.
             // Returning 3 to disable MessageFragment
-            return 3;
+            return 4;
         }
 
         @Override

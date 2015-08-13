@@ -75,6 +75,20 @@ public class MessageThread extends TCaSObject implements Comparable<MessageThrea
     }
 
     @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (String user : users) {
+            sb.append(user);
+            sb.append(", ");
+        }
+        if (sb.length() > 0)
+            sb.setLength(sb.length() - 2);
+
+        return "MessageThread: " + title + "\n\"" + lastMessage + "\"\nbetween " + sb.toString() + " and You.\n" +
+                "Last message received: " + OhareanCalendar.unixToDaysOffset(timeReceived) + " days ago.";
+    }
+
+    @Override
     public String getContent() {
         throw new UnsupportedOperationException("Unsupported operation on a MessageThread.");
     }
