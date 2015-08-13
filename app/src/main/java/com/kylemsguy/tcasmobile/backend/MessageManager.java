@@ -16,7 +16,7 @@ public class MessageManager {
     private static final String RECIPIENTS_KEY = "to";
     private static final String TITLE_KEY = "title";
     private static final String CONTENT_KEY = "body";
-
+    private static final String USER_NAME = "You";
 
     private SessionManager sm;
 
@@ -52,11 +52,23 @@ public class MessageManager {
      * @param users        recipients, excluding the current user
      * @param firstMessage First message sent to all recipients
      */
-    public void newThread(String title, List<String> users, String firstMessage) {
+    public void newThread(String title, List<String> users, String firstMessage) throws Exception {
+        int id = 0;
+        id = submitNewThread(users, title, firstMessage);
 
+        // TODO Only temporarily keeping try-catch block. Delete when we are done.
+        /* if(e instanceof NoSuchUserException){
+            throw new NoSuchUserException(e);
+        } else {
+            throw e;
+        }*/
+
+        Message message = new Message(id, USER_NAME, firstMessage, 0.0);
+
+        MessageThread thread = new MessageThread(id, title, users, message);
     }
 
-    private void submitNewThread(List<String> recipients, String title, String firstMessage) throws Exception {
+    private int submitNewThread(List<String> recipients, String title, String firstMessage) throws Exception {
         SessionManager.GetRequestBuilder rb = new SessionManager.GetRequestBuilder();
         StringBuilder sb = new StringBuilder();
 
@@ -77,8 +89,9 @@ public class MessageManager {
         // TODO replace by getting an id!!! THIS IS TEMPORARY ONLY!!!
         // the following is temporary. When a proper API is released rewrite this.
         if (dom.getElementsByTag("title").text().equals("Two Cans and String : Messages in Inbox")) {
-            // success
-            return;
+            // success. get ID.
+
+            return 0;
         }
 
         Elements elements = dom.getElementsByAttributeValue("style", "color:#f00;");
