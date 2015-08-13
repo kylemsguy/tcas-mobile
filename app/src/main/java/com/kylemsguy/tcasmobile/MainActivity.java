@@ -15,7 +15,9 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    private ActionBar actionBar;
+
     private SessionManager sm;
 
     private AsyncTask mLogoutTask;
@@ -97,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             }
         });
 
+        // Get the SessionManager
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
 
     }

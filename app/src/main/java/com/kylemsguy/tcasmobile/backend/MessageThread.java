@@ -75,6 +75,10 @@ public class MessageThread extends TCaSObject implements Comparable<MessageThrea
         return timeReceived;
     }
 
+    public double getOffsetDaysReceived() {
+        return OhareanCalendar.unixToDaysOffset(timeReceived);
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

@@ -7,13 +7,13 @@ import org.jsoup.select.Elements;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MessageManager {
     private static final String MESSAGES_URL = SessionManager.BASE_URL + "messages/";
+    private static final String GET_MESSAGE_URL = MESSAGES_URL + "view/";
     private static final String COMPOSE_URL = MESSAGES_URL + "compose/";
 
     private static final String RECIPIENTS_KEY = "to";
@@ -121,6 +121,11 @@ public class MessageManager {
         }
 
         return threads;
+    }
+
+    public List<Message> getMessages(int id) {
+        String url = GET_MESSAGE_URL + id + "/";
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
 

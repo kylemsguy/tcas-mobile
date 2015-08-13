@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.kylemsguy.tcasmobile.backend.MessageManager;
@@ -31,6 +32,9 @@ import java.util.List;
 public class MessageFragment extends Fragment {
     private MessageManager mm;
 
+    private ListView messageListView;
+
+    // temporary only
     private EditText pageNumber;
     private EditText folderName;
 
@@ -62,16 +66,20 @@ public class MessageFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_message, container, false);
         mm = ((TCaSApp) getActivity().getApplicationContext()).getMessageManager();
-        //WebView webView = (WebView) v.findViewById(R.id.temp_webview);
-        //WebSettings webSettings = webView.getSettings();
-        //webSettings.setJavaScriptEnabled(true);
-        //webView.setWebViewClient(new MessagesWebViewClient());
+
         pageNumber = (EditText) v.findViewById(R.id.page_number);
         folderName = (EditText) v.findViewById(R.id.folder_name);
         debugView = (TextView) v.findViewById(R.id.debug_output);
+
+        messageListView = (ListView) v.findViewById(R.id.message_list);
+
         return v;
     }
 
+
+    /**
+     * Temporary Methods
+     */
 
     public void requestPage(View v) {
         String strPageNumber = this.pageNumber.getText().toString();
