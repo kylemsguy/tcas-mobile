@@ -91,7 +91,6 @@ public class MessageManager {
                 for (Element userElement : usersElements) {
                     if (userElement.tagName().equals("a") && userElement.attr("href").startsWith("/users/")) {
                         users.add(userElement.text());
-                        break;
                     }
                 }
 
