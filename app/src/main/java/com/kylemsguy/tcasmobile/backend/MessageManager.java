@@ -66,6 +66,8 @@ public class MessageManager {
         Message message = new Message(id, USER_NAME, firstMessage, 0.0);
 
         MessageThread thread = new MessageThread(id, title, users, message);
+
+        threads.add(thread);
     }
 
     private int submitNewThread(List<String> recipients, String title, String firstMessage) throws Exception {
@@ -90,6 +92,16 @@ public class MessageManager {
         // the following is temporary. When a proper API is released rewrite this.
         if (dom.getElementsByTag("title").text().equals("Two Cans and String : Messages in Inbox")) {
             // success. get ID.
+            // TODO THIS IS TEMPORARY!!!!!!!!!!
+            Elements elements = dom.getElementsByAttribute("href");
+            for (Element e : elements) {
+                if (e.text().equals(title)) {
+                    String url = e.attr("href");
+                    String[] splitUrl = url.split("/");
+                    String id = splitUrl[splitUrl.length - 1];
+                    return Integer.parseInt(id);
+                }
+            }
 
             return 0;
         }
