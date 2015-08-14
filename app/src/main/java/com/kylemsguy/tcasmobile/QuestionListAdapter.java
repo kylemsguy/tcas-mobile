@@ -14,14 +14,14 @@ import com.kylemsguy.tcasmobile.backend.Question;
 import java.util.List;
 
 
-public class ExpandableListAdapter extends BaseExpandableListAdapter {
+public class QuestionListAdapter extends BaseExpandableListAdapter {
     private static final boolean REVERSE_ENTRIES = true;
 
     private Context mContext;
 
     private List<Question> mQuestions;
 
-    public ExpandableListAdapter(Context context, List<Question> questions) {
+    public QuestionListAdapter(Context context, List<Question> questions) {
         mContext = context;
         mQuestions = questions;
     }

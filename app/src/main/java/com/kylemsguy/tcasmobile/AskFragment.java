@@ -36,12 +36,12 @@ public class AskFragment extends Fragment {
     private EditText mAskQuestionField;
 
     private List<Question> mCurrQuestions;
-    private ExpandableListAdapter mAdapter;
+    private QuestionListAdapter mAdapter;
 
     private AsyncTask mGotQuestionsTask;
 
     // stuff for Asked questions
-    private ExpandableListAdapter mListAdapter;
+    private QuestionListAdapter mListAdapter;
     private ExpandableListView mExpListView;
     private SwipeRefreshLayout mSwipeContainer;
 
@@ -66,7 +66,7 @@ public class AskFragment extends Fragment {
         mExpListView = (ExpandableListView) rootView.findViewById(R.id.questionList);
 
         List<Question> currQuestions = new ArrayList<>();
-        mListAdapter = new ExpandableListAdapter(getActivity(), currQuestions);
+        mListAdapter = new QuestionListAdapter(getActivity(), currQuestions);
         mListAdapter.notifyDataSetChanged();
         // set list adapter
         mExpListView.setAdapter(mListAdapter);
@@ -218,7 +218,7 @@ public class AskFragment extends Fragment {
         mSwipeContainer.setRefreshing(false);
         //showProgress(true, mExpListView, mAskProgressSpinner);
         if (mAdapter == null) {
-            mAdapter = ((ExpandableListAdapter) mExpListView.getExpandableListAdapter());
+            mAdapter = ((QuestionListAdapter) mExpListView.getExpandableListAdapter());
         }
         try {
             mAdapter.reloadItems(mCurrQuestions);

@@ -8,11 +8,15 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.kylemsguy.tcasmobile.backend.MessageFolder;
 import com.kylemsguy.tcasmobile.backend.MessageManager;
 import com.kylemsguy.tcasmobile.backend.MessageThread;
 
@@ -20,18 +24,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MessageFragment extends Fragment {
+public class MessageFragment extends Fragment implements AdapterView.OnItemSelectedListener {
     private MessageManager mm;
     private List<MessageThread> currentPageThreads;
     private int pageNum = 1;
-    private String folderName;
+    private String currentFolderName;
+    private List<MessageFolder> folders;
+    private List<CharSequence> folderNames;
 
     private MessageListAdapter messageListAdapter;
     private ListView messageListView;
     private TextView emptyFolderTextView;
 
+    private ArrayAdapter<CharSequence> folderNameMenuAdapter;
+    private Spinner folderNameMenu;
     private EditText pageNumberView;
-    private EditText folderNameView;
     private Button refreshButton;
 
     /**
@@ -62,7 +69,6 @@ public class MessageFragment extends Fragment {
         mm = ((TCaSApp) getActivity().getApplicationContext()).getMessageManager();
 
         pageNumberView = (EditText) v.findViewById(R.id.page_number_field);
-        folderNameView = (EditText) v.findViewById(R.id.folder_name_field);
 
         emptyFolderTextView = (TextView) v.findViewById(R.id.empty_folder_text);
 
@@ -81,7 +87,18 @@ public class MessageFragment extends Fragment {
             }
         });
 
+        // Set up Spinner of foldernames
+        folderNameMenu = (Spinner) v.findViewById(R.id.folder_name_menu);
+        folderNames = new ArrayList<>();
+        folderNames.add("Inbox");
+        folderNameMenuAdapter = new ArrayAdapter<>(getActivity(),
+                android.R.layout.simple_spinner_dropdown_item, folderNames);
+        folderNameMenu.setAdapter(folderNameMenuAdapter);
+        folderNameMenu.setOnItemSelectedListener(this);
+
         reloadMessageThreads();
+
+        refreshFolders();
 
         return v;
     }
@@ -90,36 +107,59 @@ public class MessageFragment extends Fragment {
         new GetThreadsTask().execute();
     }
 
-    private void refreshThreadsList(List<MessageThread> threads) {
+    private void refreshFolders() {
+        new RefreshFoldersTask().execute();
+    }
 
-        // *shakes out list*
-        messageListAdapter.clear();
-        currentPageThreads.clear();
-
-        if (threads == null) {
-            setEmptyFolderTextDisplay(true);
-            return;
-        }
-
-        if (Build.VERSION.SDK_INT >= 11)
-            currentPageThreads.addAll(threads);
-            //messageListAdapter.addAll(threads);
-        else {
-            for (MessageThread thread : threads) {
-                //messageListAdapter.add(thread);
-                currentPageThreads.add(thread);
+    private void reloadFolderSpinnerOptions() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                folderNames.clear();
+                folderNames.add("Inbox");
+                for (MessageFolder folder : folders) {
+                    folderNames.add(folder.getName());
+                }
+                folderNameMenuAdapter.notifyDataSetChanged();
             }
-        }
+        });
+    }
 
-        //messageListAdapter = new MessageListAdapter(getActivity(), currentPageThreads);
-        //messageListView.setAdapter(messageListAdapter);
-        messageListAdapter.notifyDataSetChanged();
+    private void reloadThreadsList(final List<MessageThread> threads) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // *shakes out list*
+                //messageListAdapter.clear();
+                currentPageThreads.clear();
 
-        if (currentPageThreads.isEmpty()) {
-            setEmptyFolderTextDisplay(true);
-        } else {
-            setEmptyFolderTextDisplay(false);
-        }
+                if (threads == null) {
+                    setEmptyFolderTextDisplay(true);
+                    messageListAdapter.notifyDataSetChanged();
+                    return;
+                }
+
+                if (Build.VERSION.SDK_INT >= 11)
+                    currentPageThreads.addAll(threads);
+                    //messageListAdapter.addAll(threads);
+                else {
+                    for (MessageThread thread : threads) {
+                        //messageListAdapter.add(thread);
+                        currentPageThreads.add(thread);
+                    }
+                }
+
+                if (currentPageThreads.isEmpty()) {
+                    setEmptyFolderTextDisplay(true);
+                } else {
+                    setEmptyFolderTextDisplay(false);
+                }
+
+                //messageListAdapter = new MessageListAdapter(getActivity(), currentPageThreads);
+                //messageListView.setAdapter(messageListAdapter);
+                messageListAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void setEmptyFolderTextDisplay(boolean shown) {
@@ -147,17 +187,38 @@ public class MessageFragment extends Fragment {
             return;
         }
         pageNum = Integer.parseInt(strPageNumber);
-        folderName = this.folderNameView.getText().toString();
+        //currentFolderName = this.folderNameView.getText().toString();
 
         reloadMessageThreads();
 
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
         reloadMessageThreads();
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+        String folderName = ((CharSequence) parent.getItemAtPosition(pos)).toString();
+        if (folderName.equals("Inbox")) {
+            currentFolderName = null;
+        } else {
+            for (MessageFolder folder : folders) {
+                if (folder.getName().equals(folderName)) {
+                    currentFolderName = folder.getCanonicalizedName();
+                    break;
+                }
+            }
+        }
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
+        currentFolderName = null;
     }
 
     /**
@@ -169,7 +230,7 @@ public class MessageFragment extends Fragment {
         protected List<MessageThread> doInBackground(Void... params) {
             List<MessageThread> threads = null;
             try {
-                threads = mm.getThreads(pageNum, folderName);
+                threads = mm.getThreads(pageNum, currentFolderName);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -179,9 +240,25 @@ public class MessageFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<MessageThread> threads) {
-            refreshThreadsList(threads);
+            reloadThreadsList(threads);
         }
     }
 
+    private class RefreshFoldersTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                folders = mm.getFolders();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void retval) {
+            reloadFolderSpinnerOptions();
+        }
+    }
 
 }

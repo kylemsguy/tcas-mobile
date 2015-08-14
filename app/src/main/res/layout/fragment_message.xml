@@ -38,14 +38,20 @@
                 android:text="1"
                 android:hint="Pg #" />
 
-            <EditText
+            <!--<EditText
                 android:id="@+id/folder_name_field"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="Folder Name"
                 android:text="Inbox"
                 android:layout_toLeftOf="@id/page_number_field"
-                android:layout_alignBottom="@id/page_number_field" />
+                android:layout_alignBottom="@id/page_number_field" />-->
+
+            <Spinner
+                android:id="@+id/folder_name_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/page_number_field" />
 
         </RelativeLayout>
 

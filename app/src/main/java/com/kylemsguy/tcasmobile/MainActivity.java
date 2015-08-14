@@ -110,6 +110,23 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
      * Methods for each Fragment
      */
 
+    // BEGIN HomeActivity
+    public void jumpToSection(View view) {
+        switch (view.getId()) {
+            case R.id.debug_jumpto_ask:
+                mViewPager.setCurrentItem(1);
+                break;
+            case R.id.debug_jumpto_answer:
+                mViewPager.setCurrentItem(2);
+                break;
+            case R.id.debug_jumpto_messages:
+                mViewPager.setCurrentItem(3);
+                break;
+        }
+    }
+
+    // END HomeActivity
+
     // BEGIN AskActivity
 
     public void askQuestion(View view) {
@@ -221,7 +238,12 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         AlertDialog dialog = builder.create();
         dialog.show();
     */
-        super.onBackPressed();
+
+        int currentPage = mViewPager.getCurrentItem();
+        if (currentPage - 1 >= 0)
+            mViewPager.setCurrentItem(currentPage - 1);
+        else
+            super.onBackPressed();
 
         // logout here
         //mLogoutTask = new LogoutTask().execute(sm);

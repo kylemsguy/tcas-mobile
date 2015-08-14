@@ -8,7 +8,12 @@ import org.jsoup.select.Elements;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,15 +38,33 @@ public class MessageManager {
      *
      * @return a list of folder names
      */
-    public List<String> getFolders() throws Exception {
+    public List<MessageFolder> getFolders() throws Exception {
         // TODO implement
-        List<String> folders = new ArrayList<>();
+        List<MessageFolder> folders = new ArrayList<>();
 
         String html = sm.getPageContent(MESSAGES_URL);
 
         Document dom = Jsoup.parse(html);
 
-        throw new UnsupportedOperationException("Not implemented yet");
+        Element contentHost = dom.getElementById("content_host");
+        if (!contentHost.child(0).text().startsWith("Conversations"))
+            throw new Exception("Something went terribly wrong when fetching folders");
+
+        Element folderContainer = contentHost.child(1);
+        for (Element folder : folderContainer.children()) {
+            if (folder.tagName().equals("a")) {
+                if (folder.attr("href").startsWith("/messages/folder/")) {
+                    String[] splitPath = folder.attr("href").split("/");
+                    String canonicalFolderName = splitPath[splitPath.length - 1];
+
+                    MessageFolder theFolder = new MessageFolder(folder.text(), canonicalFolderName);
+
+                    folders.add(theFolder);
+                }
+            }
+        }
+
+        return folders;
     }
 
     /**
