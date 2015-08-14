@@ -26,8 +26,9 @@ public class TCaSApp extends Application {
 
     @Override
     public void onCreate() {
-        //CookieStore cookies = PrefUtils.getCookieStoreFromPrefs(this, PrefUtils.PREF_COOKIESTORE_KEY);
-        CookieStore cookieStore = new PersistentCookieStore(this);
+		super.onCreate();
+		//CookieStore cookies = PrefUtils.getCookieStoreFromPrefs(this, PrefUtils.PREF_COOKIESTORE_KEY);
+		CookieStore cookieStore = new PersistentCookieStore(this);
         //CookieStore cookieStore = new SiCookieStore2(this);
         sm = new SessionManager(cookieStore);
         am = new AnswerManager(sm);
