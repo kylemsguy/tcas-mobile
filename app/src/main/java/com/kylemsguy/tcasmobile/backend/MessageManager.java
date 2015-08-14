@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class MessageManager {
         if (folder == null || folder.isEmpty()) {
             urlPage = MESSAGES_URL + "page" + page + "/";
         } else {
-            urlPage = MESSAGES_URL + "folder/" + folder + "/" + page + "/";
+            urlPage = MESSAGES_URL + "folder/" + URLEncoder.encode(folder.replaceAll("\\s+", "").toLowerCase(), "UTF-8") + "/page" + page + "/";
         }
 
         String html = sm.getPageContent(urlPage);

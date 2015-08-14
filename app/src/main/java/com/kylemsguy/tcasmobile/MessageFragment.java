@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -31,6 +32,7 @@ public class MessageFragment extends Fragment {
 
     private EditText pageNumberView;
     private EditText folderNameView;
+    private Button refreshButton;
 
     /**
      * Use this factory method to create a new instance of
@@ -71,6 +73,14 @@ public class MessageFragment extends Fragment {
 
         messageListView.setAdapter(messageListAdapter);
 
+        refreshButton = (Button) v.findViewById(R.id.go_page_btn);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestPage(v);
+            }
+        });
+
         reloadMessageThreads();
 
         return v;
@@ -81,6 +91,7 @@ public class MessageFragment extends Fragment {
     }
 
     private void refreshThreadsList(List<MessageThread> threads) {
+
         // *shakes out list*
         messageListAdapter.clear();
         currentPageThreads.clear();
@@ -92,12 +103,16 @@ public class MessageFragment extends Fragment {
 
         if (Build.VERSION.SDK_INT >= 11)
             currentPageThreads.addAll(threads);
+            //messageListAdapter.addAll(threads);
         else {
             for (MessageThread thread : threads) {
+                //messageListAdapter.add(thread);
                 currentPageThreads.add(thread);
             }
         }
 
+        //messageListAdapter = new MessageListAdapter(getActivity(), currentPageThreads);
+        //messageListView.setAdapter(messageListAdapter);
         messageListAdapter.notifyDataSetChanged();
 
         if (currentPageThreads.isEmpty()) {
