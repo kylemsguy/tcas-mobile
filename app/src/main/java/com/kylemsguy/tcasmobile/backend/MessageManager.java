@@ -243,9 +243,12 @@ public class MessageManager {
      * Reply to a message thread
      *
      * @param threadId ID of thread
+     * @param unanonymize whether to unanonymize self
      * @param text     contents of message
      */
-    public void replyToThread(int threadId, String text) {
+    public void replyToThread(int threadId, boolean unanonymize, String text) {
+        if (text == null || text.isEmpty())
+            throw new InvalidParameterException("You may not send a blank message.");
         throw new UnsupportedOperationException("Not Implemented");
     }
 
