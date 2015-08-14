@@ -166,6 +166,7 @@ public class MessageManager {
                 Element contentElement = element.child(2);
 
                 // TODO build Message object and add to list
+
             }
         }
 
@@ -221,6 +222,10 @@ public class MessageManager {
 
         throw new Exception("An error occurred while submitting your message.");
 
+    }
+
+    public void replyToThread(int threadId, String text) {
+        throw new UnsupportedOperationException("Not Implemented");
     }
 
     public static class NoSuchUserException extends Exception {
