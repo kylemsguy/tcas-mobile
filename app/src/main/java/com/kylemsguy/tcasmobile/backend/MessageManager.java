@@ -159,18 +159,26 @@ public class MessageManager {
 
         for (Element element : contentHost.children()) {
             if (element.tagName().equals("div")
-                    && element.attr("style").
-                    equals("border:1px solid #888; padding:10px; margin-top:8px; border-radius:6px;")) {
-                Element fromElement = element.child(0);
-                Element timeElement = element.child(1);
-                Element contentElement = element.child(2);
+                    && element.attr("style")
+                    .equals("border:1px solid #888; padding:10px; margin-top:8px; border-radius:6px;")) {
 
-                // TODO build Message object and add to list
+                Element fromElement = element.child(0);
+                String from = fromElement.text().replace("Message from: ", "");
+
+                Element timeElement = element.child(1);
+                String timeStr = timeElement.text().replaceAll("\\sdays?\\sago", "");
+                double daysAgo = Double.parseDouble(timeStr);
+
+                Element contentElement = element.child(2);
+                String content = contentElement.text().replaceAll("<br>", "");
+
+                Message message = new Message(id, from, content, daysAgo);
+
+                messages.add(message);
 
             }
         }
-
-        throw new UnsupportedOperationException("Not implemented yet");
+        return messages;
     }
 
 
