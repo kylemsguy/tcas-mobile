@@ -50,5 +50,6 @@
         <item>Show Full Answer</item>
         <!-- DEBUG REMOVE WHEN DONE -->
     </string-array>
+    <string name="title_activity_message_content">MessageContentActivity</string>
 
 </resources>

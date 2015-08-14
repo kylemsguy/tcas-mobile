@@ -147,8 +147,28 @@ public class MessageManager {
         return threads;
     }
 
-    public List<Message> getMessages(int id) {
+    public List<Message> getMessages(int id) throws Exception {
+        List<Message> messages = new ArrayList<>();
+
         String url = GET_MESSAGE_URL + id + "/";
+        String html = sm.getPageContent(url);
+
+        Document dom = Jsoup.parse(html);
+
+        Element contentHost = dom.getElementById("content_host");
+
+        for (Element element : contentHost.children()) {
+            if (element.tagName().equals("div")
+                    && element.attr("style").
+                    equals("border:1px solid #888; padding:10px; margin-top:8px; border-radius:6px;")) {
+                Element fromElement = element.child(0);
+                Element timeElement = element.child(1);
+                Element contentElement = element.child(2);
+
+                // TODO build Message object and add to list
+            }
+        }
+
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

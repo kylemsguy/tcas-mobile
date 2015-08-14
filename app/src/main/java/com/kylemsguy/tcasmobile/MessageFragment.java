@@ -1,5 +1,6 @@
 package com.kylemsguy.tcasmobile;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -100,6 +101,20 @@ public class MessageFragment extends Fragment
             @Override
             public void onClick(View v) {
                 requestPage(v);
+            }
+        });
+
+        // set up click callbacks
+        messageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                MessageThread thread = (MessageThread) parent.getItemAtPosition(position);
+                int threadId = thread.getId();
+
+                Intent intent = new Intent(getActivity(), MessageContentActivity.class);
+                intent.putExtra("threadId", threadId);
+
+                startActivity(intent);
             }
         });
 
