@@ -268,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             finish();
         } else {
             // refresh data
-            mAskFragment.loadQuestionList();
+            //mAskFragment.loadQuestionList();
 
         }
     }

@@ -4,10 +4,14 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -17,6 +21,9 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.github.ksoichiro.android.observablescrollview.ObservableListView;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
+import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.kylemsguy.tcasmobile.backend.MessageFolder;
 import com.kylemsguy.tcasmobile.backend.MessageManager;
 import com.kylemsguy.tcasmobile.backend.MessageThread;
@@ -25,8 +32,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MessageFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+public class MessageFragment extends Fragment
+        implements AdapterView.OnItemSelectedListener, ObservableScrollViewCallbacks {
     private MessageManager mm;
+
+    private AppCompatActivity activity;
+    private ActionBar actionBar;
+
     private List<MessageThread> currentPageThreads;
     private int pageNum = 1;
     private String currentFolderName;
@@ -34,13 +46,15 @@ public class MessageFragment extends Fragment implements AdapterView.OnItemSelec
     private List<CharSequence> folderNames;
 
     private MessageListAdapter messageListAdapter;
-    private ListView messageListView;
+    private ObservableListView messageListView;
     private TextView emptyFolderTextView;
 
     private ArrayAdapter<CharSequence> folderNameMenuAdapter;
     private Spinner folderNameMenu;
     private EditText pageNumberView;
     private ImageButton refreshButton;
+
+    private Toolbar folderNavBar;
 
     /**
      * Use this factory method to create a new instance of
@@ -75,9 +89,10 @@ public class MessageFragment extends Fragment implements AdapterView.OnItemSelec
 
         // Set up ListView of messages
         currentPageThreads = new ArrayList<>();
-        messageListView = (ListView) v.findViewById(R.id.message_list);
-        messageListAdapter = new MessageListAdapter(getActivity(), currentPageThreads);
+        messageListView = (ObservableListView) v.findViewById(R.id.message_list);
+        messageListView.setScrollViewCallbacks(this);
 
+        messageListAdapter = new MessageListAdapter(getActivity(), currentPageThreads);
         messageListView.setAdapter(messageListAdapter);
 
         refreshButton = (ImageButton) v.findViewById(R.id.go_page_btn);
@@ -97,6 +112,13 @@ public class MessageFragment extends Fragment implements AdapterView.OnItemSelec
         folderNameMenu.setAdapter(folderNameMenuAdapter);
         folderNameMenu.setOnItemSelectedListener(this);
 
+        // set up toolbar
+        folderNavBar = (Toolbar) v.findViewById(R.id.pagebar);
+
+        // set Activity reference
+        activity = (AppCompatActivity) getActivity();
+        actionBar = activity.getSupportActionBar();
+
         reloadMessageThreads();
 
         refreshFolders();
@@ -113,51 +135,51 @@ public class MessageFragment extends Fragment implements AdapterView.OnItemSelec
     }
 
     private void reloadFolderSpinnerOptions() {
+        folderNames.clear();
+        folderNames.add("Inbox");
+        for (MessageFolder folder : folders) {
+            folderNames.add(folder.getName());
+        }
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                folderNames.clear();
-                folderNames.add("Inbox");
-                for (MessageFolder folder : folders) {
-                    folderNames.add(folder.getName());
-                }
                 folderNameMenuAdapter.notifyDataSetChanged();
             }
         });
     }
 
     private void reloadThreadsList(final List<MessageThread> threads) {
+        // *shakes out list*
+        currentPageThreads.clear();
+
+        if (threads == null) {
+            setEmptyFolderTextDisplay(true);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    messageListAdapter.notifyDataSetChanged();
+                }
+            });
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT >= 11)
+            currentPageThreads.addAll(threads);
+        else {
+            for (MessageThread thread : threads) {
+                currentPageThreads.add(thread);
+            }
+        }
+
+        if (currentPageThreads.isEmpty()) {
+            setEmptyFolderTextDisplay(true);
+        } else {
+            setEmptyFolderTextDisplay(false);
+        }
+
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // *shakes out list*
-                //messageListAdapter.clear();
-                currentPageThreads.clear();
-
-                if (threads == null) {
-                    setEmptyFolderTextDisplay(true);
-                    messageListAdapter.notifyDataSetChanged();
-                    return;
-                }
-
-                if (Build.VERSION.SDK_INT >= 11)
-                    currentPageThreads.addAll(threads);
-                    //messageListAdapter.addAll(threads);
-                else {
-                    for (MessageThread thread : threads) {
-                        //messageListAdapter.add(thread);
-                        currentPageThreads.add(thread);
-                    }
-                }
-
-                if (currentPageThreads.isEmpty()) {
-                    setEmptyFolderTextDisplay(true);
-                } else {
-                    setEmptyFolderTextDisplay(false);
-                }
-
-                //messageListAdapter = new MessageListAdapter(getActivity(), currentPageThreads);
-                //messageListView.setAdapter(messageListAdapter);
                 messageListAdapter.notifyDataSetChanged();
             }
         });
@@ -200,6 +222,40 @@ public class MessageFragment extends Fragment implements AdapterView.OnItemSelec
         reloadMessageThreads();
     }
 
+    /**
+     * Interface CallBacks
+     */
+
+    @Override
+    public void onScrollChanged(int scrollY, boolean firstScroll,
+                                boolean dragging) {
+    }
+
+    @Override
+    public void onDownMotionEvent() {
+    }
+
+    @Override
+    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+        if (scrollState == ScrollState.UP) {
+            if (actionBar.isShowing()) {
+                actionBar.hide();
+            }
+        } else if (scrollState == ScrollState.DOWN) {
+            if (!actionBar.isShowing()) {
+                actionBar.show();
+            }
+        }
+    }
+
+    /**
+     * Handles the Spinner selection event
+     *
+     * @param parent the selected item list
+     * @param view   the originating view
+     * @param pos    the position of the selected item
+     * @param id     NOT SURE HALP
+     */
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
         // An item was selected. You can retrieve the selected item using
@@ -217,9 +273,21 @@ public class MessageFragment extends Fragment implements AdapterView.OnItemSelec
         }
     }
 
+    /**
+     * Handles when nothing is selected on the Spinner
+     * @param parent the selected item
+     */
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
         currentFolderName = null;
+    }
+
+    /**
+     * Getters and setters
+     */
+
+    public Toolbar getFolderNavBar() {
+        return folderNavBar;
     }
 
     /**

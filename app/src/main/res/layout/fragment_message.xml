@@ -1,11 +1,13 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.kylemsguy.tcasmobile.MessageFragment">
 
-    <android.widget.Toolbar
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/pagebar"
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -56,13 +58,20 @@
 
         </RelativeLayout>
 
-    </android.widget.Toolbar>
+    </android.support.v7.widget.Toolbar>
 
-    <ListView
-        android:id="@+id/message_list"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_messages_refresh"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:visibility="gone" />
+        android:layout_above="@id/pagebar"
+        android:visibility="visible">
+
+        <com.github.ksoichiro.android.observablescrollview.ObservableListView
+        android:id="@+id/message_list"
+        android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <TextView
         android:id="@+id/empty_folder_text"
@@ -72,8 +81,10 @@
         android:text="This folder is currently empty."
         android:textSize="24sp"
         android:textStyle="italic"
-        android:visibility="visible" />
+        android:layout_above="@id/pagebar"
+        android:visibility="gone" />
 
     <!-- TODO Make floating compose button -->
 
-</LinearLayout>
+
+</RelativeLayout>
