@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -39,7 +40,7 @@ public class MessageFragment extends Fragment implements AdapterView.OnItemSelec
     private ArrayAdapter<CharSequence> folderNameMenuAdapter;
     private Spinner folderNameMenu;
     private EditText pageNumberView;
-    private Button refreshButton;
+    private ImageButton refreshButton;
 
     /**
      * Use this factory method to create a new instance of
@@ -79,7 +80,7 @@ public class MessageFragment extends Fragment implements AdapterView.OnItemSelec
 
         messageListView.setAdapter(messageListAdapter);
 
-        refreshButton = (Button) v.findViewById(R.id.go_page_btn);
+        refreshButton = (ImageButton) v.findViewById(R.id.go_page_btn);
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

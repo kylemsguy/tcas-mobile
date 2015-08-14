@@ -13,30 +13,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <Button
+            <ImageButton
                 android:id="@+id/go_page_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:hint="Testing"
-                android:onClick="requestPage" />
+                android:contentDescription="Reload"
+                android:onClick="requestPage"
+                android:src="@drawable/ic_menu_refresh" />
 
             <LinearLayout
                 android:id="@+id/toolbar_spacer"
                 android:layout_width="2dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_toLeftOf="@id/go_page_btn" />
+                android:layout_toLeftOf="@id/go_page_btn"
+                android:orientation="horizontal" />
 
             <EditText
                 android:id="@+id/page_number_field"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toLeftOf="@id/toolbar_spacer"
                 android:layout_alignBottom="@id/go_page_btn"
+                android:layout_toLeftOf="@id/toolbar_spacer"
+                android:hint="Pg #"
                 android:inputType="number"
-                android:text="1"
-                android:hint="Pg #" />
+                android:text="1" />
 
             <!--<EditText
                 android:id="@+id/folder_name_field"
@@ -49,7 +50,7 @@
 
             <Spinner
                 android:id="@+id/folder_name_menu"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_toLeftOf="@id/page_number_field" />
 
@@ -67,11 +68,11 @@
         android:id="@+id/empty_folder_text"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:visibility="visible"
         android:gravity="center"
         android:text="This folder is currently empty."
+        android:textSize="24sp"
         android:textStyle="italic"
-        android:textSize="24sp" />
+        android:visibility="visible" />
 
     <!-- TODO Make floating compose button -->
 
