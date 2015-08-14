@@ -147,6 +147,13 @@ public class MessageManager {
         return threads;
     }
 
+    /**
+     * Get all of the messages in a thread
+     *
+     * @param id Thread ID
+     * @return list of messages
+     * @throws Exception
+     */
     public List<Message> getMessages(int id) throws Exception {
         List<Message> messages = new ArrayList<>();
 
@@ -232,6 +239,12 @@ public class MessageManager {
 
     }
 
+    /**
+     * Reply to a message thread
+     *
+     * @param threadId ID of thread
+     * @param text     contents of message
+     */
     public void replyToThread(int threadId, String text) {
         throw new UnsupportedOperationException("Not Implemented");
     }
