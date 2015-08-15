@@ -110,6 +110,14 @@ public class QuestionManager {
         question.setActive(true);
     }
 
+    /**
+     * Reply to an Answer on a user-asked question
+     *
+     * @param answer    the answer to reply to
+     * @param title     The title of the new conversation
+     * @param message   The message to reply with
+     * @param anonymous true to remain anonymous, false otherwise
+     */
     public void replyToAnswer(Answer answer, String title, String message, boolean anonymous) {
         String url = REPLY_TO_ANSWER_URL + answer.getId() + "/";
         throw new UnsupportedOperationException("Not implemented");
