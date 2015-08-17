@@ -88,7 +88,8 @@ public class MessageManager {
      * @throws Exception
      */
     public List<MessageFolder> getFolders() throws Exception {
-        if (folders == null) {
+        // tautology because testing
+        if (folders == null || true) {
             refreshCurrentPage();
         }
         return Collections.unmodifiableList(folders);
@@ -102,7 +103,8 @@ public class MessageManager {
      * @throws Exception
      */
     public List<MessageThread> getThreads() throws Exception {
-        if (threads == null) {
+        // tautology because testing
+        if (threads == null || true) {
             refreshCurrentPage();
         }
         return Collections.unmodifiableList(threads);
@@ -429,6 +431,7 @@ public class MessageManager {
                     threadBuilder.setTimeReceivedOffset(Double.parseDouble(messageObject[6]));
                     objects.add(threadBuilder.build());
                     break;
+                case "NEXT": // TODO temporary in case this is a bug
                 case "HAS_NEXT":
                     if (messageObject.length != 2) {
                         throw new InvalidParameterException("Unknown HAS_NEXT object: " + rawMessageObject);

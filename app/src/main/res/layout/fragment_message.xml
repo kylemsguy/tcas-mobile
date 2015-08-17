@@ -34,7 +34,8 @@
                 android:id="@+id/previous_page_button"
                 android:layout_width="60dp"
                 android:layout_height="fill_parent"
-                android:text="-" />
+                android:text="-"
+                android:onClick="prevPage" />
 
             <EditText
                 android:id="@+id/page_number_field"
@@ -48,7 +49,8 @@
                 android:id="@+id/next_page_button"
                 android:layout_width="60dp"
                 android:layout_height="fill_parent"
-                android:text="+" />
+                android:text="+"
+                android:onClick="nextPage" />
 
             <!--<EditText
                 android:id="@+id/folder_name_field"

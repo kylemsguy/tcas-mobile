@@ -156,6 +156,7 @@ public class MessageFragment extends Fragment
     }
 
     private void reloadThreadsList(final List<MessageThread> threads) {
+        pageNumberView.setText(Integer.toString(mm.getCurrentPage()));
         // *shakes out list*
         currentPageThreads.clear();
 
@@ -207,36 +208,50 @@ public class MessageFragment extends Fragment
      */
 
     public void nextPage(View v) {
-        new AsyncTask<Void, Void, Void>() {
+        //System.out.println("Trying to go to next page");
+        // TODO replace with actual AsyncTask subclass
+        new AsyncTask<Void, Void, Boolean>() {
             @Override
-            protected Void doInBackground(Void... params) {
+            protected Boolean doInBackground(Void... params) {
                 try {
-                    mm.toNextPage();
+                    return mm.toNextPage();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                return null;
+                return false;
+            }
+
+            @Override
+            protected void onPostExecute(Boolean success) {
+                //System.out.println("ToNextPage success: " + success);
+                if (success)
+                    reloadMessageThreads();
             }
         }.execute();
-
-        reloadMessageThreads();
 
     }
 
     public void prevPage(View v) {
-        new AsyncTask<Void, Void, Void>() {
+        //System.out.println("Trying to go to previous page");
+        // TODO replace with actual AsyncTask subclass
+        new AsyncTask<Void, Void, Boolean>() {
             @Override
-            protected Void doInBackground(Void... params) {
+            protected Boolean doInBackground(Void... params) {
                 try {
-                    mm.toPrevPage();
+                    return mm.toPrevPage();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                return null;
+                return false;
+            }
+
+            @Override
+            protected void onPostExecute(Boolean success) {
+                //System.out.println("ToPrevPage success: " + success);
+                if (success)
+                    reloadMessageThreads();
             }
         }.execute();
-
-        reloadMessageThreads();
 
     }
 
@@ -316,6 +331,7 @@ public class MessageFragment extends Fragment
     /**
      * Classes used
      */
+
 
     private class GetThreadsTask extends AsyncTask<Void, Void, List<MessageThread>> {
         @Override
