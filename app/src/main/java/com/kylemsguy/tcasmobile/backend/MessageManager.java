@@ -150,6 +150,75 @@ public class MessageManager {
         }
     }
 
+
+    /**
+     * Creates a new message thread
+     *
+     * @param recipients   recipients, excluding the current user
+     * @param title        Title of the thread
+     * @param firstMessage First message sent to all recipients
+     * @throws Exception
+     */
+    public void newThread(List<String> recipients, String title, String firstMessage) throws Exception {
+        // TODO replace Exceptions with proper exceptions
+        if (title == null || !title.matches(".*[a-zA-Z0-9].*"))
+            throw new InvalidParameterException("The subject must have at least 1 alphanumeric character");
+        else if (firstMessage == null || firstMessage.isEmpty())
+            throw new InvalidParameterException("You may not send a blank message.");
+        else if (recipients == null || recipients.size() == 0)
+            throw new InvalidParameterException("You must have at least one recipient.");
+
+        SessionManager.GetRequestBuilder rb = new SessionManager.GetRequestBuilder();
+        StringBuilder sb = new StringBuilder();
+
+        for (String user : recipients) {
+            sb.append(user);
+            sb.append(",");
+        }
+        sb.setLength(sb.length() - 1);
+
+        rb.addParam(RECIPIENTS_KEY, sb.toString());
+        rb.addParam(TITLE_KEY, title);
+        rb.addParam(CONTENT_KEY, firstMessage);
+
+        String response = sm.sendPost(COMPOSE_URL, rb.toString());
+
+        Document dom = Jsoup.parse(response);
+
+        // TODO replace by getting an id!!! THIS IS TEMPORARY ONLY!!!
+        // the following is temporary. When a proper API is released rewrite this.
+        if (dom.getElementsByTag("title").text().equals("Two Cans and String : Messages in Inbox")) {
+            return; // success
+        }
+
+        Elements elements = dom.getElementsByAttributeValue("style", "color:#f00;");
+        for (Element e : elements) {
+            if (e.text().matches("No registered user by the name of:"))
+                throw new NoSuchUserException(e.text());
+        }
+
+        throw new Exception("An error occurred while submitting your message.");
+
+    }
+
+    /**
+     * Reply to a message thread
+     *
+     * @param threadId    ID of thread
+     * @param unanonymize whether to unanonymize self
+     * @param text        contents of message
+     */
+    public void replyToThread(int threadId, boolean unanonymize, String text) {
+        if (text == null || text.isEmpty())
+            throw new InvalidParameterException("You may not send a blank message.");
+        throw new UnsupportedOperationException("Not Implemented");
+    }
+
+
+    /**
+     * Deprecated methods
+     */
+
     /**
      * Returns a list of all the folders in Messages
      *
@@ -310,69 +379,6 @@ public class MessageManager {
         return messages;
     }
 
-
-    /**
-     * Creates a new message thread
-     *
-     * @param recipients   recipients, excluding the current user
-     * @param title        Title of the thread
-     * @param firstMessage First message sent to all recipients
-     * @throws Exception
-     */
-    public void newThread(List<String> recipients, String title, String firstMessage) throws Exception {
-        // TODO replace Exceptions with proper exceptions
-        if (title == null || !title.matches(".*[a-zA-Z0-9].*"))
-            throw new InvalidParameterException("The subject must have at least 1 alphanumeric character");
-        else if (firstMessage == null || firstMessage.isEmpty())
-            throw new InvalidParameterException("You may not send a blank message.");
-        else if (recipients == null || recipients.size() == 0)
-            throw new InvalidParameterException("You must have at least one recipient.");
-
-        SessionManager.GetRequestBuilder rb = new SessionManager.GetRequestBuilder();
-        StringBuilder sb = new StringBuilder();
-
-        for (String user : recipients) {
-            sb.append(user);
-            sb.append(",");
-        }
-        sb.setLength(sb.length() - 1);
-
-        rb.addParam(RECIPIENTS_KEY, sb.toString());
-        rb.addParam(TITLE_KEY, title);
-        rb.addParam(CONTENT_KEY, firstMessage);
-
-        String response = sm.sendPost(COMPOSE_URL, rb.toString());
-
-        Document dom = Jsoup.parse(response);
-
-        // TODO replace by getting an id!!! THIS IS TEMPORARY ONLY!!!
-        // the following is temporary. When a proper API is released rewrite this.
-        if (dom.getElementsByTag("title").text().equals("Two Cans and String : Messages in Inbox")) {
-            return; // success
-        }
-
-        Elements elements = dom.getElementsByAttributeValue("style", "color:#f00;");
-        for (Element e : elements) {
-            if (e.text().matches("No registered user by the name of:"))
-                throw new NoSuchUserException(e.text());
-        }
-
-        throw new Exception("An error occurred while submitting your message.");
-
-    }
-
-    /**
-     * Reply to a message thread
-     *
-     * @param threadId ID of thread
-     * @param unanonymize whether to unanonymize self
-     * @param text     contents of message
-     */
-    public void replyToThread(int threadId, boolean unanonymize, String text) {
-        if (text == null || text.isEmpty())
-            throw new InvalidParameterException("You may not send a blank message.");
-        throw new UnsupportedOperationException("Not Implemented");
-    }
 
     private static List<MessageObject> parseMessageData(String rawMessageData) {
         List<MessageObject> objects = new ArrayList<>();
