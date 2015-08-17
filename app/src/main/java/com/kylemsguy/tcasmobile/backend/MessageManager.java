@@ -34,8 +34,6 @@ public class MessageManager {
 
     public MessageManager(SessionManager sm) {
         this.sm = sm;
-        folders = new ArrayList<>();
-        threads = new ArrayList<>();
     }
 
     /**
@@ -44,6 +42,11 @@ public class MessageManager {
      * @throws Exception
      */
     public synchronized void refreshCurrentPage() throws Exception {
+        if (folders == null)
+            folders = new ArrayList<>();
+        if (threads == null)
+            threads = new ArrayList<>();
+
         String urlPage;
         if (currentFolder == null) {
             urlPage = MESSAGES_URL + "page" + pageNum + "/";
@@ -99,7 +102,7 @@ public class MessageManager {
      * @throws Exception
      */
     public List<MessageThread> getThreads() throws Exception {
-        if (folders == null) {
+        if (threads == null) {
             refreshCurrentPage();
         }
         return Collections.unmodifiableList(threads);
@@ -407,7 +410,8 @@ public class MessageManager {
                         throw new InvalidParameterException("Unknown FOLDER object: " + rawMessageObject);
                     }
                     String key = messageObject[1];
-                    String formattedName = TCaSObject.hexToString(messageObject[1]);
+                    //System.out.println("Parsing folder. KEY: " + key + "HEXNAME: " + messageObject[2]);
+                    String formattedName = TCaSObject.hexToString(messageObject[2]);
                     objects.add(new MessageFolder(key, formattedName));
                     break;
                 case "MSG":
@@ -419,7 +423,8 @@ public class MessageManager {
                     threadBuilder.setIsNew(messageObject[2].equals("1"));
                     threadBuilder.setTitle(TCaSObject.hexToString(messageObject[3]));
                     threadBuilder.setLastMessage(TCaSObject.hexToString(messageObject[4]));
-                    List<String> users = new ArrayList<>(Arrays.asList(messageObject[5].split("|")));
+                    String[] usersArray = messageObject[5].split("\\|");
+                    List<String> users = new ArrayList<>(Arrays.asList(usersArray));
                     threadBuilder.setUsers(users);
                     threadBuilder.setTimeReceivedOffset(Double.parseDouble(messageObject[6]));
                     objects.add(threadBuilder.build());

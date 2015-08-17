@@ -38,7 +38,6 @@ public class MessageFragment extends Fragment
     private ActionBar actionBar;
 
     private List<MessageThread> currentPageThreads;
-    private String currentFolderName;
     private List<MessageFolder> folders;
     private List<CharSequence> folderNames;
 
@@ -137,6 +136,10 @@ public class MessageFragment extends Fragment
 
     private void refreshFolders() {
         new RefreshFoldersTask().execute();
+    }
+
+    private void changeFolder(MessageFolder folder) {
+        new ChangeFolderTask().execute(folder);
     }
 
     private void reloadFolderSpinnerOptions() {
@@ -282,9 +285,11 @@ public class MessageFragment extends Fragment
         // An item was selected. You can retrieve the selected item using
         // parent.getItemAtPosition(pos)
         String folderName = ((CharSequence) parent.getItemAtPosition(pos)).toString();
+        if (folders == null)
+            return; // not ready yet
         for (MessageFolder folder : folders) {
             if (folder.getFormattedName().equals(folderName)) {
-                currentFolderName = folder.getKey();
+                changeFolder(folder);
                 break;
             }
         }
@@ -297,7 +302,7 @@ public class MessageFragment extends Fragment
      */
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
-        currentFolderName = null;
+//        currentFolderName = null;
     }
 
     /**
@@ -345,6 +350,28 @@ public class MessageFragment extends Fragment
         @Override
         protected void onPostExecute(Void retval) {
             reloadFolderSpinnerOptions();
+        }
+    }
+
+    private class ChangeFolderTask extends AsyncTask<MessageFolder, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(MessageFolder... params) {
+            boolean success = false;
+            try {
+                success = mm.changeFolder(params[0]);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return success;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                reloadMessageThreads();
+            } else {
+                System.out.println("ChangeFolderTask: OnPostExecute: Folder change not successful");
+            }
         }
     }
 
