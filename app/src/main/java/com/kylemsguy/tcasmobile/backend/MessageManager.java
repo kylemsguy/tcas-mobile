@@ -34,6 +34,8 @@ public class MessageManager {
 
     public MessageManager(SessionManager sm) {
         this.sm = sm;
+        folders = new ArrayList<>();
+        threads = new ArrayList<>();
     }
 
     /**
@@ -133,6 +135,11 @@ public class MessageManager {
         return hasNextPage;
     }
 
+    public synchronized void toFirstPage() throws Exception {
+        pageNum = 1;
+        refreshCurrentPage();
+    }
+
     /**
      * Changes folder to the given folder.
      *
@@ -143,6 +150,7 @@ public class MessageManager {
     public synchronized boolean changeFolder(MessageFolder nextFolder) throws Exception {
         if (MessageFolder.isValid(folders, nextFolder)) {
             currentFolder = nextFolder;
+            pageNum = 1;
             refreshCurrentPage();
             return true;
         } else {
@@ -214,6 +222,10 @@ public class MessageManager {
         throw new UnsupportedOperationException("Not Implemented");
     }
 
+
+    public int getCurrentPage() {
+        return pageNum;
+    }
 
     /**
      * Deprecated methods

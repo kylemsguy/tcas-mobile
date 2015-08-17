@@ -153,8 +153,14 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
     // start MessageActivity
 
-    public void requestPage(View v) {
-        mMessageFragment.requestPage(v);
+
+    public void prevPage(View v) {
+        mMessageFragment.prevPage(v);
+    }
+
+
+    public void nextPage(View v) {
+        mMessageFragment.nextPage(v);
     }
 
 
