@@ -8,12 +8,9 @@ import org.jsoup.select.Elements;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,8 +26,128 @@ public class MessageManager {
 
     private SessionManager sm;
 
+    private List<MessageFolder> folders;
+    private List<MessageThread> threads;
+    private int pageNum = 1;
+    private boolean hasNextPage = false;
+    private MessageFolder currentFolder;
+
     public MessageManager(SessionManager sm) {
         this.sm = sm;
+    }
+
+    /**
+     * Refreshes the threads on the current page
+     *
+     * @throws Exception
+     */
+    public synchronized void refreshCurrentPage() throws Exception {
+        String urlPage;
+        if (currentFolder == null) {
+            urlPage = MESSAGES_URL + "page" + pageNum + "/";
+        } else {
+            urlPage = MESSAGES_URL
+                    + "folder/" + URLEncoder.encode(currentFolder.getKey().toLowerCase(), "UTF-8")
+                    + "/page" + pageNum + "/";
+        }
+        /* shakes out old data containers */
+        folders.clear();
+        threads.clear();
+
+        String rawPageData = sm.getPageContent(urlPage);
+        Document dom = Jsoup.parse(rawPageData);
+        Element dataElement = dom.getElementById("tcas_app_scrape");
+        String rawData = dataElement.text();
+
+        List<MessageObject> parsedMessageData = parseMessageData(rawData);
+
+        for (MessageObject object : parsedMessageData) {
+            switch (object.getType()) {
+                case MESSAGE_FOLDER:
+                    folders.add((MessageFolder) object);
+                    break;
+                case MESSAGE_THREAD:
+                    threads.add((MessageThread) object);
+                    break;
+                case HAS_NEXT_PAGE:
+                    hasNextPage = ((HasNextPage) object).get();
+            }
+        }
+    }
+
+    /**
+     * Returns an immutable list of folders on the current page.
+     * If the folder list is null, refresh the message data
+     *
+     * @return immutable folders on the current page
+     * @throws Exception
+     */
+    public List<MessageFolder> getFolders() throws Exception {
+        if (folders == null) {
+            refreshCurrentPage();
+        }
+        return Collections.unmodifiableList(folders);
+    }
+
+    /**
+     * Returns an immutable list of message threads on the current page.
+     * If the list is null, refresh the message data
+     *
+     * @return immutable list of message threads on the current page
+     * @throws Exception
+     */
+    public List<MessageThread> getThreads() throws Exception {
+        if (folders == null) {
+            refreshCurrentPage();
+        }
+        return Collections.unmodifiableList(threads);
+    }
+
+    /**
+     * Changes to the previous page in the folder
+     *
+     * @return whether change was successful
+     * @throws Exception
+     */
+    public synchronized boolean toPrevPage() throws Exception {
+        if (pageNum > 1) {
+            pageNum--;
+            refreshCurrentPage();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Changes to the next page in the folder.
+     *
+     * @return whether change was successful
+     * @throws Exception
+     */
+    public synchronized boolean toNextPage() throws Exception {
+        if (hasNextPage) {
+            pageNum++;
+            refreshCurrentPage();
+        }
+        return hasNextPage;
+    }
+
+    /**
+     * Changes folder to the given folder.
+     *
+     * @param nextFolder The folder to switch to
+     * @return true if folder is valid, false otherwise.
+     * @throws Exception
+     */
+    public synchronized boolean changeFolder(MessageFolder nextFolder) throws Exception {
+        if (MessageFolder.isValid(folders, nextFolder)) {
+            currentFolder = nextFolder;
+            refreshCurrentPage();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -38,8 +155,8 @@ public class MessageManager {
      *
      * @return a list of folder names
      */
-    public List<MessageFolder> getFolders() throws Exception {
-        // TODO implement
+    @Deprecated
+    public List<MessageFolder> getFoldersFragile() throws Exception {
         List<MessageFolder> folders = new ArrayList<>();
 
         String html = sm.getPageContent(MESSAGES_URL);
@@ -55,9 +172,9 @@ public class MessageManager {
             if (folder.tagName().equals("a")) {
                 if (folder.attr("href").startsWith("/messages/folder/")) {
                     String[] splitPath = folder.attr("href").split("/");
-                    String canonicalFolderName = splitPath[splitPath.length - 1];
+                    String folderId = splitPath[splitPath.length - 1];
 
-                    MessageFolder theFolder = new MessageFolder(folder.text(), canonicalFolderName);
+                    MessageFolder theFolder = new MessageFolder(folderId, folder.text());
 
                     folders.add(theFolder);
                 }
@@ -71,11 +188,15 @@ public class MessageManager {
      * Gets the threads on a specified page. Returns null if the folder is empty.
      * Temporary until a proper API is available
      *
+     * Deprecated because is sensitive to page layout changes and does not check for
+     * whether an unread message is in the thread.
+     *
      * @param page   Message page
      * @param folder Message folder. If null then inbox
      * @return List of MessageThreads
      */
-    public List<MessageThread> getThreads(int page, String folder) throws Exception {
+    @Deprecated
+    public List<MessageThread> getThreadsFragile(int page, String folder) throws Exception {
         String urlPage;
         if (folder == null || folder.isEmpty()) {
             urlPage = MESSAGES_URL + "page" + page + "/";
@@ -139,7 +260,7 @@ public class MessageManager {
                     users.add("???");
 
                 // got all the data we need! time to make MessageThread!
-                MessageThread thread = new MessageThread(id, title, users, lastMessage, timeReceivedOffset);
+                MessageThread thread = new MessageThread(id, false, title, users, lastMessage, timeReceivedOffset);
                 threads.add(thread);
             }
         }
@@ -154,7 +275,8 @@ public class MessageManager {
      * @return list of messages
      * @throws Exception
      */
-    public List<Message> getMessages(int id) throws Exception {
+    @Deprecated
+    public List<Message> getMessagesFragile(int id) throws Exception {
         List<Message> messages = new ArrayList<>();
 
         String url = GET_MESSAGE_URL + id + "/";
@@ -250,6 +372,65 @@ public class MessageManager {
         if (text == null || text.isEmpty())
             throw new InvalidParameterException("You may not send a blank message.");
         throw new UnsupportedOperationException("Not Implemented");
+    }
+
+    private static List<MessageObject> parseMessageData(String rawMessageData) {
+        List<MessageObject> objects = new ArrayList<>();
+
+        String[] messageObjects = rawMessageData.split(",");
+
+        for (String rawMessageObject : messageObjects) {
+            String[] messageObject = rawMessageObject.split(":");
+
+            String type = messageObject[0];
+            switch (type) {
+                case "FOLDER":
+                    if (messageObject.length != 3) {
+                        throw new InvalidParameterException("Unknown FOLDER object: " + rawMessageObject);
+                    }
+                    String key = messageObject[1];
+                    String formattedName = TCaSObject.hexToString(messageObject[1]);
+                    objects.add(new MessageFolder(key, formattedName));
+                    break;
+                case "MSG":
+                    if (messageObject.length != 7) {
+                        throw new InvalidParameterException("Unknown MSG object: " + rawMessageObject);
+                    }
+                    MessageThread.Builder threadBuilder = new MessageThread.Builder();
+                    threadBuilder.setId(Integer.parseInt(messageObject[1]));
+                    threadBuilder.setIsNew(messageObject[2].equals("1"));
+                    threadBuilder.setTitle(TCaSObject.hexToString(messageObject[3]));
+                    threadBuilder.setLastMessage(TCaSObject.hexToString(messageObject[4]));
+                    List<String> users = new ArrayList<>(Arrays.asList(messageObject[5].split("|")));
+                    threadBuilder.setUsers(users);
+                    threadBuilder.setTimeReceivedOffset(Double.parseDouble(messageObject[6]));
+                    objects.add(threadBuilder.build());
+                    break;
+                case "HAS_NEXT":
+                    if (messageObject.length != 2) {
+                        throw new InvalidParameterException("Unknown HAS_NEXT object: " + rawMessageObject);
+                    }
+                    objects.add(new HasNextPage(messageObject[1].equals("1")));
+
+            }
+        }
+        return objects;
+    }
+
+    public static class HasNextPage implements MessageObject {
+        private boolean hasNext;
+
+        public HasNextPage(boolean hasNext) {
+            this.hasNext = hasNext;
+        }
+
+        public boolean get() {
+            return hasNext;
+        }
+
+        public Type getType() {
+            return Type.HAS_NEXT_PAGE;
+        }
     }
 
     public static class NoSuchUserException extends Exception {

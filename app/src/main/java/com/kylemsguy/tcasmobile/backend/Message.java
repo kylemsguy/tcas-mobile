@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
  * Created by kyle on 12/08/15.
  * Message class for storing individual messages
  */
-public class Message extends TCaSObject implements Comparable<Message> {
+public class Message extends TCaSObject implements Comparable<Message>, MessageObject {
     private String sentBy;
     private long timeReceived;
 
@@ -68,6 +68,10 @@ public class Message extends TCaSObject implements Comparable<Message> {
     }
 
     /**
+     * Interface methods
+     */
+
+    /**
      * Compares the time received of this message to another Message
      *
      * @param o the other message
@@ -81,5 +85,9 @@ public class Message extends TCaSObject implements Comparable<Message> {
             return 0;
         else
             return 1;
+    }
+
+    public Type getType() {
+        return Type.MESSAGE;
     }
 }

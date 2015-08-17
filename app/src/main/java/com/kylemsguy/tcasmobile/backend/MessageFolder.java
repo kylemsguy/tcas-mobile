@@ -1,39 +1,61 @@
 package com.kylemsguy.tcasmobile.backend;
 
+import java.util.Collection;
+
 /**
  * Created by kyle on 13/08/15.
  * An object that contains metadata about a folder
  */
-public class MessageFolder {
-    private String name;
-    private String canonicalizedName;
+public class MessageFolder implements MessageObject {
+    private String key;
+    private String formattedName;
 
     /**
      * Constructor for MessageFolder object
      *
-     * @param name              Name of folder
-     * @param canonicalizedName canonicalized name of folder
+     * @param key          Name of folder
+     * @param formattedName formatted key of folder
      */
-    public MessageFolder(String name, String canonicalizedName) {
-        this.name = name;
-        this.canonicalizedName = canonicalizedName;
+    public MessageFolder(String key, String formattedName) {
+        this.key = key;
+        this.formattedName = formattedName;
     }
 
     /**
-     * Returns the user-readable name of the folder
+     * Returns the user-readable key of the folder
      *
-     * @return the user-readable name of the folder
+     * @return the user-readable key of the folder
      */
-    public String getName() {
-        return name;
+    public String getKey() {
+        return key;
     }
 
     /**
-     * Returns the canonicalized name of the folder
+     * Returns the formatted key of the folder
      *
-     * @return the canonicalized name of the folder
+     * @return the formatted key of the folder
      */
-    public String getCanonicalizedName() {
-        return canonicalizedName;
+    public String getFormattedName() {
+        return formattedName;
+    }
+
+    /**
+     * Interface methods
+     */
+    public Type getType() {
+        return Type.MESSAGE_FOLDER;
+    }
+
+    public static boolean isValid(Collection<MessageFolder> collection, MessageFolder folder) {
+        if (folder == null) {
+            return true; // is inbox
+        } else {
+            for (MessageFolder item : collection) {
+                if (item.getKey().equals(folder.getKey())) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

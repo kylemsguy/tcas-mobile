@@ -58,7 +58,7 @@ public class MessageContentFragment extends Fragment {
         @Override
         protected List<Message> doInBackground(Void... args) {
             try {
-                return mm.getMessages(threadId);
+                return mm.getMessagesFragile(threadId);
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;

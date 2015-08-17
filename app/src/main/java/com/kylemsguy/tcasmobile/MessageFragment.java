@@ -12,13 +12,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -153,7 +150,7 @@ public class MessageFragment extends Fragment
         folderNames.clear();
         folderNames.add("Inbox");
         for (MessageFolder folder : folders) {
-            folderNames.add(folder.getName());
+            folderNames.add(folder.getFormattedName());
         }
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -280,8 +277,8 @@ public class MessageFragment extends Fragment
             currentFolderName = null;
         } else {
             for (MessageFolder folder : folders) {
-                if (folder.getName().equals(folderName)) {
-                    currentFolderName = folder.getCanonicalizedName();
+                if (folder.getFormattedName().equals(folderName)) {
+                    currentFolderName = folder.getKey();
                     break;
                 }
             }
@@ -314,7 +311,7 @@ public class MessageFragment extends Fragment
         protected List<MessageThread> doInBackground(Void... params) {
             List<MessageThread> threads = null;
             try {
-                threads = mm.getThreads(pageNum, currentFolderName);
+                threads = mm.getThreadsFragile(pageNum, currentFolderName);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -332,7 +329,7 @@ public class MessageFragment extends Fragment
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                folders = mm.getFolders();
+                folders = mm.getFoldersFragile();
             } catch (Exception e) {
                 e.printStackTrace();
             }

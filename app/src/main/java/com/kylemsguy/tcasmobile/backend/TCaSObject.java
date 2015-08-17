@@ -1,5 +1,6 @@
 package com.kylemsguy.tcasmobile.backend;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class TCaSObject {
+public abstract class TCaSObject<T> {
     private int id;
     private String content;
 
@@ -111,6 +112,21 @@ public abstract class TCaSObject {
         }
         return listData;
 
+    }
+
+    public static String hexToString(String hex) {
+        if (hex.length() % 2 != 0) {
+            throw new InvalidParameterException("Input length not multiple of 2");
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < hex.length(); i += 2) {
+            String character = hex.substring(i, i + 2);
+            int decimal = Integer.parseInt(character, 16);
+            sb.append((char) decimal);
+        }
+
+        return sb.toString();
     }
 
     public static class NoSuchQuestionException extends Exception {
