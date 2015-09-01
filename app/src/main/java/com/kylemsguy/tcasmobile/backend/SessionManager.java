@@ -30,10 +30,10 @@ import org.jsoup.select.Elements;
 
 public class SessionManager {
     // let's define some constants
-    private final String USER_AGENT = "Mozilla/5.0 (compatible; TCaSMobile/1.x)";
+    private static final String USER_AGENT = "Mozilla/5.0 (compatible; TCaSMobile/1.x)"; // TODO perhaps include sysinfo?
     public static final String BASE_URL = "http://twocansandstring.com/";
     public static final boolean BACKEND_DEBUG = false;
-    private final String LOGIN = BASE_URL + "login/";
+    private static final String LOGIN = BASE_URL + "login/";
 
     // Multipart form stuff
     private static final String CRLF = "\r\n";
