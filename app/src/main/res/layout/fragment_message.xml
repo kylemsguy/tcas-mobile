@@ -2,69 +2,80 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context="com.kylemsguy.tcasmobile.MessageFragment">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/pagebar"
-        android:layout_alignParentBottom="true"
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#FFFFFF">
 
-        <LinearLayout
+        <!-- TODO put android:background value in an XML file -->
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/pagebar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|enterAlways">
 
-            <!--<ImageButton
-                android:id="@+id/go_page_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:contentDescription="Reload"
-                android:onClick="requestPage"
-                android:src="@drawable/ic_menu_refresh" />-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <Spinner
-                android:id="@+id/folder_name_menu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                <!--<ImageButton
+                    android:id="@+id/go_page_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:contentDescription="Reload"
+                    android:onClick="requestPage"
+                    android:src="@drawable/ic_menu_refresh" />-->
 
-            <Button
-                android:id="@+id/previous_page_button"
-                android:layout_width="60dp"
-                android:layout_height="fill_parent"
-                android:text="-"
-                android:onClick="prevPage" />
+                <Spinner
+                    android:id="@+id/folder_name_menu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
-            <EditText
-                android:id="@+id/page_number_field"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:hint="Pg #"
-                android:inputType="number"
-                android:text="1" />
+                <Button
+                    android:id="@+id/previous_page_button"
+                    android:layout_width="60dp"
+                    android:layout_height="fill_parent"
+                    android:onClick="prevPage"
+                    android:text="-" />
 
-            <Button
-                android:id="@+id/next_page_button"
-                android:layout_width="60dp"
-                android:layout_height="fill_parent"
-                android:text="+"
-                android:onClick="nextPage" />
+                <EditText
+                    android:id="@+id/page_number_field"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:hint="Pg #"
+                    android:inputType="number"
+                    android:text="1" />
 
-            <!--<EditText
-                android:id="@+id/folder_name_field"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="Folder Name"
-                android:text="Inbox"
-                android:layout_toLeftOf="@id/page_number_field"
-                android:layout_alignBottom="@id/page_number_field" />-->
+                <Button
+                    android:id="@+id/next_page_button"
+                    android:layout_width="60dp"
+                    android:layout_height="fill_parent"
+                    android:onClick="nextPage"
+                    android:text="+" />
+
+                <!--<EditText
+                    android:id="@+id/folder_name_field"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="Folder Name"
+                    android:text="Inbox"
+                    android:layout_toLeftOf="@id/page_number_field"
+                    android:layout_alignBottom="@id/page_number_field" />-->
 
 
-        </LinearLayout>
+            </LinearLayout>
 
-    </android.support.v7.widget.Toolbar>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_messages_refresh"
@@ -73,21 +84,27 @@
         android:layout_above="@id/pagebar"
         android:visibility="visible">
 
-        <com.github.ksoichiro.android.observablescrollview.ObservableListView
-        android:id="@+id/message_list"
-        android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
+        <!--<com.github.ksoichiro.android.observablescrollview.ObservableListView
+            android:id="@+id/message_list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />-->
+        <!-- A RecyclerView with some commonly used attributes -->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/message_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <TextView
         android:id="@+id/empty_folder_text"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_above="@id/pagebar"
         android:gravity="center"
         android:text="This folder is currently empty."
         android:textSize="24sp"
         android:textStyle="italic"
-        android:layout_above="@id/pagebar"
         android:visibility="gone" />
 
     <!-- TODO Make floating compose button -->

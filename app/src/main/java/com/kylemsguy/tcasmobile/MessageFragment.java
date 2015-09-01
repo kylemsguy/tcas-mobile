@@ -5,9 +5,11 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,13 +17,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.github.ksoichiro.android.observablescrollview.ObservableListView;
-import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
-import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.kylemsguy.tcasmobile.backend.MessageFolder;
 import com.kylemsguy.tcasmobile.backend.MessageManager;
 import com.kylemsguy.tcasmobile.backend.MessageThread;
@@ -31,25 +29,30 @@ import java.util.List;
 
 
 public class MessageFragment extends Fragment
-        implements AdapterView.OnItemSelectedListener, ObservableScrollViewCallbacks {
+        implements AdapterView.OnItemSelectedListener {
     private MessageManager mm;
 
     private AppCompatActivity activity;
     private ActionBar actionBar;
 
+    // Main list
+    private MessageListAdapter messageListAdapter;
+    private RecyclerView messageRecyclerView;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private SwipeRefreshLayout mSwipeContainer;
+    private TextView emptyFolderTextView;
+
+    // Bottom bar
+    private ArrayAdapter<CharSequence> folderNameMenuAdapter;
+    private Spinner folderNameMenu;
+    private EditText pageNumberView;
+    private Toolbar folderNavBar;
+
+    // Bottom bar contents
     private List<MessageThread> currentPageThreads;
     private List<MessageFolder> folders;
     private List<CharSequence> folderNames;
 
-    private MessageListAdapter messageListAdapter;
-    private ObservableListView messageListView;
-    private TextView emptyFolderTextView;
-
-    private ArrayAdapter<CharSequence> folderNameMenuAdapter;
-    private Spinner folderNameMenu;
-    private EditText pageNumberView;
-
-    private Toolbar folderNavBar;
 
     /**
      * Use this factory method to create a new instance of
@@ -87,14 +90,28 @@ public class MessageFragment extends Fragment
 
         // Set up ListView of messages
         currentPageThreads = new ArrayList<>();
-        messageListView = (ObservableListView) v.findViewById(R.id.message_list);
-        messageListView.setScrollViewCallbacks(this);
+        messageRecyclerView = (RecyclerView) v.findViewById(R.id.message_list);
 
-        messageListAdapter = new MessageListAdapter(getActivity(), currentPageThreads);
-        messageListView.setAdapter(messageListAdapter);
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        messageRecyclerView.setLayoutManager(mLayoutManager);
 
-        // set up click callbacks
-        messageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        // set up the adapter
+        messageListAdapter = new MessageListAdapter(currentPageThreads, getActivity());
+        messageRecyclerView.setAdapter(messageListAdapter);
+
+        // Set up the container for the ListView to allow pull-to-refresh
+        mSwipeContainer = (SwipeRefreshLayout) v.findViewById(R.id.swipe_messages_refresh);
+        // Setup refresh listener which triggers new data loading
+        mSwipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                reloadMessageThreads();
+            }
+        });
+
+        /*// set up click callbacks
+        messageRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MessageThread thread = (MessageThread) parent.getItemAtPosition(position);
@@ -105,7 +122,7 @@ public class MessageFragment extends Fragment
 
                 startActivity(intent);
             }
-        });
+        });*/
 
         // Set up Spinner of foldernames
         folderNameMenu = (Spinner) v.findViewById(R.id.folder_name_menu);
@@ -139,6 +156,7 @@ public class MessageFragment extends Fragment
     }
 
     private void changeFolder(MessageFolder folder) {
+        mSwipeContainer.setRefreshing(true);
         new ChangeFolderTask().execute(folder);
     }
 
@@ -156,6 +174,7 @@ public class MessageFragment extends Fragment
     }
 
     private void reloadThreadsList(final List<MessageThread> threads) {
+        mSwipeContainer.setRefreshing(false);
         pageNumberView.setText(Integer.toString(mm.getCurrentPage()));
         // *shakes out list*
         currentPageThreads.clear();
@@ -195,10 +214,10 @@ public class MessageFragment extends Fragment
 
     private void setEmptyFolderTextDisplay(boolean shown) {
         if (shown) {
-            messageListView.setVisibility(View.GONE);
+            messageRecyclerView.setVisibility(View.GONE);
             emptyFolderTextView.setVisibility(View.VISIBLE);
         } else {
-            messageListView.setVisibility(View.VISIBLE);
+            messageRecyclerView.setVisibility(View.VISIBLE);
             emptyFolderTextView.setVisibility(View.GONE);
         }
     }
@@ -208,6 +227,7 @@ public class MessageFragment extends Fragment
      */
 
     public void nextPage(View v) {
+        mSwipeContainer.setRefreshing(true);
         //System.out.println("Trying to go to next page");
         // TODO replace with actual AsyncTask subclass
         new AsyncTask<Void, Void, Boolean>() {
@@ -226,12 +246,15 @@ public class MessageFragment extends Fragment
                 //System.out.println("ToNextPage success: " + success);
                 if (success)
                     reloadMessageThreads();
+                else
+                    mSwipeContainer.setRefreshing(false);
             }
         }.execute();
 
     }
 
     public void prevPage(View v) {
+        mSwipeContainer.setRefreshing(true);
         //System.out.println("Trying to go to previous page");
         // TODO replace with actual AsyncTask subclass
         new AsyncTask<Void, Void, Boolean>() {
@@ -247,9 +270,11 @@ public class MessageFragment extends Fragment
 
             @Override
             protected void onPostExecute(Boolean success) {
-                //System.out.println("ToPrevPage success: " + success);
+                //b.println("ToPrevPage success: " + success);
                 if (success)
                     reloadMessageThreads();
+                else
+                    mSwipeContainer.setRefreshing(false);
             }
         }.execute();
 
@@ -265,7 +290,7 @@ public class MessageFragment extends Fragment
      * Interface CallBacks
      */
 
-    @Override
+    /*@Override
     public void onScrollChanged(int scrollY, boolean firstScroll,
                                 boolean dragging) {
     }
@@ -285,7 +310,7 @@ public class MessageFragment extends Fragment
                 actionBar.show();
             }
         }
-    }
+    }*/
 
     /**
      * Handles the Spinner selection event
