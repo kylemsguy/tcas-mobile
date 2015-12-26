@@ -1,9 +1,11 @@
 package com.kylemsguy.tcasmobile;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 
 import com.kylemsguy.tcasmobile.backend.Message;
 import com.kylemsguy.tcasmobile.backend.MessageManager;
+import com.kylemsguy.tcasmobile.backend.MessageThread;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,7 @@ public class MessageContentFragment extends Fragment {
     private MessageListAdapter messageListAdapter;
     private RecyclerView messageRecyclerView;
     private SwipeRefreshLayout mSwipeContainer;
+    private LinearLayoutManager mLayoutManager;
 
     private int threadId;
     private List<Message> messages;
@@ -57,16 +61,22 @@ public class MessageContentFragment extends Fragment {
         // get arguments if any
         Bundle args = getArguments();
         if (args != null) {
+            // args should NEVER be null
             threadId = args.getInt(THREAD_ID_ARG);
 
             // debug only
             TextView textView = (TextView) view.findViewById(R.id.debug_msg_id);
-            textView.setText(Integer.toString(threadId));
+            textView.setText("Debug: MessageID: " + Integer.toString(threadId));
+            textView.setVisibility(View.GONE);
         }
 
         // Set up ListView of messages
         messages = new ArrayList<>();
         messageRecyclerView = (RecyclerView) view.findViewById(R.id.message_list);
+
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        messageRecyclerView.setLayoutManager(mLayoutManager);
 
         // set up the adapter
         messageListAdapter = new MessageListAdapter(messages, getActivity());
@@ -79,9 +89,12 @@ public class MessageContentFragment extends Fragment {
             @Override
             public void onRefresh() {
                 // TODO implement
+                //mSwipeContainer.setRefreshing(false);
                 reloadMessageThread();
             }
         });
+
+        reloadMessageThread();
 
         return view;
     }
@@ -92,7 +105,33 @@ public class MessageContentFragment extends Fragment {
 
     private void populateRecyclerView(List<Message> messages) {
         if (messages == null) {
-            System.err.println("MessageContentFragment: An error occurred.");
+            // this is an error message "An error occurred while trying to load thread"
+            //setEmptyThreadTextDisplay(true);
+        } else {
+            mSwipeContainer.setRefreshing(false);
+            this.messages.clear();
+            if (Build.VERSION.SDK_INT >= 11)
+                this.messages.addAll(messages);
+            else {
+                for (Message message : messages) {
+                    this.messages.add(message);
+                }
+            }
+
+            if (this.messages.isEmpty()) {
+                // this is an error message "An error occurred while trying to load thread"
+                //setEmptyFolderTextDisplay(true);
+            } else {
+                // Unset error message
+                //setEmptyFolderTextDisplay(false);
+            }
+
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    messageListAdapter.notifyDataSetChanged();
+                }
+            });
         }
     }
 

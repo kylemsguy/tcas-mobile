@@ -56,7 +56,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
                                                             int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.message_list_row, parent, false);
+                .inflate(R.layout.message_list, parent, false);
         // set the view's size, margins, paddings and layout parameters
         ViewHolder vh = new ViewHolder(v);
         return vh;
@@ -76,7 +76,8 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         Message currentMessage = messages.get(position);
 
         // set attributes
-        senderView.setText(currentMessage.getSender());
+        String sender = currentMessage.getSender();
+        senderView.setText(sender);
         messageView.setText(currentMessage.getContent());
 
         NumberFormat df = new DecimalFormat("#0.00");

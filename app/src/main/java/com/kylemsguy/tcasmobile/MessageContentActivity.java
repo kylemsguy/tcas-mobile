@@ -14,10 +14,17 @@ public class MessageContentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_content);
 
+        Bundle args = getIntent().getExtras();
+        int threadId = -1;
+
+        if (args != null) {
+            threadId = args.getInt(MessageContentFragment.THREAD_ID_ARG);
+        }
+
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-        MessageContentFragment fragment = MessageContentFragment.newInstance(1/*TODO: changeme*/);
-        ft.add(R.id.fragment_container, fragment, "MessageContentActivity");
+        MessageContentFragment fragment = MessageContentFragment.newInstance(threadId);
+        ft.add(R.id.fragment_container, fragment, "Loading...");
         ft.commit();
     }
 
