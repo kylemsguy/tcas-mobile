@@ -47,6 +47,16 @@ public class Message extends TCaSObject implements Comparable<Message>, MessageO
         return timeReceived;
     }
 
+
+    /**
+     * Returns the amount of days in the past the message was received.
+     *
+     * @return when the message was received
+     */
+    public double getOffsetDaysReceived() {
+        return OhareanCalendar.unixToDaysOffset(timeReceived);
+    }
+
     /**
      * Returns the sender of the message
      *

@@ -8,17 +8,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.kylemsguy.tcasmobile.backend.Message;
+import com.kylemsguy.tcasmobile.backend.MessageThread;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 
 /**
- * Created by kyle on 25/12/15.
+ * Created by kyle on 13/08/15.
+ * ArrayAdapter for the message list on MessageFragment
  */
-public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.ViewHolder> {
-    private List<Message> messages;
+public class MessageThreadListAdapter extends RecyclerView.Adapter<MessageThreadListAdapter.ViewHolder> {
+    private List<MessageThread> threads;
     private Context context;
 
     // Provide a reference to the views for each data item
@@ -45,14 +46,14 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
 
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MessageListAdapter(List<Message> myDataset, Context context) {
-        messages = myDataset;
+    public MessageThreadListAdapter(List<MessageThread> myDataset, Context context) {
+        threads = myDataset;
         this.context = context;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public MessageListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+    public MessageThreadListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                             int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
@@ -69,30 +70,32 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         // - replace the contents of the view with that element
         View convertView = holder.view;
 
-        TextView senderView = (TextView) convertView.findViewById(R.id.message_sender);
-        TextView messageView = (TextView) convertView.findViewById(R.id.message_content);
+        TextView titleView = (TextView) convertView.findViewById(R.id.message_title);
+        TextView summaryView = (TextView) convertView.findViewById(R.id.message_summary);
+        TextView usersView = (TextView) convertView.findViewById(R.id.message_recipients);
         TextView timeView = (TextView) convertView.findViewById(R.id.message_time);
 
-        Message currentMessage = messages.get(position);
+        MessageThread currentThread = threads.get(position);
 
         // set attributes
-        senderView.setText(currentMessage.getSender());
-        messageView.setText(currentMessage.getContent());
+        titleView.setText(currentThread.getTitle());
+        summaryView.setText(currentThread.getLastMessage());
+        usersView.setText(currentThread.getUsers().toString());
 
         NumberFormat df = new DecimalFormat("#0.00");
-        timeView.setText(df.format(currentMessage.getOffsetDaysReceived()) + " days ago");
+        timeView.setText(df.format(currentThread.getOffsetDaysReceived()) + " days ago");
 
         // set the click listener
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*Message thread = messages.get(position);
+                MessageThread thread = threads.get(position);
                 int threadId = thread.getId();
 
                 Intent intent = new Intent(context, MessageContentActivity.class);
                 intent.putExtra("threadId", threadId);
 
-                v.getContext().startActivity(intent);*/
+                v.getContext().startActivity(intent);
             }
         });
     }
@@ -100,6 +103,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return messages.size();
+        return threads.size();
     }
+
 }

@@ -1,6 +1,5 @@
 package com.kylemsguy.tcasmobile;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,7 +35,7 @@ public class MessageFragment extends Fragment
     private ActionBar actionBar;
 
     // Main list
-    private MessageListAdapter messageListAdapter;
+    private MessageThreadListAdapter messageListAdapter;
     private RecyclerView messageRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     private SwipeRefreshLayout mSwipeContainer;
@@ -97,7 +96,7 @@ public class MessageFragment extends Fragment
         messageRecyclerView.setLayoutManager(mLayoutManager);
 
         // set up the adapter
-        messageListAdapter = new MessageListAdapter(currentPageThreads, getActivity());
+        messageListAdapter = new MessageThreadListAdapter(currentPageThreads, getActivity());
         messageRecyclerView.setAdapter(messageListAdapter);
 
         // Set up the container for the ListView to allow pull-to-refresh

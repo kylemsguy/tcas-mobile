@@ -101,7 +101,6 @@
         android:id="@+id/empty_folder_text"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_above="@id/pagebar"
         android:gravity="center"
         android:text="This folder is currently empty."
         android:textSize="24sp"

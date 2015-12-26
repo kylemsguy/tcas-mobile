@@ -1,7 +1,15 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+<!--<fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment"
     android:name="com.kylemsguy.tcasmobile.MessageContentFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:layout="@layout/fragment_message_content" />
+    tools:layout="@layout/fragment_message_content" />-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_container"
+    android:name="com.kylemsguy.tcasmobile.MessageContentFragmentContainer"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" />
