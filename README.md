@@ -15,6 +15,8 @@ If you would like to test the most recent build from the _devel_ branch, first i
 
 [**Join TCaSMobile Beta Testing**](https://play.google.com/apps/testing/com.kylemsguy.tcasmobile)
 
+Please report any bugs as issues on this Repository, making sure to specify which version of the app you're running.
+
 Repository Information
 -----------------------
 
