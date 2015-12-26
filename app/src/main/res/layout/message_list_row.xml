@@ -2,7 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?attr/selectableItemBackground">
 
     <CheckBox
         android:id="@+id/checkbox"
@@ -24,7 +27,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="italic"
-            android:text="1.5 days ago" />
+            android:text="1.5 days ago"
+            android:clickable="false" />
     </LinearLayout>
 
     <LinearLayout
@@ -44,27 +48,31 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="false">
 
             <TextView
                 android:id="@+id/message_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20dp"
-                android:text="TitleView" />
+                android:text="TitleView"
+                android:clickable="false" />
 
             <TextView
                 android:id="@+id/message_summary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="SummaryView"
-                android:textStyle="italic" />
+                android:textStyle="italic"
+                android:clickable="false" />
 
             <TextView
                 android:id="@+id/message_recipients"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="AppTester2" />
+                android:text="AppTester2"
+                android:clickable="false" />
 
         </LinearLayout>
 
