@@ -115,15 +115,15 @@ public class AnswerFragment extends Fragment {
         mCurrQuestion = question;
     }
 
-    public void skipPerm(View view) {
+    public void skipPerm() {
         skipQuestion(true);
     }
 
-    public void skipTemp(View view) {
+    public void skipTemp() {
         skipQuestion(false);
     }
 
-    public void submitAnswer(View view) {
+    public void submitAnswer() {
         // get ID
         String id = mCurrQuestion.get("id");
 

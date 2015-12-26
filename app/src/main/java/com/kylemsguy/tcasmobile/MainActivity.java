@@ -138,15 +138,15 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
     // BEGIN AnswerActivity
     public void skipTemp(View view) {
-        mAnswerFragment.skipTemp(view);
+        mAnswerFragment.skipTemp();
     }
 
     public void skipPerm(View view) {
-        mAnswerFragment.skipPerm(view);
+        mAnswerFragment.skipPerm();
     }
 
     public void submitAnswer(View view) {
-        mAnswerFragment.submitAnswer(view);
+        mAnswerFragment.submitAnswer();
     }
 
     // end AnswerActivity

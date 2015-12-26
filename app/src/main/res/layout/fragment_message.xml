@@ -94,7 +94,10 @@
             android:id="@+id/message_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scrollbars="vertical" />
+            android:scrollbars="vertical"
+            android:focusable="true"
+            android:clickable="true"
+            android:background="?attr/selectableItemBackground" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <TextView

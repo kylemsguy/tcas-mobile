@@ -76,11 +76,14 @@ public class AskFragment extends Fragment {
             @Override
             public boolean onChildClick(ExpandableListView parent, View view,
                                         int groupPosition, int childPosition, long id) {
+                /*  if child item clicked */
                 Answer toMark = mAdapter.getChildItem(groupPosition, childPosition);
                 new MarkAnswerReadTask().execute(qm, toMark);
-                return false;
+                onChildLongClick(groupPosition, childPosition);
+                return true;
             }
         });
+
         mExpListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -106,6 +109,44 @@ public class AskFragment extends Fragment {
                 return false;
             }
         });
+        /**
+        mExpListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View view,
+                                        int groupPosition, int childPosition, long id) {
+                Answer toMark = mAdapter.getChildItem(groupPosition, childPosition);
+                new MarkAnswerReadTask().execute(qm, toMark);
+                return false;
+            }
+        });
+         */
+        /*
+        mExpListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                long packedPosition = mExpListView.getExpandableListPosition(position);
+
+                int itemType = ExpandableListView.getPackedPositionType(packedPosition);
+                int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+                int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+
+
+                /*  if group item clicked *
+                if (itemType == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
+                    onGroupLongClick(groupPosition);
+                    return true;
+                }
+
+                /*  if child item clicked *
+                else if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                    onChildLongClick(groupPosition, childPosition);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+        */
 
         // Set up the container for the ListView to allow pull-to-refresh
         mSwipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.questionListContainer);
