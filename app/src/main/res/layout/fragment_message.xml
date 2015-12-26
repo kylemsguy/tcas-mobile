@@ -82,7 +82,7 @@
         android:id="@+id/swipe_messages_refresh"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_above="@id/pagebar"
+        android:layout_above="@id/appBarLayout"
         android:visibility="visible">
 
         <!--<com.github.ksoichiro.android.observablescrollview.ObservableListView
