@@ -27,6 +27,7 @@ import org.apache.http.protocol.HTTP;
 public class PrefUtils {
     public static final String PREF_LOGIN_USERNAME_KEY = "__USERNAME__";
     public static final String PREF_LOGIN_PASSWORD_KEY = "__PASSWORD__";
+    // Note: PREF_LOGGED_IN_KEY contains the display username when user is logged in
     public static final String PREF_LOGGED_IN_KEY = "__LOGGEDIN__";
     public static final String PREF_COOKIES_KEY = "__COOKIES__";
     public static final String PREF_VERSION_CODE_KEY = "__APPVERSION__";

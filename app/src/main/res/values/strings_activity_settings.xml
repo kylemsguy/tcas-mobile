@@ -2,10 +2,12 @@
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
+    <string name="pref_username_label">Username</string>
 
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 
+    <string name="pref_header_profile">Profile Settings</string>
     <string name="pref_title_profile_image">Profile Image</string>
     <string name="pref_description_profile_image">Update your Profile Image</string>
     <string name="pref_profile_image_key">profileImage</string>
@@ -57,4 +59,79 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+
+    <!-- Settings for Account -->
+    <string name="pref_header_account">Account Settings</string>
+
+    <string name="pref_title_password">Password</string>
+    <string name="pref_summary_password">Set your TCaS Password</string>
+
+    <string name="pref_title_language">Language</string>
+    <string-array name="pref_language_titles">
+        <item>Afrikaans</item>
+        <item>Arabic</item>
+        <item>Bulgarian</item>
+        <item>Chinese</item>
+        <item>Czech</item>
+        <item>Dutch</item>
+        <item>English</item>
+        <item>Finnish</item>
+        <item>French</item>
+        <item>German</item>
+        <item>Greek</item>
+        <item>Hebrew</item>
+        <item>Hungarian</item>
+        <item>Icelandic</item>
+        <item>Italian</item>
+        <item>Japanese</item>
+        <item>Korean</item>
+        <item>Malay</item>
+        <item>Norwegian</item>
+        <item>Polish</item>
+        <item>Portuguese</item>
+        <item>Romanian</item>
+        <item>Russian</item>
+        <item>Spanish</item>
+        <item>Swedish</item>
+        <item>Tagalog</item>
+        <item>Thai</item>
+        <item>Turkish</item>
+        <item>Ukrainian</item>
+        <item>Vietnamese</item>
+    </string-array>
+    <string-array name="pref_language_values">
+        <item>28</item>
+        <item>11</item>
+        <item>23</item>
+        <item>5</item>
+        <item>21</item>
+        <item>13</item>
+        <item>1</item>
+        <item>27</item>
+        <item>4</item>
+        <item>6</item>
+        <item>20</item>
+        <item>30</item>
+        <item>22</item>
+        <item>12</item>
+        <item>9</item>
+        <item>2</item>
+        <item>7</item>
+        <item>17</item>
+        <item>25</item>
+        <item>16</item>
+        <item>10</item>
+        <item>24</item>
+        <item>8</item>
+        <item>3</item>
+        <item>26</item>
+        <item>19</item>
+        <item>18</item>
+        <item>15</item>
+        <item>29</item>
+        <item>14</item>
+    </string-array>
+    <!-- The below is taken from TCaS itself, and is the languages TCaS supports
+    <select name="language"><option value="28">Afrikaans</option><option value="11">Arabic</option><option value="23">Bulgarian</option><option value="5">Chinese</option><option value="21">Czech</option><option value="13">Dutch</option><option value="1" selected="selected">English</option><option value="27">Finnish</option><option value="4">French</option><option value="6">German</option><option value="20">Greek</option><option value="30">Hebrew</option><option value="22">Hungarian</option><option value="12">Icelandic</option><option value="9">Italian</option><option value="2">Japanese</option><option value="7">Korean</option><option value="17">Malay</option><option value="25">Norwegian</option><option value="16">Polish</option><option value="10">Portuguese</option><option value="24">Romanian</option><option value="8">Russian</option><option value="3">Spanish</option><option value="26">Swedish</option><option value="19">Tagalog</option><option value="18">Thai</option><option value="15">Turkish</option><option value="29">Ukrainian</option><option value="14">Vietnamese</option></select>
+    -->
 </resources>

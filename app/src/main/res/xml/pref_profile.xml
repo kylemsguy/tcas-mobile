@@ -1,0 +1,10 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:title="@string/pref_title_profile_image"
+        android:key="@string/pref_profile_image_key"
+        android:summary="@string/pref_description_profile_image" />
+
+    <!-- TODO: add more profile settings -->
+
+</PreferenceScreen>

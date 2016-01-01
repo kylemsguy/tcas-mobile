@@ -18,7 +18,8 @@ public class TCaSApp extends Application {
 	QuestionManager qm;
     MessageManager mm;
     //ForumManager fm;
-    //ProfileManager pm;
+    ProfileManager pm;
+    //AccountManager accm;
 
 	public TCaSApp() {
 
@@ -35,7 +36,7 @@ public class TCaSApp extends Application {
         qm = new QuestionManager(sm);
         mm = new MessageManager(sm);
         //fm = new ForumManager(sm);
-        //pm = new ProfileManager(sm);
+        pm = new ProfileManager(sm);
 
     }
 
@@ -57,5 +58,9 @@ public class TCaSApp extends Application {
 
     //public ForumManager getForumManager() { return fm; }
 
-    //public ProfileManager getProfileManager() { return pm; }
+    public ProfileManager getProfileManager() {
+        return pm;
+    }
+
+    // public AccountManager getAccountManager() { return accm; }
 }
