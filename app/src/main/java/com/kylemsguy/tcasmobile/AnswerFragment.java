@@ -38,6 +38,8 @@ public class AnswerFragment extends Fragment {
     private EditText answerField;
     private Button submitButton;
 
+    private GetQuestionTask pendingQuestionTask;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -70,13 +72,18 @@ public class AnswerFragment extends Fragment {
         });
 
         // Get the first question!
-        new GetFirstQuestionTask().execute(am);
+        pendingQuestionTask = (GetQuestionTask) new GetFirstQuestionTask().execute(am);
 
         // TODO disable buttons by default and enable when question is loaded
         return view;
 	}
 
     private void writeCurrQuestion() {
+        // TODO this is temporary until I revamp the question getting code
+        if (mCurrQuestion == null) {
+            System.out.println("AnswerFragment: writeCurrQuestion: Tried to write null question.");
+            return;
+        }
         questionView.setText(mCurrQuestion.get("content"));
         idView.setText(mCurrQuestion.get("id"));
     }
@@ -107,7 +114,7 @@ public class AnswerFragment extends Fragment {
 
     public void getFirstQuestion() {
         submitButton.setText("Submit");
-        //getNewQuestion();
+        getNewQuestion();
         writeCurrQuestion();
     }
 
@@ -175,6 +182,11 @@ public class AnswerFragment extends Fragment {
     }
 
     class SkipQuestionTask extends AsyncTask<Object, Void, Map<String, String>> {
+
+        @Override
+        protected void onPreExecute() {
+            // show spinner
+        }
 
         @Override
         protected Map<String, String> doInBackground(Object... params) {
