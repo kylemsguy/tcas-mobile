@@ -113,7 +113,7 @@ public class AnswerFragment extends Fragment {
     }
 
     public void getFirstQuestion() {
-        submitButton.setText("Submit");
+        submitButton.setText(getString(R.string.answer));
         getNewQuestion();
         writeCurrQuestion();
     }
@@ -232,7 +232,7 @@ public class AnswerFragment extends Fragment {
             try {
                 return am.sendAnswer(id, contents);
             } catch (Exception e) {
-                System.out.println("Big problemo");
+                System.out.println("SendAnswerTask: Big problemo");
                 e.printStackTrace();
                 return null;
             }
