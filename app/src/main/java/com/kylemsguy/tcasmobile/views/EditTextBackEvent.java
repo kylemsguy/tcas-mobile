@@ -1,4 +1,4 @@
-package com.kylemsguy.tcasmobile;
+package com.kylemsguy.tcasmobile.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
