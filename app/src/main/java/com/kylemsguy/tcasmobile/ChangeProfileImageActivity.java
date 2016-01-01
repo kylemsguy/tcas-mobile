@@ -75,6 +75,7 @@ public class ChangeProfileImageActivity extends AppCompatActivity {
     public void submitImage(View v) {
         // TODO implement
         updateStatus(true);
+        new SubmitProfileImageTask().execute(pm, newImage);
     }
 
     public void revertImage(View v) {
@@ -161,7 +162,9 @@ public class ChangeProfileImageActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
-            super.onPostExecute(s);
+            System.out.println(s);
+            profileImage = newImage;
+            updateStatus(true);
         }
     }
 }
