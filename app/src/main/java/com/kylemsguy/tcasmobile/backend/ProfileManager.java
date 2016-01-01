@@ -10,7 +10,8 @@ import java.net.URLEncoder;
  */
 public class ProfileManager {
     private static String PROFILE_URL = SessionManager.BASE_URL + "profile/";
-    private static String PROFILE_IMG_URL = PROFILE_URL + "draw/update/";
+    private static String PROFILE_IMG_URL = PROFILE_URL + "draw/";
+    private static String PROFILE_IMG_UPDATE_URL = PROFILE_IMG_URL + "update/";
     private SessionManager sm;
 
     private Profile profile;
@@ -30,7 +31,19 @@ public class ProfileManager {
         String imgData = new TCaSImageConverter(image).convertToTCaSImg();
         String params = "data=" + URLEncoder.encode(imgData, "UTF-8");
 
-        return sm.sendPost(PROFILE_IMG_URL, params);
+        return sm.sendPost(PROFILE_IMG_UPDATE_URL, params);
+    }
+
+    /**
+     * Gets a user's Profile image and converts it to a bitmap before returning it.
+     *
+     * @return
+     */
+    public Bitmap getProfileImage() throws Exception {
+        String html = sm.getPageContent(PROFILE_IMG_URL);
+        String imgData = TCaSImageConverter.extractImgData(html);
+        System.out.println(imgData);
+        return TCaSImageConverter.textToBitmap(imgData.trim());
     }
 
     public Profile getProfile() {

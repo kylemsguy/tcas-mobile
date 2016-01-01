@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="current_profile_image_contentdescription">Current profile image</string>
+    <string name="status_unsaved">Image not yet saved</string>
+    <string name="status_saved">Image saved</string>
+</resources>

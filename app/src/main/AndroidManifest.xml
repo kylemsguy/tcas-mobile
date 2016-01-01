@@ -19,7 +19,7 @@
         android:allowBackup="true"
         android:icon="@drawable/twocansicon"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name"
@@ -50,6 +50,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.kylemsguy.tcasmobile.MainActivity" />
         </activity>
+        <activity android:name=".ChangeProfileImageActivity"></activity>
     </application>
 
 </manifest>

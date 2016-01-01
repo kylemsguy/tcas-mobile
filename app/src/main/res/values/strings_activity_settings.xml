@@ -7,10 +7,14 @@
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 
+    <!-- Profile Settings -->
     <string name="pref_header_profile">Profile Settings</string>
     <string name="pref_title_profile_image">Profile Image</string>
     <string name="pref_description_profile_image">Update your Profile Image</string>
     <string name="pref_profile_image_key">profileImage</string>
+
+    <string name="pref_title_webprofilesettings">Change Profile Settings</string>
+    <string name="pref_summary_webprofilesettings">Update your Profile Settings</string>
 
     <string name="pref_title_display_name">Display name</string>
     <string name="pref_default_display_name">John Smith</string>
@@ -51,7 +55,7 @@
     <string name="pref_title_system_sync_settings">System sync settings</string>
 
     <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
+    <string name="pref_header_notifications">Notifications (Not implemented)</string>
 
     <string name="pref_title_new_message_notifications">New message notifications</string>
 
@@ -62,6 +66,9 @@
 
     <!-- Settings for Account -->
     <string name="pref_header_account">Account Settings</string>
+
+    <string name="pref_title_webaccountsettings">Change Account Settings</string>
+    <string name="pref_summary_webaccountsettings">Update your Account Settings</string>
 
     <string name="pref_title_password">Password</string>
     <string name="pref_summary_password">Set your TCaS Password</string>

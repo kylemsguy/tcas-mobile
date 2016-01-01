@@ -132,6 +132,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         //bindPreferenceSummaryToValue(findPreference("example_list"));
         bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
         bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+
+        // Bind any Preference actions
+        Preference button = findPreference(getString(R.string.pref_profile_image_key));
+        final SettingsActivity thisActivity = this;
+        button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(thisActivity, ChangeProfileImageActivity.class);
+                startActivity(intent);
+                return true;
+            }
+        });
     }
 
     /**
@@ -270,9 +282,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    // TODO uncomment below when the activity is created
-                    //Intent intent = new Intent(getActivity(), ChangeProfileImageActivity.class);
-                    //startActivity(intent);
+                    Intent intent = new Intent(getActivity(), ChangeProfileImageActivity.class);
+                    startActivity(intent);
                     return true;
                 }
             });

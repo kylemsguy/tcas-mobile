@@ -37,6 +37,9 @@
     <string name="loading_questions">Loading Questions...</string>
     <string name="sure_quit">Really quit?</string>
     <string name="select_action">Select Action</string>
+    <string name="browse">Browse</string>
+    <string name="revert">Revert</string>
+    <string name="submit">Submit</string>
 
     <string-array name="question_action_array">
         <item>Reactivate Question</item>
@@ -52,5 +55,6 @@
         <!-- DEBUG REMOVE WHEN DONE -->
     </string-array>
     <string name="title_activity_message_content">MessageContentActivity</string>
+    <string name="title_activity_profile_image">ProfileImageActivity</string>
 
 </resources>

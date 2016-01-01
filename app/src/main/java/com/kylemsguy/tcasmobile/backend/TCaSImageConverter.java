@@ -3,6 +3,11 @@ package com.kylemsguy.tcasmobile.backend;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 public class TCaSImageConverter {
     private static final int[] BACKGROUND_COLOUR = {255, 255, 255}; // This is the proper spelling. Trust me. I'm Canadian.
     public static final int[] IMAGE_DIMENSIONS = {32, 32};
@@ -87,6 +92,35 @@ public class TCaSImageConverter {
         return new int[]{newRed, newGreen, newBlue};
     }
 
+    /**
+     * Extracts image data from www.twocansandstring.com/profile/draw
+     *
+     * @param html raw HTML from the page
+     * @return Profile image in TCaS Image format
+     */
+    public static String extractImgData(String html) throws IllegalArgumentException {
+        Document dom = Jsoup.parse(html);
+        // this is a workaround for a bug
+        Elements divtags = dom.getElementsByTag("div");
+        Element imgdatatag = null;
+        for (Element e : divtags) {
+            if (e.hasAttr("id") && e.attr("id").equals("draw_current_avatar"))
+                imgdatatag = e;
+        }
+        if (imgdatatag != null) {
+            //System.out.println(imgdatatag);
+            return imgdatatag.data();
+        } else
+            throw new IllegalArgumentException("Invalid HTML");
+    }
+
+    /**
+     * Creates a Bitmap from a TCaS Image string
+     *
+     * @param imgText Image in TCaS Image string format
+     * @return a bitmap created from the string
+     * @throws IllegalArgumentException
+     */
     public static Bitmap textToBitmap(String imgText) throws IllegalArgumentException {
         int numPixels = IMAGE_DIMENSIONS[0] * IMAGE_DIMENSIONS[1];
         String[] strPixels = imgText.split(",");
