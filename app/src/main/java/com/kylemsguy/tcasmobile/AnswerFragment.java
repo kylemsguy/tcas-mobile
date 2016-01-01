@@ -1,5 +1,6 @@
 package com.kylemsguy.tcasmobile;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -35,7 +37,7 @@ public class AnswerFragment extends Fragment {
     private TextView questionView;
     private TextView idView;
 
-    private EditText answerField;
+    private EditTextBackEvent answerField;
     private Button submitButton;
 
     private GetQuestionTask pendingQuestionTask;
@@ -51,12 +53,13 @@ public class AnswerFragment extends Fragment {
         questionView = (TextView) view.findViewById(R.id.questionText);
         idView = (TextView) view.findViewById(R.id.questionId);
 
-        answerField = (EditText) view.findViewById(R.id.answerField);
+        answerField = (EditTextBackEvent) view.findViewById(R.id.answerField);
         submitButton = (Button) view.findViewById(R.id.btnSubmit);
 
         // TODO Make ActionBar only hide when keyboard activated
         final ActionBar actionBar = ((AppCompatActivity) view.getContext()).getSupportActionBar();
 
+        // hide keyboard if not focused on answer field
         answerField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
@@ -65,9 +68,19 @@ public class AnswerFragment extends Fragment {
                     if (actionBar != null)
                         actionBar.hide();
                 } else {
+                    hideKeyboard(view);
                     if (actionBar != null)
                         actionBar.show();
                 }
+            }
+        });
+
+        // hide keyboard if user presses back
+        answerField.setOnEditTextImeBackListener(new EditTextBackEvent.EditTextImeBackListener() {
+            // TODO: create proper class that implements this or something
+            @Override
+            public void onImeBack(EditTextBackEvent ctrl, String text) {
+                questionView.requestFocus();
             }
         });
 
@@ -151,6 +164,12 @@ public class AnswerFragment extends Fragment {
             // Answer send failed...
             showNotifDialog(getResources().getString(R.string.answer_send_failed));
         }
+    }
+
+    private void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity()
+                .getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     class GetQuestionTask extends AsyncTask<AnswerManager, Void, Map<String, String>> {

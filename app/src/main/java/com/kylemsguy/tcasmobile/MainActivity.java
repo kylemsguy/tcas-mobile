@@ -245,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         dialog.show();
     */
 
+        // move to previous page in ViewPager
         int currentPage = mViewPager.getCurrentItem();
         if (currentPage - 1 >= 0)
             mViewPager.setCurrentItem(currentPage - 1);
