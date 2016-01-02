@@ -151,8 +151,10 @@ public class ChangeProfileImageActivity extends AppCompatActivity {
                 newImgUri = dataUri;
 
                 try {
+                    BitmapFactory.Options op = new BitmapFactory.Options();
+                    op.inPreferredConfig = Bitmap.Config.ARGB_8888;
                     newImage = BitmapFactory.decodeStream(
-                            getContentResolver().openInputStream(newImgUri));
+                            getContentResolver().openInputStream(newImgUri), null, op);
                     if (newImage.getWidth() != 32 || newImage.getHeight() != 32) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                                 .setTitle("Invalid Image Dimensions")

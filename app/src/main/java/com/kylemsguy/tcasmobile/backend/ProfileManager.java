@@ -13,7 +13,6 @@ public class ProfileManager {
     private static final String PROFILE_IMG_URL = PROFILE_URL + "draw/";
     private static final String PROFILE_IMG_UPDATE_URL = PROFILE_IMG_URL + "update/";
 
-    private static final String ENCODING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-";
     private SessionManager sm;
 
     private Profile profile;
@@ -30,7 +29,8 @@ public class ProfileManager {
      * @throws Exception
      */
     public String submitProfileImage(Bitmap image) throws Exception {
-        String imgData = new TCaSImageConverter(image).convertToTCaSImg();
+        //String imgData = new TCaSImageConverter(image).convertToTCaSImg();
+        String imgData = new TCaSImageConverter(image).convertToTCaSUrlEncodedImg();
         String params = "data=" + URLEncoder.encode(imgData, "UTF-8");
 
         return sm.sendPost(PROFILE_IMG_UPDATE_URL, params);

@@ -8,9 +8,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TCaSImageConverter {
     private static final int[] BACKGROUND_COLOUR = {255, 255, 255}; // This is the proper spelling. Trust me. I'm Canadian.
     public static final int[] IMAGE_DIMENSIONS = {32, 32};
+
+    // for URL encoded encoding
+    private static final String ENCODING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-";
 
     private int[] argbAry = new int[1024];
 
@@ -29,6 +35,120 @@ public class TCaSImageConverter {
         }
 
         image.getPixels(argbAry, 0, width, 0, 0, width, height);
+    }
+
+
+    /**
+     * Does the conversion and encodes the data as the internal URLEncoded format
+     *
+     * @return converted image data in URLEncoded format
+     */
+    public String convertToTCaSUrlEncodedImg() {
+        return convertToTCaSUrlEncodedImg(BACKGROUND_COLOUR);
+    }
+
+    /**
+     * Does the conversion and encodes the data as the internal URLEncoded format
+     *
+     * @return converted image data in URLEncoded format
+     */
+    public String convertToTCaSUrlEncodedImg(int[] bgcolour) {
+        List<String> outputList = new ArrayList<>();
+
+        // convert colour int values to a string according to the above encoding array (e.g. 000 -> aaa)
+        for (int argbVal : argbAry) {
+            int[] rgb = argb2Rgb(argbVal, bgcolour);
+
+            int red = scale(rgb[0], 255, 63);
+            int green = scale(rgb[1], 255, 63);
+            int blue = scale(rgb[2], 255, 63);
+
+            //System.out.println("BEFORE: RED: " + rgb[0] + " GREEN: " + rgb[1] + " BLUE: " + rgb[2]);
+            //System.out.println("RED: " + red + " GREEN: " + green + " BLUE: " + blue);
+
+            char[] chars = new char[]{ENCODING.charAt(red), ENCODING.charAt(green), ENCODING.charAt(blue)};
+
+            // add the encoded colour to the list
+            outputList.add(new String(chars));
+        }
+
+        List<String> colours = new ArrayList<>();
+        List<Integer> counts = new ArrayList<>();
+        int length = 1;
+
+        // instantiate colours with the first colour in the output array
+        colours.add(outputList.get(0));
+        int currCount = 1;
+
+        for (int i = 1; i < outputList.size(); i++) {
+            // colour (temporary value) is the next output string (3chars)
+            String colour = outputList.get(i);
+            // if this colour is the same as the previous colour...
+            if (colour.equals(colours.get(length - 1))) {
+                // increment its count
+                currCount++;
+            } else {
+                // add this colour to the colour array and update counters
+                colours.add(colour);
+                counts.add(currCount);
+                currCount = 0;
+                length++;
+            }
+
+        }
+
+        counts.add(currCount);
+
+        outputList.clear();
+
+        for (int i = 0; i < length; i++) {
+            // for each colour...
+            String colour = colours.get(i);
+            currCount = counts.get(i);
+            switch (currCount) {
+                // if there's only 1-5 of them, push a symbol preceding the colour
+                // NOTE: this seems to be the symbols above 1-4 on a US keyboard
+                case 1:
+                    outputList.add(colour);
+                    break;
+                case 2:
+                    outputList.add("!" + colour);
+                    break;
+                case 3:
+                    outputList.add("@" + colour);
+                    break;
+                case 4:
+                    outputList.add("#" + colour);
+                    break;
+                case 5:
+                    outputList.add("$" + colour);
+                    break;
+                // otherwise...
+                default:
+                    int c = currCount;
+                    if (c > 63) {
+                        c = 63;
+                        // decrement currCount by 63
+                        currCount -= 63;
+                        counts.set(i, currCount);
+                        // repeat this iteration
+                        i--;
+                    }
+
+                    // push % and another character from encoding using c as the offset.
+                    outputList.add("%" + ENCODING.charAt(c) + colour);
+                    break;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        for (String item : outputList) {
+            sb.append(item);
+        }
+
+        System.out.println("Encoded String: " + sb.toString());
+        return sb.toString();
     }
 
     /**
@@ -59,8 +179,6 @@ public class TCaSImageConverter {
             sb.append(scale(rgb[2], 255, 63));
             sb.append(",");
 
-            System.out.println("RED: " + rgb[0] + " GREEN: " + rgb[1] + " BLUE: " + rgb[2]);
-
         }
 
         int[] lastPixel = argb2Rgb(argbAry[argbAry.length - 1], bgcolour);
@@ -70,10 +188,6 @@ public class TCaSImageConverter {
         sb.append(scale(lastPixel[1], 255, 63));
         sb.append("|");
         sb.append(scale(lastPixel[2], 255, 63));
-
-        System.out.println("RED: " + lastPixel[0] + " GREEN: " + lastPixel[1] + "BLUE: " + lastPixel[2]);
-
-        System.out.println("Final string: " + sb.toString());
 
         return sb.toString();
     }
@@ -152,7 +266,7 @@ public class TCaSImageConverter {
     public static int scale(int value, int currMax, int newMax) {
         // ratio assumes range is [0, max+1)
         double ratio = (newMax + 1) / (currMax + 1);
-        return (int) (value * ratio);
+        return (int) Math.round(value * ratio);
     }
 
     private static int pixelargb2Rgb(int alpha, int original, int background) {
