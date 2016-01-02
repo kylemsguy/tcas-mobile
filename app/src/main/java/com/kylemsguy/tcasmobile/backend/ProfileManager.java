@@ -9,9 +9,13 @@ import java.net.URLEncoder;
  * Manages the user's profile
  */
 public class ProfileManager {
-    private static String PROFILE_URL = SessionManager.BASE_URL + "profile/";
-    private static String PROFILE_IMG_URL = PROFILE_URL + "draw/update/";
+    private static final String PROFILE_URL = SessionManager.BASE_URL + "profile/";
+    private static final String PROFILE_IMG_URL = PROFILE_URL + "draw/";
+    private static final String PROFILE_IMG_UPDATE_URL = PROFILE_IMG_URL + "update/";
+
     private SessionManager sm;
+
+    private Profile profile;
 
     public ProfileManager(SessionManager sessionManager) {
         sm = sessionManager;
@@ -24,23 +28,45 @@ public class ProfileManager {
      * @return The response from the server, usually the encoded image again.
      * @throws Exception
      */
-    public String updateProfileImage(Bitmap image) throws Exception {
-        String imgData = new TCaSImageConverter(image).convertToTCaSImg();
+    public String submitProfileImage(Bitmap image) throws Exception {
+        //String imgData = new TCaSImageConverter(image).convertToTCaSImg();
+        String imgData = new TCaSImageConverter(image).convertToTCaSUrlEncodedImg();
         String params = "data=" + URLEncoder.encode(imgData, "UTF-8");
 
-        return sm.sendPost(PROFILE_IMG_URL, params);
+        return sm.sendPost(PROFILE_IMG_UPDATE_URL, params);
+    }
+
+    /**
+     * Gets a user's Profile image and converts it to a bitmap before returning it.
+     *
+     * @return
+     */
+    public Bitmap getProfileImage() throws Exception {
+        String html = sm.getPageContent(PROFILE_IMG_URL);
+        String imgData = TCaSImageConverter.extractImgData(html);
+        return TCaSImageConverter.textToBitmap(imgData.trim());
     }
 
     public Profile getProfile() {
-        // TODO get profile and build Profile object
-        return null;
+        if (profile == null) {
+            // TODO get profile and build Profile object
+        }
+        return profile;
     }
 
-    public void updateProfile(Profile profile) throws Exception {
+    /**
+     * Updates entire profile given a Profile object.
+     * Please use other methods that only send a change in a single Profile element
+     *
+     * @param profile
+     * @throws Exception
+     */
+    private void submitProfileUpdate(Profile profile) throws Exception {
         // TODO implement sending profile updates
     }
 
     public static class Profile {
+        private Bitmap profileImage;
         private String blurb;
         private String aim;
         private String msn;
@@ -49,7 +75,8 @@ public class ProfileManager {
         private String twitter;
         private String website;
 
-        private Profile(String blurb, String aim, String msn, String ymsg, String gtalk, String twitter, String website) {
+        private Profile(Bitmap profileImage, String blurb, String aim, String msn, String ymsg, String gtalk, String twitter, String website) {
+            this.profileImage = profileImage;
             this.blurb = blurb;
             this.aim = aim;
             this.msn = msn;
@@ -116,6 +143,7 @@ public class ProfileManager {
         }
 
         public static class Builder {
+            private String profileImageText;
             private String blurb;
             private String aim;
             private String msn;
@@ -126,6 +154,11 @@ public class ProfileManager {
 
             public Builder() {
 
+            }
+
+            public Builder setProfileImage(String profileImageText) {
+                this.profileImageText = profileImageText;
+                return this;
             }
 
             public Builder setBlurb(String blurb) {
@@ -164,7 +197,8 @@ public class ProfileManager {
             }
 
             public Profile build() {
-                return new Profile(blurb, aim, msn, ymsg, gtalk, twitter, website);
+                Bitmap profileImage = TCaSImageConverter.textToBitmap(profileImageText);
+                return new Profile(profileImage, blurb, aim, msn, ymsg, gtalk, twitter, website);
             }
 
         }

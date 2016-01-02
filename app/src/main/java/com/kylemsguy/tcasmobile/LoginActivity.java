@@ -121,7 +121,7 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
 
         // Check version code and see if we need to purge Preferences
         int prevVersion = PrefUtils.getFromPrefs(this, PrefUtils.PREF_VERSION_CODE_KEY, 0);
-        System.out.println(prevVersion);
+        System.out.println("Previous version code: " + prevVersion);
         if (prevVersion == 0) {
             // do some cleanup (added in version 9)
             PrefUtils.clearAllPrefs(this);

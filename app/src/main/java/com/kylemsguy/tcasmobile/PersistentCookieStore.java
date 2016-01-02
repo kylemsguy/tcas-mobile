@@ -25,7 +25,6 @@ import java.util.TreeMap;
 public class PersistentCookieStore implements CookieStore {
 
     private Map<URI, List<HttpCookie>> cookieJar;
-    private CookieStore store;
     private Context context;
 
     public PersistentCookieStore(Context context) {

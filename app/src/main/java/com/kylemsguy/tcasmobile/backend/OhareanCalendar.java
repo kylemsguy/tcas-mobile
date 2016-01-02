@@ -1,4 +1,4 @@
-package com.kylemsguy.tcasmobile;
+package com.kylemsguy.tcasmobile.backend;
 
 import java.util.Calendar;
 
@@ -76,6 +76,17 @@ public class OhareanCalendar {
                 return i;
         }
         throw new IllegalArgumentException("Invalid month name, \"" + month + "\".");
+    }
+
+    public static long daysOffsetToUnix(double offset) {
+        long currentTime = System.currentTimeMillis() / 1000;
+        int secsInDay = DAY_LENGTH_SEC;
+        return (long) (currentTime - offset * secsInDay);
+    }
+
+    public static double unixToDaysOffset(long unix) {
+        long currentTime = System.currentTimeMillis() / 1000;
+        return (double) (currentTime - unix) / DAY_LENGTH_SEC;
     }
 
 }

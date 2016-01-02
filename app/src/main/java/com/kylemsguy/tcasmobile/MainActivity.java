@@ -15,7 +15,9 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    private ActionBar actionBar;
+
     private SessionManager sm;
 
     private AsyncTask mLogoutTask;
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
     private AskFragment mAskFragment;
     private AnswerFragment mAnswerFragment;
+    private MessageFragment mMessageFragment;
 
     private static final boolean DEBUG = false;
 
@@ -96,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             }
         });
 
+        // Get the SessionManager
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
 
     }
@@ -103,6 +109,23 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
     /**
      * Methods for each Fragment
      */
+
+    // BEGIN HomeActivity
+    public void jumpToSection(View view) {
+        switch (view.getId()) {
+            case R.id.debug_jumpto_ask:
+                mViewPager.setCurrentItem(1);
+                break;
+            case R.id.debug_jumpto_answer:
+                mViewPager.setCurrentItem(2);
+                break;
+            case R.id.debug_jumpto_messages:
+                mViewPager.setCurrentItem(3);
+                break;
+        }
+    }
+
+    // END HomeActivity
 
     // BEGIN AskActivity
 
@@ -115,20 +138,30 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
 
     // BEGIN AnswerActivity
     public void skipTemp(View view) {
-        mAnswerFragment.skipTemp(view);
+        mAnswerFragment.skipTemp();
     }
 
     public void skipPerm(View view) {
-        mAnswerFragment.skipPerm(view);
+        mAnswerFragment.skipPerm();
     }
 
     public void submitAnswer(View view) {
-        mAnswerFragment.submitAnswer(view);
+        mAnswerFragment.submitAnswer();
     }
 
     // end AnswerActivity
 
     // start MessageActivity
+
+
+    public void prevPage(View v) {
+        mMessageFragment.prevPage(v);
+    }
+
+
+    public void nextPage(View v) {
+        mMessageFragment.nextPage(v);
+    }
 
 
     // end MessageActivity
@@ -211,7 +244,13 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         AlertDialog dialog = builder.create();
         dialog.show();
     */
-        super.onBackPressed();
+
+        // move to previous page in ViewPager
+        int currentPage = mViewPager.getCurrentItem();
+        if (currentPage - 1 >= 0)
+            mViewPager.setCurrentItem(currentPage - 1);
+        else
+            super.onBackPressed();
 
         // logout here
         //mLogoutTask = new LogoutTask().execute(sm);
@@ -236,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             finish();
         } else {
             // refresh data
-            mAskFragment.loadQuestionList();
+            //mAskFragment.loadQuestionList();
 
         }
     }
@@ -273,7 +312,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
                     return mAnswerFragment;
                 case 3:
                     //System.out.println("3");
-                    return MessageFragment.newInstance();
+                    mMessageFragment = MessageFragment.newInstance();
+                    return mMessageFragment;
             }
             return null;
         }
@@ -282,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         public int getCount() {
             // Show 4 total pages.
             // Returning 3 to disable MessageFragment
-            return 3;
+            return 4;
         }
 
         @Override

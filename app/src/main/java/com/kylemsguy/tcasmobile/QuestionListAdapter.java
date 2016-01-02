@@ -2,7 +2,6 @@ package com.kylemsguy.tcasmobile;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,21 +9,19 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
 import com.kylemsguy.tcasmobile.backend.Answer;
-import com.kylemsguy.tcasmobile.backend.QAObject;
 import com.kylemsguy.tcasmobile.backend.Question;
 
-import java.util.Collections;
 import java.util.List;
 
 
-public class ExpandableListAdapter extends BaseExpandableListAdapter {
+public class QuestionListAdapter extends BaseExpandableListAdapter {
     private static final boolean REVERSE_ENTRIES = true;
 
     private Context mContext;
 
     private List<Question> mQuestions;
 
-    public ExpandableListAdapter(Context context, List<Question> questions) {
+    public QuestionListAdapter(Context context, List<Question> questions) {
         mContext = context;
         mQuestions = questions;
     }
@@ -46,9 +43,15 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
         if (convertView == null) {
             LayoutInflater infalInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = infalInflater.inflate(R.layout.list_item, null);
+            convertView = infalInflater.inflate(R.layout.question_list_item, null);
         }
         TextView listItemName = (TextView) convertView.findViewById(R.id.list_item_name);
+
+        if (getChildItem(groupPosition, childPosition).getRead()) {
+            listItemName.setBackgroundColor(mContext.getResources().getColor(R.color.background_material_light));
+        } else {
+            listItemName.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
+        }
 
         listItemName.setText(childText);
         return convertView;
@@ -81,12 +84,22 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         if (convertView == null) {
             LayoutInflater infalInflater = (LayoutInflater) mContext.getSystemService(
                     Context.LAYOUT_INFLATER_SERVICE);
-            convertView = infalInflater.inflate(R.layout.list_group, null);
+            convertView = infalInflater.inflate(R.layout.question_list_group, null);
         }
 
         TextView listHeaderName = (TextView) convertView.findViewById(R.id.list_header_name);
-        listHeaderName.setTypeface(null, Typeface.BOLD);
         listHeaderName.setText(headerTitle);
+
+        Question question = getGroupItem(groupPosition);
+        if (question.getActive()) {
+            // active
+            listHeaderName.setTypeface(null, Typeface.BOLD);
+            listHeaderName.setBackgroundColor(mContext.getResources().getColor(R.color.background_material_light));
+        } else {
+            // inactive
+            listHeaderName.setTypeface(null, Typeface.NORMAL);
+            listHeaderName.setBackgroundColor(mContext.getResources().getColor(R.color.grey));
+        }
 
         return convertView;
     }

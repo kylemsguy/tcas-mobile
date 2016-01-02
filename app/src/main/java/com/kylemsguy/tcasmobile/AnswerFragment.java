@@ -1,5 +1,6 @@
 package com.kylemsguy.tcasmobile;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,11 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.kylemsguy.tcasmobile.backend.AnswerManager;
+import com.kylemsguy.tcasmobile.views.EditTextBackEvent;
 
 import java.util.Map;
 
@@ -35,8 +37,10 @@ public class AnswerFragment extends Fragment {
     private TextView questionView;
     private TextView idView;
 
-    private EditText answerField;
+    private EditTextBackEvent answerField;
     private Button submitButton;
+
+    private GetQuestionTask pendingQuestionTask;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,12 +53,13 @@ public class AnswerFragment extends Fragment {
         questionView = (TextView) view.findViewById(R.id.questionText);
         idView = (TextView) view.findViewById(R.id.questionId);
 
-        answerField = (EditText) view.findViewById(R.id.answerField);
+        answerField = (EditTextBackEvent) view.findViewById(R.id.answerField);
         submitButton = (Button) view.findViewById(R.id.btnSubmit);
 
         // TODO Make ActionBar only hide when keyboard activated
         final ActionBar actionBar = ((AppCompatActivity) view.getContext()).getSupportActionBar();
 
+        // hide keyboard if not focused on answer field
         answerField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
@@ -63,20 +68,35 @@ public class AnswerFragment extends Fragment {
                     if (actionBar != null)
                         actionBar.hide();
                 } else {
+                    hideKeyboard(view);
                     if (actionBar != null)
                         actionBar.show();
                 }
             }
         });
 
+        // hide keyboard if user presses back
+        answerField.setOnEditTextImeBackListener(new EditTextBackEvent.EditTextImeBackListener() {
+            // TODO: create proper class that implements this or something
+            @Override
+            public void onImeBack(EditTextBackEvent ctrl, String text) {
+                questionView.requestFocus();
+            }
+        });
+
         // Get the first question!
-        new GetFirstQuestionTask().execute(am);
+        pendingQuestionTask = (GetQuestionTask) new GetFirstQuestionTask().execute(am);
 
         // TODO disable buttons by default and enable when question is loaded
         return view;
 	}
 
     private void writeCurrQuestion() {
+        // TODO this is temporary until I revamp the question getting code
+        if (mCurrQuestion == null) {
+            System.out.println("AnswerFragment: writeCurrQuestion: Tried to write null question.");
+            return;
+        }
         questionView.setText(mCurrQuestion.get("content"));
         idView.setText(mCurrQuestion.get("id"));
     }
@@ -106,8 +126,8 @@ public class AnswerFragment extends Fragment {
     }
 
     public void getFirstQuestion() {
-        submitButton.setText("Submit");
-        //getNewQuestion();
+        submitButton.setText(getString(R.string.answer));
+        getNewQuestion();
         writeCurrQuestion();
     }
 
@@ -115,15 +135,15 @@ public class AnswerFragment extends Fragment {
         mCurrQuestion = question;
     }
 
-    public void skipPerm(View view) {
+    public void skipPerm() {
         skipQuestion(true);
     }
 
-    public void skipTemp(View view) {
+    public void skipTemp() {
         skipQuestion(false);
     }
 
-    public void submitAnswer(View view) {
+    public void submitAnswer() {
         // get ID
         String id = mCurrQuestion.get("id");
 
@@ -144,6 +164,12 @@ public class AnswerFragment extends Fragment {
             // Answer send failed...
             showNotifDialog(getResources().getString(R.string.answer_send_failed));
         }
+    }
+
+    private void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity()
+                .getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     class GetQuestionTask extends AsyncTask<AnswerManager, Void, Map<String, String>> {
@@ -175,6 +201,11 @@ public class AnswerFragment extends Fragment {
     }
 
     class SkipQuestionTask extends AsyncTask<Object, Void, Map<String, String>> {
+
+        @Override
+        protected void onPreExecute() {
+            // show spinner
+        }
 
         @Override
         protected Map<String, String> doInBackground(Object... params) {
@@ -220,7 +251,7 @@ public class AnswerFragment extends Fragment {
             try {
                 return am.sendAnswer(id, contents);
             } catch (Exception e) {
-                System.out.println("Big problemo");
+                System.out.println("SendAnswerTask: Big problemo");
                 e.printStackTrace();
                 return null;
             }

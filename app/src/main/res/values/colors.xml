@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="colorHighlight" type="color">#FF33B5E5</item>
+    <item name="windowBackground" type="color">#33b5e5</item>
+    <item name="green" type="color">#00BB00</item>
+    <item name="red" type="color">#FF0000</item>
+    <item name="yellow" type="color">#FFFF00</item>
+    <item name="grey" type="color">#CCCCCC</item>
+</resources>

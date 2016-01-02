@@ -20,7 +20,8 @@ public class AnswerManager {
 
 	/**
 	 * Gets a question from TwoCansandString
-	 * 
+     * TODO replace the map with a TCaSObject subclass
+     *
 	 * @return A map containing the ID and question
 	 * @throws NotLoggedInException
 	 */
@@ -32,7 +33,15 @@ public class AnswerManager {
 		return question;
 	}
 
-	private Map<String, String> extractQuestionData(String rawData)
+    /**
+     * Parse the data of a getNextQuestion API call and return the ID and question.
+     * TODO use a TCaSObject subclass instead of a Map
+     *
+     * @param rawData
+     * @return
+     * @throws NotLoggedInException
+     */
+    private Map<String, String> extractQuestionData(String rawData)
 			throws NotLoggedInException {
 		// check if logged in
 		if (rawData.matches(".*?<div id=\"login_nav\">"
