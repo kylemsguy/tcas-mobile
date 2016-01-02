@@ -88,8 +88,18 @@ public class QuestionListAdapter extends BaseExpandableListAdapter {
         }
 
         TextView listHeaderName = (TextView) convertView.findViewById(R.id.list_header_name);
-        listHeaderName.setTypeface(null, Typeface.BOLD);
         listHeaderName.setText(headerTitle);
+
+        Question question = getGroupItem(groupPosition);
+        if (question.getActive()) {
+            // active
+            listHeaderName.setTypeface(null, Typeface.BOLD);
+            listHeaderName.setBackgroundColor(mContext.getResources().getColor(R.color.background_material_light));
+        } else {
+            // inactive
+            listHeaderName.setTypeface(null, Typeface.NORMAL);
+            listHeaderName.setBackgroundColor(mContext.getResources().getColor(R.color.grey));
+        }
 
         return convertView;
     }
