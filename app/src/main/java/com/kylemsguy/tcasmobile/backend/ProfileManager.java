@@ -42,7 +42,6 @@ public class ProfileManager {
     public Bitmap getProfileImage() throws Exception {
         String html = sm.getPageContent(PROFILE_IMG_URL);
         String imgData = TCaSImageConverter.extractImgData(html);
-        System.out.println(imgData);
         return TCaSImageConverter.textToBitmap(imgData.trim());
     }
 

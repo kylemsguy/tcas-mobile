@@ -108,8 +108,7 @@ public class TCaSImageConverter {
                 imgdatatag = e;
         }
         if (imgdatatag != null) {
-            //System.out.println(imgdatatag);
-            return imgdatatag.data();
+            return imgdatatag.text();
         } else
             throw new IllegalArgumentException("Invalid HTML");
     }
@@ -124,13 +123,13 @@ public class TCaSImageConverter {
     public static Bitmap textToBitmap(String imgText) throws IllegalArgumentException {
         int numPixels = IMAGE_DIMENSIONS[0] * IMAGE_DIMENSIONS[1];
         String[] strPixels = imgText.split(",");
+        System.err.println("textToBitmap: " + strPixels.length + " " + numPixels);
         if (strPixels.length != numPixels) {
             throw new IllegalArgumentException("Incorrect image size");
         }
         int[] pixels = new int[numPixels];
         for (int i = 0; i < numPixels; i++) {
-            String[] rgbPixel = strPixels[i].split("|");
-
+            String[] rgbPixel = strPixels[i].split("\\|");
             try {
                 int red = scale(Integer.parseInt(rgbPixel[0]), 63, 255);
                 int green = scale(Integer.parseInt(rgbPixel[1]), 63, 255);
