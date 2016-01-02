@@ -4,4 +4,5 @@
     <item name="windowBackground" type="color">#33b5e5</item>
     <item name="green" type="color">#00BB00</item>
     <item name="red" type="color">#FF0000</item>
+    <item name="yellow" type="color">#FFFF00</item>
 </resources>

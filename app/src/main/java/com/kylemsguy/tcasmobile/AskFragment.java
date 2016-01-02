@@ -170,7 +170,6 @@ public class AskFragment extends Fragment {
     public void onGroupLongClick(int position) {
         final Question question = mListAdapter.getGroupItem(position);
 
-        // TODO ask if really want to delete item
         //showNotifDialog(question.toString());
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setItems(R.array.question_action_array, new DialogInterface.OnClickListener() {
@@ -180,9 +179,11 @@ public class AskFragment extends Fragment {
                         switch (which) {
                             case 0:
                                 // reactivate question
+                                new ReactivateQuestionTask().execute(qm, question);
                                 break;
                             case 1:
                                 // delete question
+                                confirmDeleteQuestion(question);
                                 break;
                             case 2:
                                 // TODO debug show full text fo Answer
@@ -199,7 +200,6 @@ public class AskFragment extends Fragment {
         final Answer answer = mListAdapter.getChildItem(groupPosition, childPosition);
         new MarkAnswerReadTask().execute(qm, answer);
 
-        // TODO ask if want to reply or delete
         //showNotifDialog(answer.toString());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
@@ -209,10 +209,11 @@ public class AskFragment extends Fragment {
                         // of the selected item
                         switch (which) {
                             case 0:
-                                // reactivate question
+                                // Respond to answer
                                 break;
                             case 1:
-                                // delete question
+                                // delete answer
+                                confirmDeleteAnswer(answer);
                                 break;
                             case 2:
                                 // TODO debug show full text fo Answer
@@ -222,6 +223,36 @@ public class AskFragment extends Fragment {
                     }
                 });
         // TODO disable some of the items when not applicable
+        builder.show();
+    }
+
+    private void confirmDeleteQuestion(final Question question) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.confirm_delete)
+                .setMessage(R.string.confirm_delete_question)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        new DeleteQuestionTask().execute(qm, question);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null);
+
+        builder.show();
+    }
+
+    private void confirmDeleteAnswer(final Answer answer) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.confirm_delete)
+                .setMessage(R.string.confirm_delete_answer)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        new DeleteAnswerTask().execute(qm, answer);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null);
+
         builder.show();
     }
 
@@ -250,11 +281,19 @@ public class AskFragment extends Fragment {
         new AskQuestionTask().execute(qm, question);
     }
 
+    /**
+     * Called to start a resync of the Question list with the server
+     */
     public void loadQuestionList() {
         //mExpListView.setVisibility(View.GONE);
         mGotQuestionsTask = new GetAskedQTask().execute(qm);
     }
 
+
+    /**
+     * Called after the question List is resynced with the server,
+     * and we need to update the UI
+     */
     public void refreshQuestionList() {
         mSwipeContainer.setRefreshing(false);
         //showProgress(true, mExpListView, mAskProgressSpinner);
@@ -358,6 +397,7 @@ public class AskFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String s) {
+            mSwipeContainer.setRefreshing(true);
             loadQuestionList();
         }
     }
@@ -388,6 +428,95 @@ public class AskFragment extends Fragment {
         }
     }
 
+    class ReactivateQuestionTask extends AsyncTask<Object, Void, Boolean> {
+        @Override
+        public Boolean doInBackground(Object... params) {
+            // param 0 is QuestionManager
+            // param 1 is the Question
+            QuestionManager qm = (QuestionManager) params[0];
+            Question question = (Question) params[1];
+
+            try {
+                qm.reactivateQuestion(question);
+                return true;
+            } catch (Exception e) {
+                System.out.println("DeleteQuestionTask: ");
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        public void onPostExecute(Boolean retval) {
+            boolean success = retval;
+            if (success) {
+                //mAdapter.notifyDataSetChanged();
+                //TODO temporary workaround that may be permanent
+                mSwipeContainer.setRefreshing(true);
+                loadQuestionList();
+            }
+        }
+    }
+
+    class DeleteQuestionTask extends AsyncTask<Object, Void, Boolean> {
+        @Override
+        public Boolean doInBackground(Object... params) {
+            // param 0 is QuestionManager
+            // param 1 is the Question
+            QuestionManager qm = (QuestionManager) params[0];
+            Question question = (Question) params[1];
+
+            try {
+                qm.deleteQuestion(question);
+                return true;
+            } catch (Exception e) {
+                System.out.println("DeleteQuestionTask: ");
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        public void onPostExecute(Boolean retval) {
+            boolean success = retval;
+            if (success) {
+                //mAdapter.notifyDataSetChanged();
+                //TODO temporary workaround that may be permanent
+                mSwipeContainer.setRefreshing(true);
+                loadQuestionList();
+            }
+        }
+    }
+
+    class DeleteAnswerTask extends AsyncTask<Object, Void, Boolean> {
+        @Override
+        public Boolean doInBackground(Object... params) {
+            // param 0 is QuestionManager
+            // param 1 is the Answer
+            QuestionManager qm = (QuestionManager) params[0];
+            Answer answer = (Answer) params[1];
+
+            try {
+                qm.deleteAnswer(answer);
+                return true;
+            } catch (Exception e) {
+                System.out.println("DeleteAnswerTask: ");
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        public void onPostExecute(Boolean retval) {
+            boolean success = retval;
+            if (success) {
+                //mAdapter.notifyDataSetChanged();
+                //TODO temporary workaround that may be permanent
+                mSwipeContainer.setRefreshing(true);
+                loadQuestionList();
+            }
+        }
+    }
 
     // END AskActivity
 

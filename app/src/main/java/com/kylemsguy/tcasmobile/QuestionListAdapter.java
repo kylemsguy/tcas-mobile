@@ -47,6 +47,12 @@ public class QuestionListAdapter extends BaseExpandableListAdapter {
         }
         TextView listItemName = (TextView) convertView.findViewById(R.id.list_item_name);
 
+        if (getChildItem(groupPosition, childPosition).getRead()) {
+            listItemName.setBackgroundColor(mContext.getResources().getColor(R.color.background_material_light));
+        } else {
+            listItemName.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
+        }
+
         listItemName.setText(childText);
         return convertView;
     }
