@@ -1,18 +1,16 @@
 package com.kylemsguy.tcasmobile;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -52,6 +50,9 @@ public class ChangeProfileImageActivity extends AppCompatActivity {
         browseButton = (Button) findViewById(R.id.browse_images);
         revertButton = (Button) findViewById(R.id.revert_image);
         submitButton = (Button) findViewById(R.id.submit_image);
+
+        // clear the imageview
+        profileImgView.setImageResource(0);
 
         new GetProfileImageTask().execute(pm);
     }
