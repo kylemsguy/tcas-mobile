@@ -45,12 +45,13 @@
         <activity
             android:name=".MessageContentActivity"
             android:label="@string/title_activity_message_content"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.kylemsguy.tcasmobile.MainActivity" />
         </activity>
-        <activity android:name=".ChangeProfileImageActivity"></activity>
+        <activity android:name=".ChangeProfileImageActivity" />
     </application>
 
 </manifest>
