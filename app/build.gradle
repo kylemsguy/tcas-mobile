@@ -8,8 +8,8 @@ android {
         applicationId "com.kylemsguy.tcasmobile"
         minSdkVersion 9
         targetSdkVersion 22
-        versionCode 18
-        versionName "1.6-alpha"
+        versionCode 19
+        versionName "1.7-alpha"
     }
 
     buildTypes {
