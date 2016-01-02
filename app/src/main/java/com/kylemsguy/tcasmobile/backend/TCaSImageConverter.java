@@ -12,7 +12,7 @@ public class TCaSImageConverter {
     private static final int[] BACKGROUND_COLOUR = {255, 255, 255}; // This is the proper spelling. Trust me. I'm Canadian.
     public static final int[] IMAGE_DIMENSIONS = {32, 32};
 
-    private int[] argbAry;
+    private int[] argbAry = new int[1024];
 
     /**
      * Loads the image into a new TCaSImageConverter object
@@ -59,6 +59,8 @@ public class TCaSImageConverter {
             sb.append(scale(rgb[2], 255, 63));
             sb.append(",");
 
+            System.out.println("RED: " + rgb[0] + " GREEN: " + rgb[1] + " BLUE: " + rgb[2]);
+
         }
 
         int[] lastPixel = argb2Rgb(argbAry[argbAry.length - 1], bgcolour);
@@ -68,6 +70,10 @@ public class TCaSImageConverter {
         sb.append(scale(lastPixel[1], 255, 63));
         sb.append("|");
         sb.append(scale(lastPixel[2], 255, 63));
+
+        System.out.println("RED: " + lastPixel[0] + " GREEN: " + lastPixel[1] + "BLUE: " + lastPixel[2]);
+
+        System.out.println("Final string: " + sb.toString());
 
         return sb.toString();
     }
@@ -121,11 +127,12 @@ public class TCaSImageConverter {
      * @throws IllegalArgumentException
      */
     public static Bitmap textToBitmap(String imgText) throws IllegalArgumentException {
+        System.out.println("textToBitmap: Incoming data: " + imgText);
         int numPixels = IMAGE_DIMENSIONS[0] * IMAGE_DIMENSIONS[1];
         String[] strPixels = imgText.split(",");
         System.err.println("textToBitmap: " + strPixels.length + " " + numPixels);
         if (strPixels.length != numPixels) {
-            throw new IllegalArgumentException("Incorrect image size");
+            throw new IllegalArgumentException("Incorrect image size (" + strPixels.length + ")");
         }
         int[] pixels = new int[numPixels];
         for (int i = 0; i < numPixels; i++) {

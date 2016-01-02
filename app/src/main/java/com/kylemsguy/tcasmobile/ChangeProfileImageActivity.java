@@ -2,6 +2,7 @@ package com.kylemsguy.tcasmobile;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -57,7 +58,7 @@ public class ChangeProfileImageActivity extends AppCompatActivity {
 
     private void updateImageView() {
         if (newImage != null && profileImgView != null) {
-            profileImgView.setImageBitmap(Bitmap.createScaledBitmap(newImage, 32, 32, false));
+            profileImgView.setImageBitmap(newImage);
         }
     }
 
@@ -152,6 +153,15 @@ public class ChangeProfileImageActivity extends AppCompatActivity {
                 try {
                     newImage = BitmapFactory.decodeStream(
                             getContentResolver().openInputStream(newImgUri));
+                    if (newImage.getWidth() != 32 || newImage.getHeight() != 32) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                                .setTitle("Invalid Image Dimensions")
+                                .setMessage("This image is not 32x32. I will try to resize it for you, but it may look weird.")
+                                .setPositiveButton("Ok", null);
+                        builder.show();
+
+                        newImage = Bitmap.createScaledBitmap(newImage, 32, 32, false);
+                    }
                     updateImageView();
                     updateStatus(false);
                 } catch (FileNotFoundException e) {

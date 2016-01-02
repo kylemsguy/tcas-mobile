@@ -9,9 +9,11 @@ import java.net.URLEncoder;
  * Manages the user's profile
  */
 public class ProfileManager {
-    private static String PROFILE_URL = SessionManager.BASE_URL + "profile/";
-    private static String PROFILE_IMG_URL = PROFILE_URL + "draw/";
-    private static String PROFILE_IMG_UPDATE_URL = PROFILE_IMG_URL + "update/";
+    private static final String PROFILE_URL = SessionManager.BASE_URL + "profile/";
+    private static final String PROFILE_IMG_URL = PROFILE_URL + "draw/";
+    private static final String PROFILE_IMG_UPDATE_URL = PROFILE_IMG_URL + "update/";
+
+    private static final String ENCODING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-";
     private SessionManager sm;
 
     private Profile profile;
