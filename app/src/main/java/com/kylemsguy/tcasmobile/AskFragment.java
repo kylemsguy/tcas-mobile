@@ -170,30 +170,52 @@ public class AskFragment extends Fragment {
     public void onGroupLongClick(int position) {
         final Question question = mListAdapter.getGroupItem(position);
 
-        //showNotifDialog(question.toString());
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setItems(R.array.question_action_array, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // The 'which' argument contains the index position
-                        // of the selected item
-                        switch (which) {
-                            case 0:
-                                // reactivate question
-                                new ReactivateQuestionTask().execute(qm, question);
-                                break;
-                            case 1:
-                                // delete question
-                                confirmDeleteQuestion(question);
-                                break;
-                            case 2:
-                                // TODO debug show full text fo Answer
-                                showNotifDialog(question.toString());
-                                break;
+        if (question.getActive()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                    .setTitle(question.getContent())
+                    .setItems(R.array.question_action_array, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // The 'which' argument contains the index position
+                            // of the selected item
+                            switch (which) {
+                                case 0:
+                                    // delete question
+                                    confirmDeleteQuestion(question);
+                                    break;
+                                case 1:
+                                    // TODO debug show full text fo Answer
+                                    showNotifDialog(question.toString());
+                                    break;
+                            }
                         }
-                    }
-                });
-        // TODO disable some of the items when not applicable
-        builder.show();
+                    });
+            builder.show();
+        } else {
+            //showNotifDialog(question.toString());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                    .setTitle(question.getContent())
+                    .setItems(R.array.inactive_question_action_array, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // The 'which' argument contains the index position
+                            // of the selected item
+                            switch (which) {
+                                case 0:
+                                    // reactivate question
+                                    new ReactivateQuestionTask().execute(qm, question);
+                                    break;
+                                case 1:
+                                    // delete question
+                                    confirmDeleteQuestion(question);
+                                    break;
+                                case 2:
+                                    // TODO debug show full text fo Answer
+                                    showNotifDialog(question.toString());
+                                    break;
+                            }
+                        }
+                    });
+            builder.show();
+        }
     }
 
     public void onChildLongClick(int groupPosition, int childPosition) {
@@ -203,6 +225,7 @@ public class AskFragment extends Fragment {
         //showNotifDialog(answer.toString());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(answer.getContent())
                 .setItems(R.array.answer_action_array, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // The 'which' argument contains the index position

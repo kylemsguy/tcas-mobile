@@ -42,6 +42,12 @@
     <string name="submit">Submit</string>
 
     <string-array name="question_action_array">
+        <item>Delete Question</item>
+        <item>Show Full Question</item>
+        <!-- DEBUG REMOVE WHEN DONE -->
+    </string-array>
+
+    <string-array name="inactive_question_action_array">
         <item>Reactivate Question</item>
         <item>Delete Question</item>
         <item>Show Full Question</item>
