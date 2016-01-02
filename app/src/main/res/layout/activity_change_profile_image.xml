@@ -32,12 +32,27 @@
         android:text="@string/browse"
         android:onClick="browseImage" />
 
-    <Button
-        android:id="@+id/revert_image"
-        android:text="@string/revert"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="revertImage" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/revert_image"
+            android:text="@string/revert"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="revertImage" />
+
+        <Button
+            android:id="@+id/save_image"
+            android:text="@string/save_to_device"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="saveImage" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/submit_image"

@@ -9,6 +9,7 @@ import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -19,10 +20,13 @@ import android.widget.TextView;
 import com.kylemsguy.tcasmobile.backend.ProfileManager;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class ChangeProfileImageActivity extends AppCompatActivity {
 
     private static final int RQS_OPEN_IMAGE = 1;
+    private static final int RQS_SAVE_IMAGE = 2;
 
     ImageView profileImgView;
     TextView statusView;
@@ -73,7 +77,6 @@ public class ChangeProfileImageActivity extends AppCompatActivity {
     }
 
     public void submitImage(View v) {
-        // TODO implement
         updateStatus(true);
         new SubmitProfileImageTask().execute(pm, newImage);
     }
@@ -82,6 +85,22 @@ public class ChangeProfileImageActivity extends AppCompatActivity {
         newImage = profileImage;
         updateStatus(true);
         updateImageView();
+    }
+
+    public void saveImage(View v) {
+        // save newImage to disk
+        Intent intent = new Intent();
+        if (Build.VERSION.SDK_INT >=
+                Build.VERSION_CODES.KITKAT) {
+            intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
+        } else {
+            intent.setAction(Intent.ACTION_SEND);
+        }
+
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/png");
+
+        startActivityForResult(intent, RQS_SAVE_IMAGE);
     }
 
     public void updateStatus(boolean saved) {
@@ -93,6 +112,31 @@ public class ChangeProfileImageActivity extends AppCompatActivity {
             // set unsaved
             statusView.setText(R.string.status_unsaved);
             statusView.setTextColor(getResources().getColor(R.color.red));
+        }
+    }
+
+    private void writeImageContent(Uri uri, Bitmap image) {
+        try {
+            /*String[] uriChk = uri.toString().split("\\.");
+            if(!uriChk[uriChk.length - 1].equals("png")) {
+                String newUri = uri.toString();
+                newUri = newUri + ".png";
+                uri = Uri.parse(newUri);
+            }*/
+            ParcelFileDescriptor pfd = this.getContentResolver()
+                    .openFileDescriptor(uri, "w");
+
+            FileOutputStream fos = new FileOutputStream(pfd.getFileDescriptor());
+
+            image.compress(Bitmap.CompressFormat.PNG, 100, fos);
+
+            fos.flush();
+            fos.close();
+            pfd.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -114,6 +158,8 @@ public class ChangeProfileImageActivity extends AppCompatActivity {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
+            } else if (requestCode == RQS_SAVE_IMAGE) {
+                writeImageContent(dataUri, newImage);
             }
         }
 
