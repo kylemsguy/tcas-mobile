@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         public int getCount() {
             // Show 4 total pages.
             // Returning 3 to disable MessageFragment
-            return 4;
+            return 3;
         }
 
         @Override
