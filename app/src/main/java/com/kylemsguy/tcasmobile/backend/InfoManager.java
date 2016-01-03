@@ -18,8 +18,8 @@ public class InfoManager {
     private boolean loggedIn = false;
 
     // The following fields will be undefined if not logged in.
-    private int unreadQuestions; // questions with unread answers
-    private int unreadAnswers; // total unread answers
+    //private int unreadQuestions; // questions with unread answers
+    //private int unreadAnswers; // total unread answers
 
     // the following fields will be defined no matter if you're logged in or not
     private List<RecentQuestion> recentQuestions;

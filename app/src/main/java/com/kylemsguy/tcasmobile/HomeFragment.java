@@ -1,17 +1,20 @@
 package com.kylemsguy.tcasmobile;
 
 
-import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
-import java.lang.reflect.Type;
+import com.kylemsguy.tcasmobile.backend.InfoManager;
+import com.kylemsguy.tcasmobile.backend.RecentQuestion;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -20,6 +23,12 @@ import java.lang.reflect.Type;
 public class HomeFragment extends Fragment {
 
     private static final String ARG_USERNAME = "username";
+
+    private InfoManager im;
+
+    List<RecentQuestion> recentQuestionList;
+
+    ExpandableListView questionListView;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -39,6 +48,8 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
+        im = ((TCaSApp) getActivity().getApplicationContext()).getInfoManager();
+
         // TODO get O'Harean Date
         //String date = OhareanCalendar.
         // TODO: get version history from GitHub
@@ -57,9 +68,34 @@ public class HomeFragment extends Fragment {
         }
         userData.setText("\nUsername: " + username);
         userData.setTypeface(null, Typeface.BOLD);
-        miscData.setText(versionHistory + greeting);
+        //miscData.setText(versionHistory + greeting);
+        miscData.setVisibility(View.GONE);
+
+        // TODO set up the view
+        recentQuestionList = new ArrayList<>();
+
+        questionListView = (ExpandableListView) rootView.findViewById(R.id.recent_question_list);
+
+        try {
+            updateRecentQuestionList();
+        } catch (Exception e) {
+            System.err.println("HomeFragment:");
+            e.printStackTrace();
+        }
 
         return rootView;
+    }
+
+    private void updateRecentQuestionList() throws Exception {
+        List<RecentQuestion> questions = null;
+
+        im.updateInfo();
+        questions = im.getRecentQuestions();
+
+        recentQuestionList.clear();
+        recentQuestionList.addAll(questions);
+
+        // notify data set changed & stuff
     }
 
 
