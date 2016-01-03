@@ -1,0 +1,136 @@
+package com.kylemsguy.tcasmobile;
+
+import android.content.Context;
+import android.graphics.Typeface;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.TextView;
+
+import com.kylemsguy.tcasmobile.backend.Answer;
+import com.kylemsguy.tcasmobile.backend.Question;
+
+import java.util.List;
+
+
+public class RecentQuestionAdapter extends BaseExpandableListAdapter {
+    private static final boolean REVERSE_ENTRIES = true;
+
+    private Context mContext;
+
+    private List<Question> mQuestions;
+
+    public RecentQuestionAdapter(Context context, List<Question> questions) {
+        mContext = context;
+        mQuestions = questions;
+    }
+
+    @Override
+    public Object getChild(int groupPosition, int childPosition) {
+        return mQuestions.get(groupPosition).getAnswers().get(childPosition).getContent();
+    }
+
+    @Override
+    public long getChildId(int groupPosition, int childPosition) {
+        return childPosition;
+    }
+
+    @Override
+    public View getChildView(int groupPosition, final int childPosition, boolean isLastChild,
+                             View convertView, ViewGroup parent) {
+        final String childText = (String) getChild(groupPosition, childPosition);
+
+        if (convertView == null) {
+            LayoutInflater infalInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = infalInflater.inflate(R.layout.question_list_item, null);
+        }
+        TextView listItemName = (TextView) convertView.findViewById(R.id.list_item_name);
+
+        if (getChildItem(groupPosition, childPosition).getRead()) {
+            listItemName.setBackgroundColor(mContext.getResources().getColor(R.color.background_material_light));
+        } else {
+            listItemName.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
+        }
+
+        listItemName.setText(childText);
+        return convertView;
+    }
+
+    @Override
+    public int getChildrenCount(int groupPosition) {
+        return mQuestions.get(groupPosition).getAnswers().size();
+    }
+
+    @Override
+    public Object getGroup(int groupPosition) {
+        return mQuestions.get(groupPosition).getContent();
+    }
+
+    @Override
+    public int getGroupCount() {
+        return mQuestions.size();
+    }
+
+    @Override
+    public long getGroupId(int groupPosition) {
+        return groupPosition;
+    }
+
+    @Override
+    public View getGroupView(int groupPosition, boolean isExpanded,
+                             View convertView, ViewGroup parent) {
+        String headerTitle = (String) getGroup(groupPosition);
+        if (convertView == null) {
+            LayoutInflater infalInflater = (LayoutInflater) mContext.getSystemService(
+                    Context.LAYOUT_INFLATER_SERVICE);
+            convertView = infalInflater.inflate(R.layout.question_list_group, null);
+        }
+
+        TextView listHeaderName = (TextView) convertView.findViewById(R.id.list_header_name);
+        listHeaderName.setText(headerTitle);
+
+        Question question = getGroupItem(groupPosition);
+        if (question.getActive()) {
+            // active
+            listHeaderName.setTypeface(null, Typeface.BOLD);
+            listHeaderName.setBackgroundColor(mContext.getResources().getColor(R.color.background_material_light));
+        } else {
+            // inactive
+            listHeaderName.setTypeface(null, Typeface.NORMAL);
+            listHeaderName.setBackgroundColor(mContext.getResources().getColor(R.color.grey));
+        }
+
+        return convertView;
+    }
+
+    @Override
+    public boolean hasStableIds() {
+        return false;
+    }
+
+    @Override
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
+        return true;
+    }
+
+    public void reloadItems(List<Question> questions) {
+        mQuestions.clear();
+        if (REVERSE_ENTRIES) {
+            for (int i = questions.size(); i > 0; i--) {
+                mQuestions.add(questions.get(i - 1).getReversed());
+            }
+        } else {
+            mQuestions.addAll(questions);
+        }
+    }
+
+    public Question getGroupItem(int position) {
+        return mQuestions.get(position);
+    }
+
+    public Answer getChildItem(int groupPosition, int childPosition) {
+        Question question = mQuestions.get(groupPosition);
+        return question.getAnswersList().get(childPosition);
+    }
+}
