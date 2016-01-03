@@ -89,4 +89,28 @@ public class OhareanCalendar {
         return (double) (currentTime - unix) / DAY_LENGTH_SEC;
     }
 
+    /**
+     * Returns a tuple (days, hours, minutes, seconds) showing the time from unix1 to unix2
+     * <p/>
+     * The unix timestamps are assumed to be given in seconds, and not millis.
+     * <p/>
+     * Note: this is for the Gregorian calendar.
+     *
+     * @param unix1
+     * @param unix2
+     * @return
+     */
+    public static int[] diffTime(long unix1, long unix2) {
+        long diff = Math.abs(unix1 - unix2);
+
+        int days = (int) (diff / 86400);
+        diff = diff % 86400;
+        int hours = (int) (diff / 3600);
+        diff = diff % 3600;
+        int minutes = (int) (diff / 60);
+        diff = diff % 60;
+
+        return new int[]{days, hours, minutes, (int) diff};
+    }
+
 }

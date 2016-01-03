@@ -1,136 +1,99 @@
 package com.kylemsguy.tcasmobile;
 
 import android.content.Context;
-import android.graphics.Typeface;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
-import com.kylemsguy.tcasmobile.backend.Answer;
-import com.kylemsguy.tcasmobile.backend.Question;
+import com.kylemsguy.tcasmobile.backend.RecentQuestion;
 
 import java.util.List;
 
 
-public class RecentQuestionAdapter extends BaseExpandableListAdapter {
-    private static final boolean REVERSE_ENTRIES = true;
+public class RecentQuestionAdapter extends RecyclerView.Adapter<RecentQuestionAdapter.ViewHolder> {
+    private List<RecentQuestion> recentQuestions;
+    private Context context;
 
-    private Context mContext;
+    // Provide a reference to the views for each data item
+    // Complex data items may need more than one view per item, and
+    // you provide access to all the views for a data item in a view holder
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        // each data item is just a string in this case
+        public View view;
 
-    private List<Question> mQuestions;
-
-    public RecentQuestionAdapter(Context context, List<Question> questions) {
-        mContext = context;
-        mQuestions = questions;
-    }
-
-    @Override
-    public Object getChild(int groupPosition, int childPosition) {
-        return mQuestions.get(groupPosition).getAnswers().get(childPosition).getContent();
-    }
-
-    @Override
-    public long getChildId(int groupPosition, int childPosition) {
-        return childPosition;
-    }
-
-    @Override
-    public View getChildView(int groupPosition, final int childPosition, boolean isLastChild,
-                             View convertView, ViewGroup parent) {
-        final String childText = (String) getChild(groupPosition, childPosition);
-
-        if (convertView == null) {
-            LayoutInflater infalInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = infalInflater.inflate(R.layout.question_list_item, null);
-        }
-        TextView listItemName = (TextView) convertView.findViewById(R.id.list_item_name);
-
-        if (getChildItem(groupPosition, childPosition).getRead()) {
-            listItemName.setBackgroundColor(mContext.getResources().getColor(R.color.background_material_light));
-        } else {
-            listItemName.setBackgroundColor(mContext.getResources().getColor(R.color.yellow));
+        public ViewHolder(View v) {
+            super(v);
+            view = v;
         }
 
-        listItemName.setText(childText);
-        return convertView;
-    }
-
-    @Override
-    public int getChildrenCount(int groupPosition) {
-        return mQuestions.get(groupPosition).getAnswers().size();
-    }
-
-    @Override
-    public Object getGroup(int groupPosition) {
-        return mQuestions.get(groupPosition).getContent();
-    }
-
-    @Override
-    public int getGroupCount() {
-        return mQuestions.size();
-    }
-
-    @Override
-    public long getGroupId(int groupPosition) {
-        return groupPosition;
-    }
-
-    @Override
-    public View getGroupView(int groupPosition, boolean isExpanded,
-                             View convertView, ViewGroup parent) {
-        String headerTitle = (String) getGroup(groupPosition);
-        if (convertView == null) {
-            LayoutInflater infalInflater = (LayoutInflater) mContext.getSystemService(
-                    Context.LAYOUT_INFLATER_SERVICE);
-            convertView = infalInflater.inflate(R.layout.question_list_group, null);
+        public void setOnItemClickListener(View.OnClickListener listener) {
+            view.setOnClickListener(listener);
         }
 
-        TextView listHeaderName = (TextView) convertView.findViewById(R.id.list_header_name);
-        listHeaderName.setText(headerTitle);
-
-        Question question = getGroupItem(groupPosition);
-        if (question.getActive()) {
-            // active
-            listHeaderName.setTypeface(null, Typeface.BOLD);
-            listHeaderName.setBackgroundColor(mContext.getResources().getColor(R.color.background_material_light));
-        } else {
-            // inactive
-            listHeaderName.setTypeface(null, Typeface.NORMAL);
-            listHeaderName.setBackgroundColor(mContext.getResources().getColor(R.color.grey));
+        public interface OnItemClickListener {
+            void onItemClick(View caller);
         }
 
-        return convertView;
     }
 
+
+    // Provide a suitable constructor (depends on the kind of dataset)
+    public RecentQuestionAdapter(List<RecentQuestion> myDataset, Context context) {
+        recentQuestions = myDataset;
+        this.context = context;
+    }
+
+    // Create new views (invoked by the layout manager)
     @Override
-    public boolean hasStableIds() {
-        return false;
+    public RecentQuestionAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                               int viewType) {
+        // create a new view
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.content_recent_question_row, parent, false);
+        // set the view's size, margins, paddings and layout parameters
+        ViewHolder vh = new ViewHolder(v);
+        return vh;
     }
 
+    // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return true;
-    }
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        // - get element from your dataset at this position
+        // - replace the contents of the view with that element
+        View convertView = holder.view;
 
-    public void reloadItems(List<Question> questions) {
-        mQuestions.clear();
-        if (REVERSE_ENTRIES) {
-            for (int i = questions.size(); i > 0; i--) {
-                mQuestions.add(questions.get(i - 1).getReversed());
+        TextView questionView = (TextView) convertView.findViewById(R.id.question_content);
+        TextView timeView = (TextView) convertView.findViewById(R.id.question_time);
+
+        RecentQuestion currentMessage = recentQuestions.get(position);
+
+        // set attributes
+        //String sender = currentMessage.getSender();
+        //senderView.setText(sender);
+        questionView.setText(currentMessage.getContent());
+
+        timeView.setText(currentMessage.getTimeReceivedAgo());
+
+        // set the click listener
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*Message thread = recentQuestions.get(position);
+                int threadId = thread.getId();
+
+                Intent intent = new Intent(context, MessageContentActivity.class);
+                intent.putExtra("threadId", threadId);
+
+                v.getContext().startActivity(intent);*/
             }
-        } else {
-            mQuestions.addAll(questions);
-        }
+        });
     }
 
-    public Question getGroupItem(int position) {
-        return mQuestions.get(position);
-    }
-
-    public Answer getChildItem(int groupPosition, int childPosition) {
-        Question question = mQuestions.get(groupPosition);
-        return question.getAnswersList().get(childPosition);
+    // Return the size of your dataset (invoked by the layout manager)
+    @Override
+    public int getItemCount() {
+        return recentQuestions.size();
     }
 }

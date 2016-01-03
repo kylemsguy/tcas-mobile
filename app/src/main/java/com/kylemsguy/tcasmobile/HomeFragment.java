@@ -4,10 +4,10 @@ package com.kylemsguy.tcasmobile;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.kylemsguy.tcasmobile.backend.InfoManager;
@@ -26,9 +26,11 @@ public class HomeFragment extends Fragment {
 
     private InfoManager im;
 
-    List<RecentQuestion> recentQuestionList;
+    private List<RecentQuestion> recentQuestionList;
 
-    ExpandableListView questionListView;
+    private RecyclerView questionListView;
+    private TextView userData;
+    private TextView miscData;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -58,8 +60,8 @@ public class HomeFragment extends Fragment {
                 "the future.\n" +
                 "";
 
-        TextView userData = (TextView) rootView.findViewById(R.id.user_data);
-        TextView miscData = (TextView) rootView.findViewById(R.id.misc_data);
+        userData = (TextView) rootView.findViewById(R.id.user_data);
+        miscData = (TextView) rootView.findViewById(R.id.misc_data);
 
         // TODO get more info for userdata
         String username = getArguments().getString(ARG_USERNAME);
@@ -74,7 +76,7 @@ public class HomeFragment extends Fragment {
         // TODO set up the view
         recentQuestionList = new ArrayList<>();
 
-        questionListView = (ExpandableListView) rootView.findViewById(R.id.recent_question_list);
+        questionListView = (RecyclerView) rootView.findViewById(R.id.recent_question_list);
 
         try {
             updateRecentQuestionList();
@@ -87,7 +89,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateRecentQuestionList() throws Exception {
-        List<RecentQuestion> questions = null;
+        List<RecentQuestion> questions;
 
         im.updateInfo();
         questions = im.getRecentQuestions();
