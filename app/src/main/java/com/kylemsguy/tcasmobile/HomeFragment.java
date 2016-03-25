@@ -2,6 +2,7 @@ package com.kylemsguy.tcasmobile;
 
 
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -88,16 +89,33 @@ public class HomeFragment extends Fragment {
         return rootView;
     }
 
-    private void updateRecentQuestionList() throws Exception {
-        List<RecentQuestion> questions;
+    private void updateRecentQuestionList() {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    im.updateInfo();
+                } catch (Exception e) {
+                    System.out.println("HomeFragment: Failed to update recent question list");
+                    e.printStackTrace();
+                }
+                return null;
+            }
 
-        im.updateInfo();
-        questions = im.getRecentQuestions();
-
-        recentQuestionList.clear();
-        recentQuestionList.addAll(questions);
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                updateRecentQuestionListCallback();
+            }
+        }.execute();
 
         // notify data set changed & stuff
+    }
+
+    private void updateRecentQuestionListCallback() {
+        List<RecentQuestion> questions;
+        questions = im.getRecentQuestions();
+        recentQuestionList.clear();
+        recentQuestionList.addAll(questions);
     }
 
 

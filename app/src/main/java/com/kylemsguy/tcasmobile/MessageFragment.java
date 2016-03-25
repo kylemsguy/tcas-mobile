@@ -1,5 +1,7 @@
 package com.kylemsguy.tcasmobile;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +32,7 @@ import java.util.List;
 public class MessageFragment extends Fragment
         implements AdapterView.OnItemSelectedListener {
     private MessageManager mm;
+    private Context mContext;
 
     private AppCompatActivity activity;
     private ActionBar actionBar;
@@ -164,7 +167,7 @@ public class MessageFragment extends Fragment
         for (MessageFolder folder : folders) {
             folderNames.add(folder.getFormattedName());
         }
-        getActivity().runOnUiThread(new Runnable() {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 folderNameMenuAdapter.notifyDataSetChanged();
@@ -180,7 +183,7 @@ public class MessageFragment extends Fragment
 
         if (threads == null) {
             setEmptyFolderTextDisplay(true);
-            getActivity().runOnUiThread(new Runnable() {
+            ((Activity) mContext).runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     messageListAdapter.notifyDataSetChanged();
@@ -203,7 +206,7 @@ public class MessageFragment extends Fragment
             setEmptyFolderTextDisplay(false);
         }
 
-        getActivity().runOnUiThread(new Runnable() {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 messageListAdapter.notifyDataSetChanged();
@@ -283,6 +286,12 @@ public class MessageFragment extends Fragment
     public void onResume() {
         super.onResume();
         reloadMessageThreads();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 
     /**

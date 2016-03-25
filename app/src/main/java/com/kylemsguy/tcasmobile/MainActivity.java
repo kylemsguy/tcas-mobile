@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
      * becomes too memory intensive, it may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    SectionsPagerAdapter mSectionsPagerAdapter;
+    private SectionsPagerAdapter mSectionsPagerAdapter;
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -220,6 +220,10 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         //List<String> cookies = PrefUtils.getStringListFromPrefs(this, PrefUtils.PREF_COOKIES_KEY);
         //sm.setCookies(cookies);
 
+        // Reload cookies from SharedPreferences
+        // TODO: deal with the tight coupling going on here o_o
+        ((PersistentCookieStore) sm.getCookieStore()).getCookiesFromPrefs();
+
         // check if logged in
         mGetLoggedInTask = new GetLoggedInTask().execute(sm, this);
 
@@ -275,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             finish();
         } else {
             // refresh data
-            //mAskFragment.loadQuestionList();
+            mAskFragment.loadQuestionList();
 
         }
     }

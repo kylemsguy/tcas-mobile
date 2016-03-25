@@ -15,9 +15,6 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import org.apache.http.cookie.Cookie;
-import org.apache.http.protocol.HTTP;
-
 /**
  * Code taken from
  * https://stackoverflow.com/questions/19629625/best-place-for-storing-user-login-credentials-in-android
