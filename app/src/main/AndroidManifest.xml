@@ -52,6 +52,10 @@
                 android:value="com.kylemsguy.tcasmobile.MainActivity" />
         </activity>
         <activity android:name=".ChangeProfileImageActivity" />
+        <activity
+            android:name=".NewMainActivity"
+            android:label="@string/title_activity_new_main"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
