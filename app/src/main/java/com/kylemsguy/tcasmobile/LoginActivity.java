@@ -277,7 +277,7 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
             if (saveData.isChecked())
                 saveUserData(mUsername, mPassword);
             PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, mDisplayUsername);
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, NewMainActivity.class);
             // TODO temp while we are using both the Mobile and Web APIs
             if (mDisplayUsername == null)
                 mDisplayUsername = mUsername;

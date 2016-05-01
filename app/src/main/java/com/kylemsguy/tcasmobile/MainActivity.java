@@ -122,7 +122,14 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             case R.id.debug_jumpto_messages:
                 mViewPager.setCurrentItem(3);
                 break;
+            //case R.id.debug_new_main:
         }
+    }
+
+    public void startNewHome() {
+        Intent intent = new Intent(this, NewMainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     // END HomeActivity

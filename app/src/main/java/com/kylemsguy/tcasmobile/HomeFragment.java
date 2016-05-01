@@ -33,6 +33,8 @@ public class HomeFragment extends Fragment {
     private TextView userData;
     private TextView miscData;
 
+    private String username;
+
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -65,10 +67,15 @@ public class HomeFragment extends Fragment {
         miscData = (TextView) rootView.findViewById(R.id.misc_data);
 
         // TODO get more info for userdata
-        String username = getArguments().getString(ARG_USERNAME);
+        String username = null;
+        Bundle bundle = getArguments();
+        if (bundle != null)
+            username = getArguments().getString(ARG_USERNAME);
+
         if (username == null) {
             username = PrefUtils.getFromPrefs(getActivity(), PrefUtils.PREF_LOGGED_IN_KEY, null);
         }
+
         userData.setText("\nUsername: " + username);
         userData.setTypeface(null, Typeface.BOLD);
         //miscData.setText(versionHistory + greeting);

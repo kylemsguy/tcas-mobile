@@ -38,6 +38,8 @@ public class AnswerFragment extends Fragment {
     private TextView idView;
 
     private EditTextBackEvent answerField;
+    private Button skipTempButton;
+    private Button skipPermButton;
     private Button submitButton;
 
     private GetQuestionTask pendingQuestionTask;
@@ -53,8 +55,33 @@ public class AnswerFragment extends Fragment {
         questionView = (TextView) view.findViewById(R.id.questionText);
         idView = (TextView) view.findViewById(R.id.questionId);
 
+        skipTempButton = (Button) view.findViewById(R.id.btnSkipTemp);
+        skipPermButton = (Button) view.findViewById(R.id.btnSkipPerm);
+
         answerField = (EditTextBackEvent) view.findViewById(R.id.answerField);
         submitButton = (Button) view.findViewById(R.id.btnSubmit);
+
+        // Set up button actions
+        skipTempButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                skipTemp();
+            }
+        });
+
+        skipPermButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                skipPerm();
+            }
+        });
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                submitAnswer();
+            }
+        });
 
         // TODO Make ActionBar only hide when keyboard activated
         final ActionBar actionBar = ((AppCompatActivity) view.getContext()).getSupportActionBar();

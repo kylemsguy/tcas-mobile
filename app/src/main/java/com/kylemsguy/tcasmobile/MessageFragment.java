@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -36,6 +37,10 @@ public class MessageFragment extends Fragment
 
     private AppCompatActivity activity;
     private ActionBar actionBar;
+
+    // Prev/Next Page Buttons
+    private Button prevPageButton;
+    private Button nextPageButton;
 
     // Main list
     private MessageThreadListAdapter messageListAdapter;
@@ -87,6 +92,23 @@ public class MessageFragment extends Fragment
         // TEMP: make edittext not editable (MUHAHAHAHA)
         pageNumberView.setKeyListener(null);
         pageNumberView.setText(String.valueOf(mm.getCurrentPage()));
+
+        // Set up buttons
+        prevPageButton = (Button) v.findViewById(R.id.previous_page_button);
+        prevPageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prevPage(v);
+            }
+        });
+
+        nextPageButton = (Button) v.findViewById(R.id.next_page_button);
+        nextPageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nextPage(v);
+            }
+        });
 
         emptyFolderTextView = (TextView) v.findViewById(R.id.empty_folder_text);
 
