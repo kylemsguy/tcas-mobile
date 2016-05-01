@@ -48,26 +48,34 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-
-    <Button
-        android:id="@+id/debug_jumpto_ask"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/title_section2"
-        android:onClick="jumpToSection" />
+        android:orientation="vertical"
+        android:visibility="gone">
 
-    <Button
-        android:id="@+id/debug_jumpto_answer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/title_section3"
-        android:onClick="jumpToSection" />
+        <Button
+            android:id="@+id/debug_jumpto_ask"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/title_section2"
+            android:onClick="jumpToSection" />
 
-    <Button
-        android:id="@+id/debug_jumpto_messages"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/title_section4"
-        android:onClick="jumpToSection" />
+        <Button
+            android:id="@+id/debug_jumpto_answer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/title_section3"
+            android:onClick="jumpToSection" />
+
+        <Button
+            android:id="@+id/debug_jumpto_messages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/title_section4"
+            android:onClick="jumpToSection" />
+
+    </LinearLayout>
+
 
 </LinearLayout>
