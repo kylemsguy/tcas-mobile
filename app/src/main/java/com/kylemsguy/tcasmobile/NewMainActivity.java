@@ -1,6 +1,7 @@
 package com.kylemsguy.tcasmobile;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,8 +17,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.kylemsguy.tcasmobile.backend.SessionManager;
+import com.kylemsguy.tcasmobile.tasks.LogoutTask;
+
 public class NewMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private SessionManager sm;
+    private AsyncTask mLogoutTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +60,10 @@ public class NewMainActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
+        // Get the SessionManager
+        sm = ((TCaSApp) getApplicationContext()).getSessionManager();
+
+        // Set up MainFragment
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.content, fragment).commit();
     }
@@ -83,7 +94,22 @@ public class NewMainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
+        } else if (id == R.id.action_logout) {
+            // save logout task in case we need to cancel
+            mLogoutTask = new LogoutTask().execute(sm);
+            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
+            Intent intent = new Intent(this, LoginActivity.class);
+            // do stuff
+            /*try { // temporary; change to a wheel spinning and dialog saying "logging out..."
+                logout.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }*/
+            startActivity(intent);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
@@ -110,6 +136,20 @@ public class NewMainActivity extends AppCompatActivity
                 fragmentClass = AnswerFragment.class;
             } else if (id == R.id.nav_messages) {
                 fragmentClass = MessageFragment.class;
+            } else if (id == R.id.nav_logout) {
+                // save logout task in case we need to cancel
+                mLogoutTask = new LogoutTask().execute(sm);
+                PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
+                Intent intent = new Intent(this, LoginActivity.class);
+                // do stuff
+                /*try { // temporary; change to a wheel spinning and dialog saying "logging out..."
+                    logout.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }*/
+                startActivity(intent);
+                finish();
+                return true;
             }
 
             try {
