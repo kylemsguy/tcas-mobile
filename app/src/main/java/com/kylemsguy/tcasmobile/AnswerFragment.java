@@ -83,7 +83,6 @@ public class AnswerFragment extends Fragment {
             }
         });
 
-        // TODO Make ActionBar only hide when keyboard activated
         final ActionBar actionBar = ((AppCompatActivity) view.getContext()).getSupportActionBar();
 
         // hide keyboard if not focused on answer field
@@ -111,8 +110,14 @@ public class AnswerFragment extends Fragment {
             }
         });
 
-        // Get the first question!
-        pendingQuestionTask = (GetQuestionTask) new GetFirstQuestionTask().execute(am);
+        // Process any arguments (if any)
+        Bundle args = getArguments();
+        if (args == null) {
+            // Get the first question!
+            pendingQuestionTask = (GetQuestionTask) new GetFirstQuestionTask().execute(am);
+        } else {
+
+        }
 
         // TODO disable buttons by default and enable when question is loaded
         return view;

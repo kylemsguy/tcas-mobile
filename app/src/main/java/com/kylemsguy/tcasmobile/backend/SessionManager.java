@@ -204,6 +204,7 @@ public class SessionManager {
             System.out.println("Post parameters : " + postParams);
             System.out.println("Response Code ... " + status);
         }
+
         if (redirect) {
 
             // get redirect url from "location" header field
