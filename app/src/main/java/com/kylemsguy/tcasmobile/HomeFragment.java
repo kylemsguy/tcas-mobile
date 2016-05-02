@@ -121,10 +121,13 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateRecentQuestionListCallback() {
-        List<RecentQuestion> questions;
-        questions = im.getRecentQuestions();
-        recentQuestionList.clear();
-        recentQuestionList.addAll(questions);
+        try {
+            List<RecentQuestion> questions = im.getRecentQuestions();
+            recentQuestionList.clear();
+            recentQuestionList.addAll(questions);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
 
