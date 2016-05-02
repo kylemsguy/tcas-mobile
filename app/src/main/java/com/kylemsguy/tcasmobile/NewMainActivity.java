@@ -1,6 +1,8 @@
 package com.kylemsguy.tcasmobile;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -16,15 +18,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.kylemsguy.tcasmobile.backend.ProfileManager;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
+import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 
 public class NewMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private SessionManager sm;
+    private ProfileManager pm;
     private AsyncTask mLogoutTask;
+    private AsyncTask mProfileImageTask;
+
+    private TextView userView;
+    private TextView emailView;
+    private ImageView profileImgView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,17 +63,32 @@ public class NewMainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // Instantiate the main screen
-        Fragment fragment = null;
-        Class fragmentClass = HomeFragment.class;
-        try {
-            fragment = (Fragment) fragmentClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Set first item (home) as checked
+        navigationView.getMenu().getItem(0).setChecked(true);
 
-        // Get the SessionManager
+        // Get header
+        View headerLayout = navigationView.getHeaderView(0);
+
+        // Get the Managers
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
+        pm = ((TCaSApp) getApplicationContext()).getProfileManager();
+
+        // Get references to various things in the header
+        userView = (TextView) headerLayout.findViewById(R.id.headerUsername);
+        emailView = (TextView) headerLayout.findViewById(R.id.headerEmail);
+        profileImgView = (ImageView) headerLayout.findViewById(R.id.headerProfileImg);
+
+        // Instantiate the various things in the header
+        String username = PrefUtils.getFromPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
+        userView.setText(username);
+        userView.setTypeface(userView.getTypeface(), Typeface.BOLD);
+        emailView.setVisibility(View.GONE);
+
+        // Set profile image
+        mProfileImageTask = new UpdateProfileImageTask().execute(pm);
+
+        // Instantiate the main screen
+        Fragment fragment = new HomeFragment();
 
         // Set up MainFragment
         FragmentManager fm = getSupportFragmentManager();
@@ -169,5 +196,26 @@ public class NewMainActivity extends AppCompatActivity
 
     public void jumpToSection(View view) {
 
+    }
+
+    private class UpdateProfileImageTask extends AsyncTask<ProfileManager, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(ProfileManager... params) {
+            ProfileManager pm = params[0];
+
+            try {
+                return pm.getProfileImage();
+            } catch (Exception e) {
+                System.err.println("ChangeProfileImageActivity: Error getting Profile Image from server");
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false);
+            profileImgView.setImageBitmap(scaledBitmap);
+        }
     }
 }

@@ -260,18 +260,23 @@ public class LoginActivity extends AppCompatActivity implements GetLoggedInTask.
         CheckBox saveData = (CheckBox) findViewById(R.id.save_pass_box);
 
         if (!loggedIn) {
-            if (autoLogin) {
-                autoLogin = false;
-                showDialog("Session expired. Please log in again.");
-            } else if (currNetworkConnected())
-                showDialog("Login failed. Check your username or password.");
-            else
+            if (currNetworkConnected()) {
+                if (autoLogin) {
+                    autoLogin = false;
+                    showDialog("Session expired. Please log in again.");
+                } else {
+                    showDialog("Login failed. Check your username or password.");
+                    PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
+                }
+            } else {
                 showDialog("Login failed. Check your internet connection.");
+            }
+
             showProgress(false);
-            PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
+            //PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
             //sm.setCookies(new ArrayList<String>()); // restart session just in case
             // log out just in case
-            new LogoutTask().execute(sm);
+            //new LogoutTask().execute(sm);
         } else {
             // start the new activity
             if (saveData.isChecked())
