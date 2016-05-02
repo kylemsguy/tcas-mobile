@@ -21,7 +21,7 @@ public class RecentQuestion extends TCaSObject {
 
     public String getTimeReceivedAgo() {
         long currTime = System.currentTimeMillis() / 1000;
-        long diffTime = timeReceived - currTime;
+        long diffTime = currTime - timeReceived;
 
         if (diffTime < 0)
             // something has gone terribly wrong
@@ -34,7 +34,7 @@ public class RecentQuestion extends TCaSObject {
         if (diffTimeTuple[0] > 0) {
             // days
             double days = (double) diffTimeTuple[0];
-            days += diffTimeTuple[1] / 24;
+            days += diffTimeTuple[1] / 24.0;
 
             NumberFormat df = new DecimalFormat("#0.00");
             sb.append(df.format(days));
@@ -43,18 +43,18 @@ public class RecentQuestion extends TCaSObject {
         } else if (diffTimeTuple[1] > 0) {
             // hours
             double hours = (double) diffTimeTuple[1];
-            hours += diffTimeTuple[2] / 60;
+            hours += diffTimeTuple[2] / 60.0;
 
-            NumberFormat df = new DecimalFormat("#0.00");
+            NumberFormat df = new DecimalFormat("#0.0");
             sb.append(df.format(hours));
 
             sb.append(" hours ago");
         } else if (diffTimeTuple[2] > 0) {
             // minutes
             double minutes = (double) diffTimeTuple[2];
-            minutes += diffTimeTuple[3] / 60;
+            minutes += diffTimeTuple[3] / 60.0;
 
-            NumberFormat df = new DecimalFormat("#0.00");
+            NumberFormat df = new DecimalFormat("#0");
             sb.append(df.format(minutes));
 
             sb.append(" minutes ago");
