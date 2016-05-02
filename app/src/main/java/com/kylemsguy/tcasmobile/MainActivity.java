@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity
     private TextView emailView;
     private ImageView profileImgView;
     private NavigationView navigationView;
+    private Toolbar toolbar;
 
     // TODO: Cache the fragments
     private Fragment homeFragment;
@@ -46,8 +47,9 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setTitle(R.string.title_activity_main);
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -164,9 +166,11 @@ public class MainActivity extends AppCompatActivity
             if (id == R.id.nav_home) {
                 // Handle the home action
                 // TODO: make better way to refresh recent questions on home
+                toolbar.setTitle(R.string.title_activity_main);
                 homeFragment = new HomeFragment();
                 fragment = homeFragment;
             } else if (id == R.id.nav_ask) {
+                toolbar.setTitle(R.string.title_activity_ask);
                 // TODO: Fix this broken code and remove workaround
                 /*if(askFragment == null){
                     askFragment = new AskFragment();
@@ -175,11 +179,13 @@ public class MainActivity extends AppCompatActivity
                 // TODO Workaround below
                 fragment = new AskFragment();
             } else if (id == R.id.nav_answer) {
+                toolbar.setTitle(R.string.answer);
                 if (answerFragment == null) {
-                    answerFragment = new AnswerFragment();
+                    answerFragment = AnswerFragment.newInstance();
                 }
                 fragment = answerFragment;
             } else if (id == R.id.nav_messages) {
+                toolbar.setTitle(R.string.title_section4);
                 if (messageFragment == null) {
                     messageFragment = new MessageFragment();
                 }
@@ -219,6 +225,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void jumpToAnswerQuestion(int id) {
+        toolbar.setTitle(R.string.answer);
         // Set the Answer section as checked
         navigationView.getMenu().getItem(0).setChecked(false);
         navigationView.getMenu().getItem(2).setChecked(true);
