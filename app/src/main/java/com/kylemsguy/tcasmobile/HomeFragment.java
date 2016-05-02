@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,8 @@ public class HomeFragment extends Fragment {
     private List<RecentQuestion> recentQuestionList;
 
     private RecyclerView questionListView;
+    RecentQuestionAdapter recentQuestionAdapter;
+
     private TextView userData;
     private TextView miscData;
 
@@ -81,11 +84,15 @@ public class HomeFragment extends Fragment {
         //miscData.setText(versionHistory + greeting);
         miscData.setVisibility(View.GONE);
 
-        // TODO set up the view
         recentQuestionList = new ArrayList<>();
-
         questionListView = (RecyclerView) rootView.findViewById(R.id.recent_question_list);
 
+        // Set up the RecyclerView
+        recentQuestionAdapter =
+                new RecentQuestionAdapter(recentQuestionList, getActivity(), (MainActivity) getActivity());
+
+        questionListView.setAdapter(recentQuestionAdapter);
+        questionListView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         try {
             updateRecentQuestionList();
@@ -125,6 +132,7 @@ public class HomeFragment extends Fragment {
             List<RecentQuestion> questions = im.getRecentQuestions();
             recentQuestionList.clear();
             recentQuestionList.addAll(questions);
+            recentQuestionAdapter.notifyDataSetChanged();
         } catch (NullPointerException e) {
             e.printStackTrace();
         }

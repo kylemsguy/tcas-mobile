@@ -21,6 +21,8 @@ import java.util.Map;
 
 public class AnswerFragment extends Fragment {
 
+    public static final String QUESTION_ID_KEY = "__QUESTION_ID_KEY__";
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -29,6 +31,14 @@ public class AnswerFragment extends Fragment {
      */
     public static AnswerFragment newInstance() {
         return new AnswerFragment();
+    }
+
+    public static AnswerFragment newInstance(int id) {
+        AnswerFragment fragment = new AnswerFragment();
+        Bundle args = new Bundle();
+        args.putInt(QUESTION_ID_KEY, id);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     private AnswerManager am;
@@ -42,7 +52,7 @@ public class AnswerFragment extends Fragment {
     private Button skipPermButton;
     private Button submitButton;
 
-    private GetQuestionTask pendingQuestionTask;
+    private AsyncTask pendingQuestionTask;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -114,9 +124,9 @@ public class AnswerFragment extends Fragment {
         Bundle args = getArguments();
         if (args == null) {
             // Get the first question!
-            pendingQuestionTask = (GetQuestionTask) new GetFirstQuestionTask().execute(am);
+            pendingQuestionTask = new GetFirstQuestionTask().execute(am);
         } else {
-
+            pendingQuestionTask = new GetSpecificFirstQuestionTask().execute(am, args.getInt(QUESTION_ID_KEY));
         }
 
         // TODO disable buttons by default and enable when question is loaded
@@ -225,6 +235,26 @@ public class AnswerFragment extends Fragment {
     }
 
     public class GetFirstQuestionTask extends GetQuestionTask {
+        @Override
+        protected void onPostExecute(Map<String, String> result) {
+            updateQuestion(result);
+            writeCurrQuestion();
+        }
+    }
+
+    public class GetSpecificFirstQuestionTask extends AsyncTask<Object, Void, Map<String, String>> {
+        @Override
+        protected Map<String, String> doInBackground(Object... params) {
+            AnswerManager am = (AnswerManager) params[0];
+            int id = (int) params[1];
+            try {
+                return am.getQuestion(id);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
         @Override
         protected void onPostExecute(Map<String, String> result) {
             updateQuestion(result);

@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.kylemsguy.tcasmobile.backend.RecentQuestion;
@@ -15,6 +16,7 @@ import java.util.List;
 public class RecentQuestionAdapter extends RecyclerView.Adapter<RecentQuestionAdapter.ViewHolder> {
     private List<RecentQuestion> recentQuestions;
     private Context context;
+    private OnJumpToAnswerQuestionListener aqListener;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -40,9 +42,10 @@ public class RecentQuestionAdapter extends RecyclerView.Adapter<RecentQuestionAd
 
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public RecentQuestionAdapter(List<RecentQuestion> myDataset, Context context) {
+    public RecentQuestionAdapter(List<RecentQuestion> myDataset, Context context, OnJumpToAnswerQuestionListener aqListener) {
         recentQuestions = myDataset;
         this.context = context;
+        this.aqListener = aqListener;
     }
 
     // Create new views (invoked by the layout manager)
@@ -66,27 +69,21 @@ public class RecentQuestionAdapter extends RecyclerView.Adapter<RecentQuestionAd
 
         TextView questionView = (TextView) convertView.findViewById(R.id.question_content);
         TextView timeView = (TextView) convertView.findViewById(R.id.question_time);
+        Button answerButton = (Button) convertView.findViewById(R.id.answer_button);
 
-        RecentQuestion currentMessage = recentQuestions.get(position);
+        final RecentQuestion currentMessage = recentQuestions.get(position);
 
         // set attributes
-        //String sender = currentMessage.getSender();
-        //senderView.setText(sender);
         questionView.setText(currentMessage.getContent());
 
         timeView.setText(currentMessage.getTimeReceivedAgo());
 
-        // set the click listener
-        convertView.setOnClickListener(new View.OnClickListener() {
+        // set the Answer This button's click listener
+        answerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*Message thread = recentQuestions.get(position);
-                int threadId = thread.getId();
-
-                Intent intent = new Intent(context, MessageContentActivity.class);
-                intent.putExtra("threadId", threadId);
-
-                v.getContext().startActivity(intent);*/
+                // Initiate change to new fragment
+                aqListener.jumpToAnswerQuestion(currentMessage.getId());
             }
         });
     }
@@ -95,5 +92,9 @@ public class RecentQuestionAdapter extends RecyclerView.Adapter<RecentQuestionAd
     @Override
     public int getItemCount() {
         return recentQuestions.size();
+    }
+
+    public interface OnJumpToAnswerQuestionListener {
+        void jumpToAnswerQuestion(int id);
     }
 }

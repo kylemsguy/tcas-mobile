@@ -24,7 +24,7 @@ import com.kylemsguy.tcasmobile.backend.SessionManager;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, RecentQuestionAdapter.OnJumpToAnswerQuestionListener {
 
     private SessionManager sm;
     private ProfileManager pm;
@@ -34,6 +34,13 @@ public class MainActivity extends AppCompatActivity
     private TextView userView;
     private TextView emailView;
     private ImageView profileImgView;
+    private NavigationView navigationView;
+
+    // TODO: Cache the fragments
+    private Fragment homeFragment;
+    private Fragment askFragment;
+    private Fragment answerFragment;
+    private Fragment messageFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +64,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         // Set first item (home) as checked
@@ -89,7 +96,7 @@ public class MainActivity extends AppCompatActivity
         mProfileImageTask = new UpdateProfileImageTask().execute(pm);
 
         // Instantiate the main screen
-        Fragment fragment = new HomeFragment();
+        Fragment fragment = HomeFragment.newInstance(username);
 
         // Set up MainFragment
         FragmentManager fm = getSupportFragmentManager();
@@ -149,7 +156,6 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         Fragment fragment = null;
-        Class fragmentClass = null;
 
         if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
@@ -157,13 +163,27 @@ public class MainActivity extends AppCompatActivity
         } else {
             if (id == R.id.nav_home) {
                 // Handle the home action
-                fragmentClass = HomeFragment.class;
+                // TODO: make better way to refresh recent questions on home
+                homeFragment = new HomeFragment();
+                fragment = homeFragment;
             } else if (id == R.id.nav_ask) {
-                fragmentClass = AskFragment.class;
+                // TODO: Fix this broken code and remove workaround
+                /*if(askFragment == null){
+                    askFragment = new AskFragment();
+                }
+                fragment = askFragment;*/
+                // TODO Workaround below
+                fragment = new AskFragment();
             } else if (id == R.id.nav_answer) {
-                fragmentClass = AnswerFragment.class;
+                if (answerFragment == null) {
+                    answerFragment = new AnswerFragment();
+                }
+                fragment = answerFragment;
             } else if (id == R.id.nav_messages) {
-                fragmentClass = MessageFragment.class;
+                if (messageFragment == null) {
+                    messageFragment = new MessageFragment();
+                }
+                fragment = messageFragment;
             } else if (id == R.id.nav_logout) {
                 // save logout task in case we need to cancel
                 mLogoutTask = new LogoutTask().execute(sm);
@@ -180,14 +200,12 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
 
-            try {
-                fragment = (Fragment) fragmentClass.newInstance();
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (fragment == null) {
+                System.out.println("MainActivity: Invalid menu choice" + id);
+            } else {
+                FragmentManager fm = getSupportFragmentManager();
+                fm.beginTransaction().replace(R.id.content, fragment).commit();
             }
-
-            FragmentManager fm = getSupportFragmentManager();
-            fm.beginTransaction().replace(R.id.content, fragment).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -197,6 +215,18 @@ public class MainActivity extends AppCompatActivity
 
     public void jumpToSection(View view) {
 
+    }
+
+    @Override
+    public void jumpToAnswerQuestion(int id) {
+        // Set the Answer section as checked
+        navigationView.getMenu().getItem(0).setChecked(false);
+        navigationView.getMenu().getItem(2).setChecked(true);
+
+        // Replace current fragment with an AnswerFragment
+        answerFragment = AnswerFragment.newInstance(id);
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction().replace(R.id.content, answerFragment).commit();
     }
 
     private class UpdateProfileImageTask extends AsyncTask<ProfileManager, Void, Bitmap> {
