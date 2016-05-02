@@ -66,6 +66,10 @@ public class NewMainActivity extends AppCompatActivity
         // Set first item (home) as checked
         navigationView.getMenu().getItem(0).setChecked(true);
 
+        // Disable the 4th item (Messages) as it's not finished yet
+        navigationView.getMenu().getItem(3).setVisible(false);
+        //navigationView.getMenu().getItem(3).setEnabled(false);
+
         // Get header
         View headerLayout = navigationView.getHeaderView(0);
 
