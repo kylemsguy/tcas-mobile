@@ -31,29 +31,29 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".OldMainActivity"
             android:label="@string/title_activity_main"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".OldMainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.kylemsguy.tcasmobile.MainActivity" />
+                android:value=".OldMainActivity" />
         </activity>
         <activity
             android:name=".MessageContentActivity"
             android:label="@string/title_activity_message_content"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".OldMainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.kylemsguy.tcasmobile.MainActivity" />
+                android:value=".OldMainActivity" />
         </activity>
         <activity android:name=".ChangeProfileImageActivity" />
         <activity
-            android:name=".NewMainActivity"
+            android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>

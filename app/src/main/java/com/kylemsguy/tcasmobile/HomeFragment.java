@@ -86,6 +86,7 @@ public class HomeFragment extends Fragment {
 
         questionListView = (RecyclerView) rootView.findViewById(R.id.recent_question_list);
 
+
         try {
             updateRecentQuestionList();
         } catch (Exception e) {
@@ -113,6 +114,7 @@ public class HomeFragment extends Fragment {
             protected void onPostExecute(Void aVoid) {
                 updateRecentQuestionListCallback();
             }
+
         }.execute();
 
         // notify data set changed & stuff
