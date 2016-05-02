@@ -1,179 +1,124 @@
 package com.kylemsguy.tcasmobile;
 
-import java.util.Locale;
-
-import com.kylemsguy.tcasmobile.tasks.GetLoggedInTask;
-import com.kylemsguy.tcasmobile.tasks.LogoutTask;
-import com.kylemsguy.tcasmobile.backend.SessionManager;
-
-import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
+import android.view.View;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements GetLoggedInTask.OnPostLoginCheckListener {
+import com.kylemsguy.tcasmobile.backend.ProfileManager;
+import com.kylemsguy.tcasmobile.backend.SessionManager;
+import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a {@link FragmentPagerAdapter}
-     * derivative, which will keep every loaded fragment in memory. If this
-     * becomes too memory intensive, it may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    SectionsPagerAdapter mSectionsPagerAdapter;
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    private ViewPager mViewPager;
-    private ActionBar actionBar;
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, RecentQuestionAdapter.OnJumpToAnswerQuestionListener {
 
     private SessionManager sm;
-
+    private ProfileManager pm;
     private AsyncTask mLogoutTask;
-    private AsyncTask mGetLoggedInTask;
+    private AsyncTask mProfileImageTask;
 
-    private AskFragment mAskFragment;
-    private AnswerFragment mAnswerFragment;
-    private MessageFragment mMessageFragment;
+    private TextView userView;
+    private TextView emailView;
+    private ImageView profileImgView;
+    private NavigationView navigationView;
+    private Toolbar toolbar;
 
-    private static final boolean DEBUG = false;
+    // TODO: Cache the fragments
+    private Fragment homeFragment;
+    private Fragment askFragment;
+    private Fragment answerFragment;
+    private Fragment messageFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle(R.string.title_activity_main);
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(
-                getSupportFragmentManager());
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        // prevent destruction of fragments by scrolling offscreen
-        mViewPager.setOffscreenPageLimit(mSectionsPagerAdapter.getCount());
-
-        // Disable keyboard when unnecessary
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onPageSelected(int position) {
-                switch (position) {
-                    case 0: // Home
-                        // let's hide that keyboard
-                        View currentFocus = getCurrentFocus();
-                        if (currentFocus != null) {
-                            InputMethodManager imm = (InputMethodManager) getSystemService(
-                                    Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
-                        }
-                        break;
-                    case 1: // AskActivity
-                        break;
-                    case 2: // AnswerActivity
-                        break;
-                }
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
+        });*/
 
-            @Override
-            public void onPageScrolled(int position, float offset, int offsetPixels) {
-            }
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-        });
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
-        // Get the SessionManager
+        // Set first item (home) as checked
+        navigationView.getMenu().getItem(0).setChecked(true);
+
+        // Disable the 4th item (Messages) as it's not finished yet
+        navigationView.getMenu().getItem(3).setVisible(false);
+        //navigationView.getMenu().getItem(3).setEnabled(false);
+
+        // Get header
+        View headerLayout = navigationView.getHeaderView(0);
+
+        // Get the Managers
         sm = ((TCaSApp) getApplicationContext()).getSessionManager();
+        pm = ((TCaSApp) getApplicationContext()).getProfileManager();
 
+        // Get references to various things in the header
+        userView = (TextView) headerLayout.findViewById(R.id.headerUsername);
+        emailView = (TextView) headerLayout.findViewById(R.id.headerEmail);
+        profileImgView = (ImageView) headerLayout.findViewById(R.id.headerProfileImg);
+
+        // Instantiate the various things in the header
+        String username = PrefUtils.getFromPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
+        userView.setText(username);
+        userView.setTypeface(userView.getTypeface(), Typeface.BOLD);
+        emailView.setVisibility(View.GONE);
+
+        // Set profile image
+        mProfileImageTask = new UpdateProfileImageTask().execute(pm);
+
+        // Instantiate the main screen
+        Fragment fragment = HomeFragment.newInstance(username);
+
+        // Set up MainFragment
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction().replace(R.id.content, fragment).commit();
     }
 
-    /**
-     * Methods for each Fragment
-     */
-
-    // BEGIN HomeActivity
-    public void jumpToSection(View view) {
-        switch (view.getId()) {
-            case R.id.debug_jumpto_ask:
-                mViewPager.setCurrentItem(1);
-                break;
-            case R.id.debug_jumpto_answer:
-                mViewPager.setCurrentItem(2);
-                break;
-            case R.id.debug_jumpto_messages:
-                mViewPager.setCurrentItem(3);
-                break;
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
     }
-
-    // END HomeActivity
-
-    // BEGIN AskActivity
-
-    public void askQuestion(View view) {
-        mAskFragment.askQuestion(view);
-    }
-
-    // END AskActivity
-
-
-    // BEGIN AnswerActivity
-    public void skipTemp(View view) {
-        mAnswerFragment.skipTemp();
-    }
-
-    public void skipPerm(View view) {
-        mAnswerFragment.skipPerm();
-    }
-
-    public void submitAnswer(View view) {
-        mAnswerFragment.submitAnswer();
-    }
-
-    // end AnswerActivity
-
-    // start MessageActivity
-
-
-    public void prevPage(View v) {
-        mMessageFragment.prevPage(v);
-    }
-
-
-    public void nextPage(View v) {
-        mMessageFragment.nextPage(v);
-    }
-
-
-    // end MessageActivity
-
-    /**
-     * Misc. methods for MainActivity
-     */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.new_main, menu);
         return true;
     }
 
@@ -183,6 +128,8 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
@@ -201,192 +148,112 @@ public class MainActivity extends AppCompatActivity implements GetLoggedInTask.O
             startActivity(intent);
             finish();
         }
+
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    protected void onPause() {
-        // Save cookies to SharedPreferences
-        //PrefUtils.saveListToPrefs(this, PrefUtils.PREF_COOKIES_KEY, sm.getCookies());
-        //PrefUtils.saveCookieStoreToPrefs(this, PrefUtils.PREF_COOKIESTORE_KEY, sm.getCookieStore());
-        super.onPause();
-    }
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+        Fragment fragment = null;
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Reload cookies from SharedPreferences
-        //List<String> cookies = PrefUtils.getStringListFromPrefs(this, PrefUtils.PREF_COOKIES_KEY);
-        //sm.setCookies(cookies);
-
-        // check if logged in
-        mGetLoggedInTask = new GetLoggedInTask().execute(sm, this);
-
-    }
-
-    @Override
-    public void onBackPressed() {
-    /*
-        // show a message asking if really want to close
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.sure_quit);
-        builder.setPositiveButton("OK", new AlertDialog.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE)
-                    // Close app.
-                    finish();
-            }
-        });
-        builder.setNegativeButton("Cancel", null);
-        builder.setCancelable(true);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    */
-
-        // move to previous page in ViewPager
-        int currentPage = mViewPager.getCurrentItem();
-        if (currentPage - 1 >= 0)
-            mViewPager.setCurrentItem(currentPage - 1);
-        else
-            super.onBackPressed();
-
-        // logout here
-        //mLogoutTask = new LogoutTask().execute(sm);
-    }
-
-    /**
-     * Callbacks for AsyncTasks
-     */
-
-    @Override
-    public void onPostLoginCheck(boolean loggedIn) {
-        if (!loggedIn) {
-            // kick back to LoginActivity
-            Intent intent = new Intent(this, LoginActivity.class);
+        if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
-
-            // let user know session expired
-            Toast toast = Toast.makeText(getApplicationContext(), R.string.session_expired, Toast.LENGTH_SHORT);
-            toast.show();
-
-            // prevent user from returning to MainActivity
-            finish();
         } else {
-            // refresh data
-            //mAskFragment.loadQuestionList();
-
-        }
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class
-            // below).
-            // return PlaceholderFragment.newInstance(position + 1);
-            switch (position) {
-                case 0:
-                    //System.out.println("0");
-                    Intent prevIntent = getIntent();
-                    String username = prevIntent.getStringExtra("username");
-                    return HomeFragment.newInstance(username);
-                case 1:
-                    //System.out.println("1");
-                    mAskFragment = AskFragment.newInstance();
-                    return mAskFragment;
-                case 2:
-                    //System.out.println("2");
-                    mAnswerFragment = AnswerFragment.newInstance();
-                    return mAnswerFragment;
-                case 3:
-                    //System.out.println("3");
-                    mMessageFragment = MessageFragment.newInstance();
-                    return mMessageFragment;
+            if (id == R.id.nav_home) {
+                // Handle the home action
+                // TODO: make better way to refresh recent questions on home
+                toolbar.setTitle(R.string.title_activity_main);
+                homeFragment = new HomeFragment();
+                fragment = homeFragment;
+            } else if (id == R.id.nav_ask) {
+                toolbar.setTitle(R.string.title_activity_ask);
+                // TODO: Fix this broken code and remove workaround
+                /*if(askFragment == null){
+                    askFragment = new AskFragment();
+                }
+                fragment = askFragment;*/
+                // TODO Workaround below
+                fragment = new AskFragment();
+            } else if (id == R.id.nav_answer) {
+                toolbar.setTitle(R.string.answer);
+                if (answerFragment == null) {
+                    answerFragment = AnswerFragment.newInstance();
+                }
+                fragment = answerFragment;
+            } else if (id == R.id.nav_messages) {
+                toolbar.setTitle(R.string.title_section4);
+                if (messageFragment == null) {
+                    messageFragment = new MessageFragment();
+                }
+                fragment = messageFragment;
+            } else if (id == R.id.nav_logout) {
+                // save logout task in case we need to cancel
+                mLogoutTask = new LogoutTask().execute(sm);
+                PrefUtils.saveToPrefs(this, PrefUtils.PREF_LOGGED_IN_KEY, null);
+                Intent intent = new Intent(this, LoginActivity.class);
+                // do stuff
+                /*try { // temporary; change to a wheel spinning and dialog saying "logging out..."
+                    logout.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }*/
+                startActivity(intent);
+                finish();
+                return true;
             }
-            return null;
-        }
 
-        @Override
-        public int getCount() {
-            // Show 4 total pages.
-            // Returning 3 to disable MessageFragment
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
-            switch (position) {
-                case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
-                case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
-                case 2:
-                    return getString(R.string.title_section3).toUpperCase(l);
-                case 3:
-                    return getString(R.string.title_section4).toUpperCase(l);
+            if (fragment == null) {
+                System.out.println("MainActivity: Invalid menu choice" + id);
+            } else {
+                FragmentManager fm = getSupportFragmentManager();
+                fm.beginTransaction().replace(R.id.content, fragment).commit();
             }
-            return null;
         }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
-    /**
-     * Getters and Setters
-     */
+    public void jumpToSection(View view) {
 
-    // None here.
+    }
 
-    /**
-     * Placeholder Items
-     */
+    @Override
+    public void jumpToAnswerQuestion(int id) {
+        toolbar.setTitle(R.string.answer);
+        // Set the Answer section as checked
+        navigationView.getMenu().getItem(0).setChecked(false);
+        navigationView.getMenu().getItem(2).setChecked(true);
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+        // Replace current fragment with an AnswerFragment
+        answerFragment = AnswerFragment.newInstance(id);
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction().replace(R.id.content, answerFragment).commit();
+    }
 
-        public PlaceholderFragment() {
-        }
+    private class UpdateProfileImageTask extends AsyncTask<ProfileManager, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(ProfileManager... params) {
+            ProfileManager pm = params[0];
 
-        /**
-         * Returns a new instance of this fragment for the given section number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
+            try {
+                return pm.getProfileImage();
+            } catch (Exception e) {
+                System.err.println("ChangeProfileImageActivity: Error getting Profile Image from server");
+                e.printStackTrace();
+                return null;
+            }
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container,
-                    false);
-            TextView textView = (TextView) rootView
-                    .findViewById(R.id.section_label);
-            textView.setText(Integer.toString(getArguments().getInt(
-                    ARG_SECTION_NUMBER)));
-            return rootView;
+        protected void onPostExecute(Bitmap bitmap) {
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false);
+            profileImgView.setImageBitmap(scaledBitmap);
         }
     }
-
 }

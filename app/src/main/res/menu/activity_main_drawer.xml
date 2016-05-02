@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="Home" />
+        <item
+            android:id="@+id/nav_ask"
+            android:icon="@drawable/ic_question_answer_black_24dp"
+            android:title="Ask" />
+        <item
+            android:id="@+id/nav_answer"
+            android:icon="@drawable/ic_announcement_black_24dp"
+            android:title="Answer" />
+        <item
+            android:id="@+id/nav_messages"
+            android:icon="@drawable/ic_dialog_email"
+            android:title="Messages" />
+    </group>
+
+    <item android:title="Options">
+        <menu>
+            <item
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_menu_manage"
+                android:title="Settings" />
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_vpn_key_black_24dp"
+                android:title="Log Out" />
+            <!--<item
+                android:id="@+id/nav_send"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Send" />-->
+        </menu>
+    </item>
+
+</menu>

@@ -1,5 +1,7 @@
 package com.kylemsguy.tcasmobile;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -30,9 +33,14 @@ import java.util.List;
 public class MessageFragment extends Fragment
         implements AdapterView.OnItemSelectedListener {
     private MessageManager mm;
+    private Context mContext;
 
     private AppCompatActivity activity;
     private ActionBar actionBar;
+
+    // Prev/Next Page Buttons
+    private Button prevPageButton;
+    private Button nextPageButton;
 
     // Main list
     private MessageThreadListAdapter messageListAdapter;
@@ -84,6 +92,23 @@ public class MessageFragment extends Fragment
         // TEMP: make edittext not editable (MUHAHAHAHA)
         pageNumberView.setKeyListener(null);
         pageNumberView.setText(String.valueOf(mm.getCurrentPage()));
+
+        // Set up buttons
+        prevPageButton = (Button) v.findViewById(R.id.previous_page_button);
+        prevPageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prevPage(v);
+            }
+        });
+
+        nextPageButton = (Button) v.findViewById(R.id.next_page_button);
+        nextPageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nextPage(v);
+            }
+        });
 
         emptyFolderTextView = (TextView) v.findViewById(R.id.empty_folder_text);
 
@@ -164,7 +189,7 @@ public class MessageFragment extends Fragment
         for (MessageFolder folder : folders) {
             folderNames.add(folder.getFormattedName());
         }
-        getActivity().runOnUiThread(new Runnable() {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 folderNameMenuAdapter.notifyDataSetChanged();
@@ -180,7 +205,7 @@ public class MessageFragment extends Fragment
 
         if (threads == null) {
             setEmptyFolderTextDisplay(true);
-            getActivity().runOnUiThread(new Runnable() {
+            ((Activity) mContext).runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     messageListAdapter.notifyDataSetChanged();
@@ -203,7 +228,7 @@ public class MessageFragment extends Fragment
             setEmptyFolderTextDisplay(false);
         }
 
-        getActivity().runOnUiThread(new Runnable() {
+        ((Activity) mContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 messageListAdapter.notifyDataSetChanged();
@@ -283,6 +308,12 @@ public class MessageFragment extends Fragment
     public void onResume() {
         super.onResume();
         reloadMessageThreads();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 
     /**

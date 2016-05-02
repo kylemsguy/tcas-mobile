@@ -9,11 +9,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TCaSImageConverter {
     private static final int[] BACKGROUND_COLOUR = {255, 255, 255}; // This is the proper spelling. Trust me. I'm Canadian.
     public static final int[] IMAGE_DIMENSIONS = {32, 32};
+
+    private static final String ENCODED_WHITE = "255|255|255";
 
     // for URL encoded encoding
     private static final String ENCODING = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-";
@@ -91,7 +94,7 @@ public class TCaSImageConverter {
                 // add this colour to the colour array and update counters
                 colours.add(colour);
                 counts.add(currCount);
-                currCount = 0;
+                currCount = 1;
                 length++;
             }
 
@@ -206,10 +209,20 @@ public class TCaSImageConverter {
         int green = argb >> 8 & 255;
         int blue = argb & 255;
 
+        //System.out.println("ORIG: " + argb + " ALPHA: " + alpha + " RED: " + red + " GREEN: " + green + " BLUE: " + blue);
+
         int newRed = pixelargb2Rgb(alpha, red, background[0]);
         int newGreen = pixelargb2Rgb(alpha, green, background[1]);
         int newBlue = pixelargb2Rgb(alpha, blue, background[2]);
+
+        //System.out.println("ORIG: " + argb + " NEW: RED: " + newRed + " GREEN: " + newGreen + " BLUE: " + newBlue);
+        //System.out.println("Scaling time " + scale(newBlue, 255, 63));
         return new int[]{newRed, newGreen, newBlue};
+    }
+
+    private static int pixelargb2Rgb(int alpha, int original, int background) {
+        double opacity = alpha / 255.0;
+        return (int) Math.round(opacity * original + (1 - opacity) * background);
     }
 
     /**
@@ -245,8 +258,17 @@ public class TCaSImageConverter {
         int numPixels = IMAGE_DIMENSIONS[0] * IMAGE_DIMENSIONS[1];
         String[] strPixels = imgText.split(",");
         System.err.println("textToBitmap: " + strPixels.length + " " + numPixels);
-        if (strPixels.length != numPixels) {
-            throw new IllegalArgumentException("Incorrect image size (" + strPixels.length + ")");
+        if (strPixels.length < numPixels) {
+            //throw new IllegalArgumentException("Incorrect image size (" + strPixels.length + ")");
+            List<String> newStrPixels = new ArrayList<>(Arrays.asList(strPixels));
+            int left = numPixels - strPixels.length;
+            while (left-- > 0) {
+                newStrPixels.add(ENCODED_WHITE);
+            }
+            strPixels = newStrPixels.toArray(new String[newStrPixels.size()]);
+        } else if (strPixels.length > numPixels) {
+            List<String> newStrPixels = new ArrayList<>(Arrays.asList(strPixels));
+            newStrPixels.subList(numPixels, newStrPixels.size()).clear();
         }
         int[] pixels = new int[numPixels];
         for (int i = 0; i < numPixels; i++) {
@@ -265,13 +287,8 @@ public class TCaSImageConverter {
 
     public static int scale(int value, int currMax, int newMax) {
         // ratio assumes range is [0, max+1)
-        double ratio = (newMax + 1) / (currMax + 1);
+        double ratio = (double) (newMax + 1) / (currMax + 1);
         return (int) Math.round(value * ratio);
-    }
-
-    private static int pixelargb2Rgb(int alpha, int original, int background) {
-        int opacity = alpha / 255;
-        return opacity * original + (1 - opacity) * background;
     }
 
     public String toString() {

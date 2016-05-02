@@ -15,29 +15,52 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/tcas_title" />
+        android:src="@drawable/tcas_title"
+        android:contentDescription="@string/logo_content_description" />
+
+    <android.support.v4.widget.Space
+        android:layout_width="match_parent"
+        android:layout_height="5dp" />
 
     <TextView
         android:id="@+id/user_data"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Username: Placeholder" />
 
+    <android.support.v4.widget.Space
+        android:layout_width="match_parent"
+        android:layout_height="5dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold|italic"
+        android:text="@string/recent_questions" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- TODO: Add a spinner while this is loading -->
+
+        <TextView
+            android:id="@+id/misc_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/lipsum_short" />
+    </ScrollView>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recent_question_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent">
-
-            <TextView
-                android:id="@+id/misc_data"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </ScrollView>
-
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <Button
             android:id="@+id/debug_jumpto_ask"
@@ -59,6 +82,8 @@
             android:layout_height="wrap_content"
             android:text="@string/title_section4"
             android:onClick="jumpToSection" />
+
     </LinearLayout>
+
 
 </LinearLayout>

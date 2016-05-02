@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kylemsguy.tcasmobile"
-    android:versionCode="18"
-    android:versionName="1.6a">
+    android:versionCode="21"
+    android:versionName="2.0-alpha">
 
     <uses-sdk
         android:minSdkVersion="9"
@@ -31,27 +31,31 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".OldMainActivity"
             android:label="@string/title_activity_main"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".OldMainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.kylemsguy.tcasmobile.MainActivity" />
+                android:value=".OldMainActivity" />
         </activity>
         <activity
             android:name=".MessageContentActivity"
             android:label="@string/title_activity_message_content"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".OldMainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.kylemsguy.tcasmobile.MainActivity" />
+                android:value=".OldMainActivity" />
         </activity>
         <activity android:name=".ChangeProfileImageActivity" />
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

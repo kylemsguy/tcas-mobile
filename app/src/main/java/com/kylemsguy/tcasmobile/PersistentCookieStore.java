@@ -33,11 +33,7 @@ public class PersistentCookieStore implements CookieStore {
         this.context = context;
 
         // load cookies from SharedPreferences
-        Map<URI, List<HttpCookie>> cookies = PrefUtils.getURICookieMapFromPrefs(context, PrefUtils.PREF_COOKIES_KEY);
-        if (cookies == null)
-            cookieJar = new HashMap<>();
-        else
-            cookieJar = cookies;
+        getCookiesFromPrefs();
 
         // add a shutdown hook to write out the in memory cookies
         // NOTE this should be done in the activity
@@ -208,6 +204,14 @@ public class PersistentCookieStore implements CookieStore {
         // sync cookies back to SharedPreferences
         writeCookiesToPrefs();
         return changed;
+    }
+
+    public synchronized void getCookiesFromPrefs() {
+        Map<URI, List<HttpCookie>> cookies = PrefUtils.getURICookieMapFromPrefs(context, PrefUtils.PREF_COOKIES_KEY);
+        if (cookies == null)
+            cookieJar = new HashMap<>();
+        else
+            cookieJar = cookies;
     }
 
     private void writeCookiesToPrefs() {

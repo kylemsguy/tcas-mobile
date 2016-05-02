@@ -21,6 +21,8 @@ import java.util.Map;
 
 public class AnswerFragment extends Fragment {
 
+    public static final String QUESTION_ID_KEY = "__QUESTION_ID_KEY__";
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -31,6 +33,14 @@ public class AnswerFragment extends Fragment {
         return new AnswerFragment();
     }
 
+    public static AnswerFragment newInstance(int id) {
+        AnswerFragment fragment = new AnswerFragment();
+        Bundle args = new Bundle();
+        args.putInt(QUESTION_ID_KEY, id);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     private AnswerManager am;
     private Map<String, String> mCurrQuestion;
 
@@ -38,9 +48,11 @@ public class AnswerFragment extends Fragment {
     private TextView idView;
 
     private EditTextBackEvent answerField;
+    private Button skipTempButton;
+    private Button skipPermButton;
     private Button submitButton;
 
-    private GetQuestionTask pendingQuestionTask;
+    private AsyncTask pendingQuestionTask;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,10 +65,34 @@ public class AnswerFragment extends Fragment {
         questionView = (TextView) view.findViewById(R.id.questionText);
         idView = (TextView) view.findViewById(R.id.questionId);
 
+        skipTempButton = (Button) view.findViewById(R.id.btnSkipTemp);
+        skipPermButton = (Button) view.findViewById(R.id.btnSkipPerm);
+
         answerField = (EditTextBackEvent) view.findViewById(R.id.answerField);
         submitButton = (Button) view.findViewById(R.id.btnSubmit);
 
-        // TODO Make ActionBar only hide when keyboard activated
+        // Set up button actions
+        skipTempButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                skipTemp();
+            }
+        });
+
+        skipPermButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                skipPerm();
+            }
+        });
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                submitAnswer();
+            }
+        });
+
         final ActionBar actionBar = ((AppCompatActivity) view.getContext()).getSupportActionBar();
 
         // hide keyboard if not focused on answer field
@@ -84,8 +120,14 @@ public class AnswerFragment extends Fragment {
             }
         });
 
-        // Get the first question!
-        pendingQuestionTask = (GetQuestionTask) new GetFirstQuestionTask().execute(am);
+        // Process any arguments (if any)
+        Bundle args = getArguments();
+        if (args == null) {
+            // Get the first question!
+            pendingQuestionTask = new GetFirstQuestionTask().execute(am);
+        } else {
+            pendingQuestionTask = new GetSpecificFirstQuestionTask().execute(am, args.getInt(QUESTION_ID_KEY));
+        }
 
         // TODO disable buttons by default and enable when question is loaded
         return view;
@@ -193,6 +235,26 @@ public class AnswerFragment extends Fragment {
     }
 
     public class GetFirstQuestionTask extends GetQuestionTask {
+        @Override
+        protected void onPostExecute(Map<String, String> result) {
+            updateQuestion(result);
+            writeCurrQuestion();
+        }
+    }
+
+    public class GetSpecificFirstQuestionTask extends AsyncTask<Object, Void, Map<String, String>> {
+        @Override
+        protected Map<String, String> doInBackground(Object... params) {
+            AnswerManager am = (AnswerManager) params[0];
+            int id = (int) params[1];
+            try {
+                return am.getQuestion(id);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
         @Override
         protected void onPostExecute(Map<String, String> result) {
             updateQuestion(result);

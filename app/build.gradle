@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "com.kylemsguy.tcasmobile"
         minSdkVersion 9
-        targetSdkVersion 22
-        versionCode 18
-        versionName "1.6-alpha"
+        targetSdkVersion 23
+        versionCode 21
+        versionName "2.0-alpha"
     }
 
     buildTypes {
@@ -22,11 +22,11 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs/')
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:support-v4:22.2.0'
-    compile 'com.android.support:design:22.2.0'
-    compile 'com.android.support:recyclerview-v7:22.2.0'
-    compile 'com.google.code.gson:gson:2.3'
-    compile 'com.android.support:design:22.2.0'
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:support-v4:23.2.1'
+    compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:recyclerview-v7:23.2.1'
+    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.android.support:design:23.2.1'
     compile 'org.jsoup:jsoup:1.8.3'
 }

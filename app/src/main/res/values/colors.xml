@@ -6,4 +6,5 @@
     <item name="red" type="color">#FF0000</item>
     <item name="yellow" type="color">#FFFF00</item>
     <item name="grey" type="color">#CCCCCC</item>
+    <item name="white" type="color">#FFFFFF</item>
 </resources>

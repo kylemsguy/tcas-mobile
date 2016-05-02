@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 
@@ -45,6 +46,9 @@ public class AskFragment extends Fragment {
     private ExpandableListView mExpListView;
     private SwipeRefreshLayout mSwipeContainer;
 
+    // buttons
+    private Button mAskButton;
+
     public static AskFragment newInstance() {
         return new AskFragment();
     }
@@ -57,6 +61,14 @@ public class AskFragment extends Fragment {
                 false);
 
         qm = ((TCaSApp) getActivity().getApplicationContext()).getQuestionManager();
+
+        mAskButton = (Button) rootView.findViewById(R.id.btnAskQuestion);
+        mAskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                askQuestion(v);
+            }
+        });
 
         // get elements
         mAskProgressSpinner = rootView.findViewById(R.id.ask_refresh_progress);
