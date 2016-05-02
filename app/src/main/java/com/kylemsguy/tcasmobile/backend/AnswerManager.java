@@ -11,6 +11,7 @@ public class AnswerManager {
     public static final String QUESTION_URL = BASE_URL + "apiw/qa/getquestion/";
     public static final String ANSWER_URL = BASE_URL + "apiw/qa/answer/";
     public static final String SKIP_URL = BASE_URL + "apiw/qa/skip/";
+    public static final String SPECIFIC_Q_URL = BASE_URL + "answer/queue/";
 
 	private SessionManager session;
 
@@ -32,6 +33,19 @@ public class AnswerManager {
 		question = extractQuestionData(pageContent);
 		return question;
 	}
+
+    /**
+     * Gets a specific question from TwoCansandString
+     * TODO replace the map with a TCaSObject subclass
+     *
+     * @return A map containing the ID and question
+     * @throws NotLoggedInException
+     */
+    public Map<String, String> getQuestion(int id) throws Exception {
+        // Preload the specific question's URL to preload question
+        session.getPageContent(SPECIFIC_Q_URL + Integer.toString(id) + "/");
+        return getQuestion();
+    }
 
     /**
      * Parse the data of a getNextQuestion API call and return the ID and question.
