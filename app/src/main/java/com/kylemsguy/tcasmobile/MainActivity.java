@@ -23,8 +23,26 @@ import com.kylemsguy.tcasmobile.backend.ProfileManager;
 import com.kylemsguy.tcasmobile.backend.SessionManager;
 import com.kylemsguy.tcasmobile.tasks.LogoutTask;
 
+import java.util.Stack;
+
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, RecentQuestionAdapter.OnJumpToAnswerQuestionListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        FragmentManager.OnBackStackChangedListener,
+        RecentQuestionAdapter.OnJumpToAnswerQuestionListener {
+
+    private static final String[] SCREEN_FRAGMENT_IDS =
+            {"HOME_FRAGMENT", "ASK_FRAGMENT", "ANSWER_FRAGMENT", "MESSAGE_FRAGMENT"};
+
+    private static final int[] TOOLBAR_TITLE_IDS =
+            {
+                    R.string.title_activity_main,
+                    R.string.title_activity_ask,
+                    R.string.answer,
+                    R.string.title_section4,
+            };
+
+    private static final String SAVED_FRAGMENT_KEY = "__CURRENT_FRAGMENT__";
+    private static final String CURRENT_SCREEN_INDEX_KEY = "__CURRENT_SCREEN_ID_KEY__";
 
     private SessionManager sm;
     private ProfileManager pm;
@@ -37,15 +55,18 @@ public class MainActivity extends AppCompatActivity
     private NavigationView navigationView;
     private Toolbar toolbar;
 
-    // TODO: Cache the fragments
-    private Fragment homeFragment;
-    private Fragment askFragment;
-    private Fragment answerFragment;
-    private Fragment messageFragment;
+    // TODO replace with an enum?
+    private int currentScreenIndex = 0;
+
+    private Fragment currentFragment;
+    private Stack<Integer> screenHistoryStack = new Stack<>();
+    private Stack<Fragment> fragmentHistoryStack = new Stack<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Set up layout
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -95,14 +116,40 @@ public class MainActivity extends AppCompatActivity
         emailView.setVisibility(View.GONE);
 
         // Set profile image
+        // TODO cache this
         mProfileImageTask = new UpdateProfileImageTask().execute(pm);
 
-        // Instantiate the main screen
-        Fragment fragment = HomeFragment.newInstance(username);
-
-        // Set up MainFragment
+        // Get FragmentManager
         FragmentManager fm = getSupportFragmentManager();
-        fm.beginTransaction().replace(R.id.content, fragment).commit();
+
+        // Add back stack change listener
+        fm.addOnBackStackChangedListener(this);
+
+        // Check if we already have a saved fragment state
+        String screenId;
+        if (savedInstanceState != null) {
+            currentFragment = fm.getFragment(savedInstanceState, SAVED_FRAGMENT_KEY);
+            currentScreenIndex = savedInstanceState.getInt(CURRENT_SCREEN_INDEX_KEY);
+            screenId = SCREEN_FRAGMENT_IDS[currentScreenIndex];
+            // set whichever item should be checked
+            navigationView.getMenu().getItem(0).setChecked(false);
+            navigationView.getMenu().getItem(currentScreenIndex).setChecked(true);
+
+        } else {
+            currentFragment = HomeFragment.newInstance(username);
+            screenId = SCREEN_FRAGMENT_IDS[0];
+            // Instantiate the current screen
+            fm.beginTransaction().replace(R.id.content, currentFragment, screenId).commit();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Save reference to current fragment
+        getSupportFragmentManager().putFragment(outState, SAVED_FRAGMENT_KEY, currentFragment);
+        outState.putInt(CURRENT_SCREEN_INDEX_KEY, currentScreenIndex);
     }
 
     @Override
@@ -152,7 +199,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -167,29 +213,20 @@ public class MainActivity extends AppCompatActivity
                 // Handle the home action
                 // TODO: make better way to refresh recent questions on home
                 toolbar.setTitle(R.string.title_activity_main);
-                homeFragment = new HomeFragment();
-                fragment = homeFragment;
+                fragment = new HomeFragment();
+                currentScreenIndex = 0;
             } else if (id == R.id.nav_ask) {
                 toolbar.setTitle(R.string.title_activity_ask);
-                // TODO: Fix this broken code and remove workaround
-                /*if(askFragment == null){
-                    askFragment = new AskFragment();
-                }
-                fragment = askFragment;*/
-                // TODO Workaround below
                 fragment = new AskFragment();
+                currentScreenIndex = 1;
             } else if (id == R.id.nav_answer) {
                 toolbar.setTitle(R.string.answer);
-                if (answerFragment == null) {
-                    answerFragment = AnswerFragment.newInstance();
-                }
-                fragment = answerFragment;
+                fragment = AnswerFragment.newInstance();
+                currentScreenIndex = 2;
             } else if (id == R.id.nav_messages) {
                 toolbar.setTitle(R.string.title_section4);
-                if (messageFragment == null) {
-                    messageFragment = new MessageFragment();
-                }
-                fragment = messageFragment;
+                fragment = MessageFragment.newInstance();
+                currentScreenIndex = 3;
             } else if (id == R.id.nav_logout) {
                 // save logout task in case we need to cancel
                 mLogoutTask = new LogoutTask().execute(sm);
@@ -209,8 +246,16 @@ public class MainActivity extends AppCompatActivity
             if (fragment == null) {
                 System.out.println("MainActivity: Invalid menu choice" + id);
             } else {
+                // Store the selection id
                 FragmentManager fm = getSupportFragmentManager();
-                fm.beginTransaction().replace(R.id.content, fragment).commit();
+                fm.beginTransaction()
+                        .replace(R.id.content, fragment, SCREEN_FRAGMENT_IDS[currentScreenIndex])
+                        .addToBackStack(null)
+                        .commit();
+                screenHistoryStack.push(currentScreenIndex);
+                fragmentHistoryStack.push(fragment);
+                currentScreenIndex = 2;
+                currentFragment = fragment;
             }
         }
 
@@ -220,7 +265,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void jumpToSection(View view) {
-
+        // TODO Legacy function just here to satisfy old layouts
     }
 
     @Override
@@ -231,9 +276,32 @@ public class MainActivity extends AppCompatActivity
         navigationView.getMenu().getItem(2).setChecked(true);
 
         // Replace current fragment with an AnswerFragment
-        answerFragment = AnswerFragment.newInstance(id);
+        AnswerFragment answerFragment = AnswerFragment.newInstance(id);
+        screenHistoryStack.push(currentScreenIndex);
+        fragmentHistoryStack.push(currentFragment);
+        currentScreenIndex = 2;
+        currentFragment = answerFragment;
         FragmentManager fm = getSupportFragmentManager();
-        fm.beginTransaction().replace(R.id.content, answerFragment).commit();
+        fm.beginTransaction()
+                .replace(R.id.content, answerFragment, SCREEN_FRAGMENT_IDS[2])
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        FragmentManager fm = getSupportFragmentManager();
+        int fmBackStackLength = fm.getBackStackEntryCount();
+        if (fmBackStackLength < screenHistoryStack.size()) {
+            if (screenHistoryStack.empty() || fragmentHistoryStack.empty()) {
+                System.out.println("MainActivity: Screen/Fragment history stack empty?!");
+                return;
+            }
+            currentScreenIndex = screenHistoryStack.pop();
+            currentFragment = fragmentHistoryStack.pop();
+            navigationView.getMenu().getItem(currentScreenIndex).setChecked(true);
+            toolbar.setTitle(TOOLBAR_TITLE_IDS[currentScreenIndex]);
+        }
     }
 
     private class UpdateProfileImageTask extends AsyncTask<ProfileManager, Void, Bitmap> {
@@ -252,8 +320,10 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false);
-            profileImgView.setImageBitmap(scaledBitmap);
+            if (bitmap != null) {
+                Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 120, 120, false);
+                profileImgView.setImageBitmap(scaledBitmap);
+            }
         }
     }
 }

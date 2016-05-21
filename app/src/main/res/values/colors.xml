@@ -7,4 +7,5 @@
     <item name="yellow" type="color">#FFFF00</item>
     <item name="grey" type="color">#CCCCCC</item>
     <item name="white" type="color">#FFFFFF</item>
+    <item name="recentQuestionSeparator" type="color">#00B2EE</item>
 </resources>

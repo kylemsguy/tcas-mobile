@@ -17,11 +17,15 @@ import android.widget.TextView;
 import com.kylemsguy.tcasmobile.backend.AnswerManager;
 import com.kylemsguy.tcasmobile.views.EditTextBackEvent;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class AnswerFragment extends Fragment {
 
     public static final String QUESTION_ID_KEY = "__QUESTION_ID_KEY__";
+    private static final String QUESTION_CONTENT_KEY = "__QUESTION_CONTENT_KEY__";
+    private static final String USER_PARTIAL_RESPONSE_KEY = "__USER_PARTIAL_RESPONSE_KEY__";
+    private static final String LAST_REFRESH_TIME_KEY = "__LAST_REFRESH_TIME_KEY__";
 
     /**
      * Use this factory method to create a new instance of
@@ -51,6 +55,8 @@ public class AnswerFragment extends Fragment {
     private Button skipTempButton;
     private Button skipPermButton;
     private Button submitButton;
+
+    private long lastRefresh = 0;
 
     private AsyncTask pendingQuestionTask;
 
@@ -120,18 +126,42 @@ public class AnswerFragment extends Fragment {
             }
         });
 
-        // Process any arguments (if any)
-        Bundle args = getArguments();
-        if (args == null) {
-            // Get the first question!
-            pendingQuestionTask = new GetFirstQuestionTask().execute(am);
-        } else {
-            pendingQuestionTask = new GetSpecificFirstQuestionTask().execute(am, args.getInt(QUESTION_ID_KEY));
-        }
-
         // TODO disable buttons by default and enable when question is loaded
         return view;
 	}
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            // restore fragment state
+            /**
+             * State that needs to be restored
+             * 1. Question map
+             * 2. Any user-entered partial response
+             * 3. When the last refresh was
+             */
+            Map<String, String> savedQuestion = new HashMap<>();
+            savedQuestion.put("id", Integer.toString(savedInstanceState.getInt(QUESTION_ID_KEY)));
+            savedQuestion.put("content", savedInstanceState.getString(QUESTION_CONTENT_KEY));
+            updateQuestion(savedQuestion);
+            writeCurrQuestion();
+
+            answerField.setText(savedInstanceState.getString(USER_PARTIAL_RESPONSE_KEY));
+
+            lastRefresh = savedInstanceState.getLong(LAST_REFRESH_TIME_KEY);
+        } else {
+            // Process any arguments (if any)
+            Bundle args = getArguments();
+            if (args == null) {
+                // Get the first question!
+                pendingQuestionTask = new GetFirstQuestionTask().execute(am);
+            } else {
+                pendingQuestionTask = new GetSpecificFirstQuestionTask().execute(am, args.getInt(QUESTION_ID_KEY));
+            }
+        }
+    }
 
     private void writeCurrQuestion() {
         // TODO this is temporary until I revamp the question getting code
@@ -139,6 +169,7 @@ public class AnswerFragment extends Fragment {
             System.out.println("AnswerFragment: writeCurrQuestion: Tried to write null question.");
             return;
         }
+        lastRefresh = System.currentTimeMillis();
         questionView.setText(mCurrQuestion.get("content"));
         idView.setText(mCurrQuestion.get("id"));
     }
@@ -212,6 +243,30 @@ public class AnswerFragment extends Fragment {
         InputMethodManager inputMethodManager = (InputMethodManager) getActivity()
                 .getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Save the fragment's state here
+        /**
+         * State that needs to be saved
+         * 1. Question ID
+         * 2. Question Text
+         * 3. Any user-entered partial response
+         * 4. When the last refresh was
+         */
+        if (mCurrQuestion != null) {
+            outState.putInt(QUESTION_ID_KEY, Integer.parseInt(mCurrQuestion.get("id")));
+            outState.putString(QUESTION_CONTENT_KEY, mCurrQuestion.get("content"));
+        }
+
+        if (answerField != null) {
+            outState.putString(USER_PARTIAL_RESPONSE_KEY, answerField.getText().toString());
+        }
+        outState.putLong(LAST_REFRESH_TIME_KEY, lastRefresh);
     }
 
     class GetQuestionTask extends AsyncTask<AnswerManager, Void, Map<String, String>> {
